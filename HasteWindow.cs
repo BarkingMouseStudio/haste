@@ -9,8 +9,8 @@ namespace Haste {
   public class HasteWindow : EditorWindow {
 
     static HasteWindow instance;
+    static IndexManager index;
 
-    IndexManager index;
     Result[] results = new Result[0];
 
     GUIStyle queryStyle;
@@ -28,6 +28,8 @@ namespace Haste {
     const int itemHeight = 44;
     const int prefixWidth = 155;
     const int groupSpacing = 10;
+
+    const int resultCount = 3;
 
     static void Init() {
       instance = EditorWindow.CreateInstance<HasteWindow>();
@@ -73,14 +75,15 @@ namespace Haste {
       int y = (Screen.currentResolution.height - height) / 2;
       instance.position = new Rect(x, y, width, height);
       instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
-
       instance.title = "Haste";
-
-      instance.index = new IndexManager(Source.Project, Source.Hierarchy);
     }
 
     [MenuItem("Window/Haste %p")]
     public static void Open() {
+      if (index == null) {
+        index = new IndexManager(Source.Project, Source.Hierarchy, Source.Editor);
+      }
+
       if (instance == null) {
         Init();
       }
@@ -105,6 +108,12 @@ namespace Haste {
       }
     }
 
+    void OnRightArrow() {
+      if (results.Length > 0) {
+        Logger.Info("Action", results[highlightedIndex]);
+      }
+    }
+
     void OnUpArrow() {
       highlightedIndex = Math.Max(highlightedIndex - 1, 0);
       UpdateScroll();
@@ -125,7 +134,8 @@ namespace Haste {
 
       // Account for leading and between group spacing
       int highlightOffset = highlightedIndex * itemHeight +
-        groupSpacing + (groupSpacing * previousGroups * 2);
+        (groupSpacing * highlightedIndex > 0 ? 1 : 0) +
+        (groupSpacing * previousGroups);
       scrollPosition = new Vector2(scrollPosition.x, highlightOffset);
     }
 
@@ -142,6 +152,9 @@ namespace Haste {
           break;
         case KeyCode.DownArrow:
           OnDownArrow();
+          break;
+        case KeyCode.RightArrow:
+          OnRightArrow();
           break;
       }
     }
@@ -164,29 +177,8 @@ namespace Haste {
       index.Rebuild(Source.Project);
     }
 
-    void DefaultAction(Result result) {
-      switch (result.Item.Source) {
-        case Source.Project:
-          EditorApplication.ExecuteMenuItem("Window/Project");
-          Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(result.Item.Path);
-          EditorGUIUtility.PingObject(Selection.activeObject);
-          break;
-        case Source.Hierarchy:
-          EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-          Selection.activeObject = GameObject.Find(result.Item.Path);
-          EditorGUIUtility.PingObject(Selection.activeObject);
-          break;
-        case Source.Editor:
-          EditorApplication.ExecuteMenuItem(result.Item.Path);
-          break;
-        case Source.Downloads:
-          AssetDatabase.ImportPackage(result.Item.Path, true);
-          break;
-      }
-    }
-
     void OnResultSelected(Result result) {
-      DefaultAction(result);
+      Actions.DefaultAction(result.Item);
       Close();
     }
 
@@ -261,7 +253,15 @@ namespace Haste {
 
       EditorGUILayout.EndScrollView();
     }
-    
+
+    void Update() {
+      if (this != EditorWindow.focusedWindow) {
+        // Check if we lost focus and close:
+        // Cannot use OnLostFocus due to render bug in Unity
+        Close();
+      }
+    }
+
     void OnGUI() {
       OnEvent(Event.current);
 
@@ -271,9 +271,8 @@ namespace Haste {
       EditorGUI.FocusTextInControl("query");
 
       if (GUI.changed) {
-        results = index.Filter(query);
+        results = index.Filter(query, resultCount);
         highlightedIndex = 0;
-        Close();
       }
 
       if (results != null && results.Length > 0) {

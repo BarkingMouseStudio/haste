@@ -6,7 +6,6 @@ namespace Haste {
   public enum Source {
     Project = 1,
     Hierarchy = 2,
-    Editor = 4,
-    Downloads = 8
+    Editor = 4
   }
 }

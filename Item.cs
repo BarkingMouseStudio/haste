@@ -20,7 +20,7 @@ namespace Haste {
       this.Name = name;
       this.Path = path;
       this.Source = source;
-      this.Icon = EditorGUIUtility.ObjectContent(null, typeof(MonoBehaviour)).image;
+      this.Icon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
     }
   }
 }

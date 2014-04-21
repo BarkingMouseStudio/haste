@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Haste {
 
-  public class IndexManager {
+  public class IndexManager : Index {
 
     private IDictionary<Source, Index> indices;
 
@@ -17,7 +17,7 @@ namespace Haste {
         AddSource(source);
       }
 
-      RebuildAll();
+      Rebuild();
     }
 
     public void AddSource(Source source) {
@@ -27,6 +27,9 @@ namespace Haste {
           break;
         case Source.Project:
           indices.Add(source, new ProjectIndex());
+          break;
+        case Source.Editor:
+          indices.Add(source, new EditorIndex());
           break;
       } 
     }
@@ -41,17 +44,17 @@ namespace Haste {
       }
     }
 
-    public void RebuildAll() {
+    public void Rebuild() {
       foreach (var index in indices.Values) {
         index.Rebuild();
       }
     }
 
-    public Result[] Filter(string query) {
+    public Result[] Filter(string query, int count) {
       // TODO: Sorted Dictionary => Concat List
       IEnumerable<Result> results = new List<Result>();
       foreach (KeyValuePair<Source, Index> index in indices) {
-        var res = index.Value.Filter(query);
+        var res = index.Value.Filter(query, count);
         results = results.Concat(res);
       }
       return results.ToArray();
