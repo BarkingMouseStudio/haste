@@ -31,6 +31,8 @@ namespace Haste {
 
     const int resultCount = 3;
 
+    bool displayActions = false;
+
     static void Init() {
       instance = EditorWindow.CreateInstance<HasteWindow>();
 
@@ -61,14 +63,6 @@ namespace Haste {
       instance.highlightStyle.fixedHeight = 24;
       instance.highlightStyle.fontSize = 16;
 
-      // GUISkin skin = EditorGUIUtiliy.GetBuiltinSkin(EditorSkin.Inspector);
-      // skin.textField = instance.queryStyle;
-      // skin.customStyles[0] = instance.nameStyle;
-      // skin.customStyles[1] = instance.descriptionStyle;
-      // skin.customStyles[2] = instance.prefixStyle;
-      // AssetDatabase.CreateAsset(skin, "Assets/Haste/Skin.guiskin");
-      // AssetDatabase.SaveAssets();
-
       int width = 500;
       int height = 300;
       int x = (Screen.currentResolution.width - width) / 2;
@@ -82,6 +76,7 @@ namespace Haste {
     public static void Open() {
       if (index == null) {
         index = new IndexManager(Source.Project, Source.Hierarchy, Source.Editor);
+        index.Rebuild();
       }
 
       if (instance == null) {
@@ -90,7 +85,12 @@ namespace Haste {
 
       instance.ShowPopup();
       instance.Focus();
-      instance.highlightedIndex = 0;
+      instance.Reset();
+    }
+
+    void Reset() {
+      highlightedIndex = 0;
+      displayActions = false;
     }
 
     // On ESC, clear the query or close the window
@@ -108,9 +108,15 @@ namespace Haste {
       }
     }
 
+    void OnLeftArrow() {
+      if (results.Length > 0) {
+        displayActions = false;
+      }
+    }
+
     void OnRightArrow() {
       if (results.Length > 0) {
-        Logger.Info("Action", results[highlightedIndex]);
+        displayActions = true;
       }
     }
 
@@ -153,6 +159,9 @@ namespace Haste {
         case KeyCode.DownArrow:
           OnDownArrow();
           break;
+        case KeyCode.LeftArrow:
+          OnLeftArrow();
+          break;
         case KeyCode.RightArrow:
           OnRightArrow();
           break;
@@ -169,7 +178,7 @@ namespace Haste {
 
     void OnHierarchyChange() {
       Debug.Log("OnHierarchyChange -> Rebuilding index...");
-      index.Rebuild(Source.Hierarchy);
+      // index.Rebuild(Source.Hierarchy);
     }
 
     void OnProjectChange() {
@@ -189,9 +198,11 @@ namespace Haste {
         OnResultSelected(result);
       }
 
-      GUI.DrawTexture(
-        EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
-        result.Item.Icon);
+      if (result.Item.Icon != null) {
+        GUI.DrawTexture(
+          EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
+          result.Item.Icon);
+      }
 
       EditorGUILayout.BeginVertical();
       EditorGUILayout.LabelField(result.Item.Name, index == highlightedIndex ? highlightStyle : nameStyle);
@@ -200,6 +211,22 @@ namespace Haste {
 
       EditorGUILayout.EndHorizontal();
       EditorGUILayout.Space();
+    }
+
+    void DrawAction(HasteAction action, int index) {
+
+    }
+
+    void DrawActions() {
+      scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
+        GUILayout.ExpandWidth(true),
+        GUILayout.ExpandHeight(true));
+
+      for (int i = 0; i < results.Length; i++) {
+        DrawResult(results[i], i);
+      }
+
+      EditorGUILayout.EndScrollView();
     }
 
     void DrawResults() {
@@ -254,6 +281,13 @@ namespace Haste {
       EditorGUILayout.EndScrollView();
     }
 
+    void DrawQuery() {
+      GUI.SetNextControlName("query");
+      query = EditorGUILayout.TextField(query, queryStyle,
+        GUILayout.Height(instance.queryStyle.fixedHeight));
+      EditorGUI.FocusTextInControl("query");
+    }
+
     void Update() {
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
@@ -265,18 +299,19 @@ namespace Haste {
     void OnGUI() {
       OnEvent(Event.current);
 
-      GUI.SetNextControlName("query");
-      query = EditorGUILayout.TextField(query, queryStyle,
-        GUILayout.Height(instance.queryStyle.fixedHeight));
-      EditorGUI.FocusTextInControl("query");
+      DrawQuery();
 
       if (GUI.changed) {
         results = index.Filter(query, resultCount);
-        highlightedIndex = 0;
+        Reset();
       }
 
       if (results != null && results.Length > 0) {
-        DrawResults();
+        if (displayActions) {
+          DrawActions();
+        } else {
+          DrawResults();
+        }
       }
     }
   }

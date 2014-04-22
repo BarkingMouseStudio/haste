@@ -23,13 +23,12 @@ namespace Haste {
           continue;
         }
 
-        result = new Item();
-        result.Name = transform.gameObject.name;
-        result.Path = GetPath(transform.gameObject);
-        result.Source = Source.Hierarchy;
-        result.Icon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
+        result = new Item(transform.gameObject.name,
+          GetPath(transform.gameObject),
+          Source.Hierarchy,
+          EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image);
 
-        index.Add(result);
+        AddItem(result);
       }
     }
 

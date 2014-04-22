@@ -17,16 +17,38 @@ namespace Haste {
 
   public abstract class AbstractIndex : Index {
 
-    protected HashSet<Item> index;
+    protected IDictionary<char, HashSet<Item>> index = new Dictionary<char, HashSet<Item>>();
     protected Regex boundaryRegex = new Regex(@"\b\w");
-
-    public AbstractIndex() {
-      index = new HashSet<Item>();
-    }
 
     public virtual void Rebuild() {}
 
-    public bool Match(string path, string query, int multiplier, out int score) {
+    protected void AddItem(Item item) {
+      MatchCollection matches = boundaryRegex.Matches(item.Path);
+
+      foreach (Match match in matches) {
+        char first = Char.ToLower(match.Value[0]);
+
+        if (!index.ContainsKey(first)) {
+          index.Add(first, new HashSet<Item>());
+        }
+
+        index[first].Add(item);
+      }
+    }
+
+    protected void RemoveItem(string path) {
+      MatchCollection matches = boundaryRegex.Matches(path);
+
+      foreach (Match match in matches) {
+        char first = Char.ToLower(match.Value[0]);
+
+        if (index.ContainsKey(first)) {
+          index[first].RemoveWhere(item => item.Path == path);
+        }
+      }
+    }
+
+    protected bool Match(string path, string query, int multiplier, out int score) {
       query = query.ToLower();
       string pathLower = path.ToLower();
 
@@ -80,8 +102,14 @@ namespace Haste {
         return new Result[0];
       }
 
+      char first = Char.ToLower(query[0]);
+
+      if (!index.ContainsKey(first)) {
+        return new Result[0];
+      }
+
       IList<Result> matches = new List<Result>();
-      foreach (Item item in index) {
+      foreach (Item item in index[first]) {
         int score;
         if (Match(item.Name, query, 2, out score)) {
           matches.Add(new Result(item, score));

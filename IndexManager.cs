@@ -14,24 +14,18 @@ namespace Haste {
       indices = new Dictionary<Source, Index>();
 
       foreach (var source in sources) {
-        AddSource(source);
+        switch (source) {
+          case Source.Hierarchy:
+            indices.Add(source, new HierarchyIndex());
+            break;
+          case Source.Project:
+            indices.Add(source, new ProjectIndex());
+            break;
+          case Source.Editor:
+            indices.Add(source, new EditorIndex());
+            break;
+        } 
       }
-
-      Rebuild();
-    }
-
-    public void AddSource(Source source) {
-      switch (source) {
-        case Source.Hierarchy:
-          indices.Add(source, new HierarchyIndex());
-          break;
-        case Source.Project:
-          indices.Add(source, new ProjectIndex());
-          break;
-        case Source.Editor:
-          indices.Add(source, new EditorIndex());
-          break;
-      } 
     }
 
     public void RemoveSource(Source source) {
@@ -51,13 +45,23 @@ namespace Haste {
     }
 
     public Result[] Filter(string query, int count) {
-      // TODO: Sorted Dictionary => Concat List
-      IEnumerable<Result> results = new List<Result>();
-      foreach (KeyValuePair<Source, Index> index in indices) {
-        var res = index.Value.Filter(query, count);
-        results = results.Concat(res);
+      // Filter each index building a list of results for each
+      List<Result[]> results = new List<Result[]>();
+      foreach (Index index in indices.Values) {
+        results.Add(index.Filter(query, count));
       }
-      return results.ToArray();
+
+      // Sort the list of results by each sub-lists top score
+      IOrderedEnumerable<Result[]> sortedResults = results.OrderBy(x => {
+        return x.Length > 0 ? -x[0].Score : -1;
+      });
+
+      // Concat each sub-list
+      IEnumerable<Result> finalResults = new List<Result>();
+      foreach (var result in sortedResults) {
+        finalResults = finalResults.Concat(result);
+      }
+      return finalResults.ToArray();
     }
   }
 }

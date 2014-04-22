@@ -15,5 +15,9 @@ namespace Haste {
           .Slice(0, 3)
       );
     }
+
+    public static string GetRelativeAssetPath(string assetPath) {
+      return "Assets/" + assetPath.TrimStart(Application.dataPath + "/");
+    }
   }
 }

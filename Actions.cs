@@ -8,12 +8,6 @@ using System.Reflection;
 namespace Haste {
   public static class Actions {
 
-    static Actions() {
-      var asm = Assembly.GetAssembly(typeof(EditorWindow));
-      var T = asm.GetTypes();
-      Logger.Info(T);
-    }
-
     public static IDictionary<string, Action> MenuActions = new Dictionary<string, Action>(){
       { "Unity/Preferences...", () => {
         var asm = Assembly.GetAssembly(typeof(EditorWindow));
