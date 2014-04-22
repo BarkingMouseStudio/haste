@@ -10,7 +10,7 @@ namespace Haste {
 
     private FileSystemWatcher watcher;
 
-    private readonly object queueLock = new object();
+    private object queueLock = new object();
     private Queue<string> assetsAdded;
     private Queue<string> assetsRemoved;
 
@@ -30,52 +30,58 @@ namespace Haste {
       watcher.Created += new FileSystemEventHandler(OnAssetCreated);
       watcher.Deleted += new FileSystemEventHandler(OnAssetDeleted);
       watcher.Renamed += new RenamedEventHandler(OnAssetRenamed);
+      watcher.Error += new ErrorEventHandler(OnError);
       watcher.IncludeSubdirectories = true;
       watcher.EnableRaisingEvents = true;
     }
 
+    void OnError(object source, ErrorEventArgs e) {
+      Debug.LogException(e.GetException());
+    }
+
     void OnAssetCreated(object source, FileSystemEventArgs e) {
       lock (queueLock) {
-        Logger.Info("Created", e.FullPath, e.ChangeType);
         assetsAdded.Enqueue(e.FullPath);
       }
     }
 
     void OnAssetDeleted(object source, FileSystemEventArgs e) {
       lock (queueLock) {
-        Logger.Info("Deleted", e.FullPath, e.ChangeType);
         assetsRemoved.Enqueue(e.FullPath);
       }
     }
 
     void OnAssetRenamed(object source, RenamedEventArgs e) {
       lock (queueLock) {
-        Logger.Info("Renamed", e.OldFullPath, e.FullPath);
         assetsRemoved.Enqueue(e.OldFullPath);
         assetsAdded.Enqueue(e.FullPath);
       }
     }
 
+    int clock = 0;
+
     void Update() {
-      lock (queueLock) {
-        if (assetsRemoved.Count > 0) {
-          Logger.Info("Draining remove queue", assetsRemoved.Count);
-
-          foreach (string assetPath in assetsRemoved) {
-            RemoveAsset(assetPath);
+      if (clock % 100 == 0) {
+        lock (queueLock) {
+          if (assetsRemoved.Count > 0) {
+            Logger.Info("Removing", assetsRemoved.Count);
+            foreach (string assetPath in assetsRemoved) {
+              RemoveAsset(assetPath);
+            }
+            assetsRemoved.Clear();
           }
-          assetsRemoved.Clear();
-        }
 
-        if (assetsAdded.Count > 0) {
-          Logger.Info("Draining add queue", assetsAdded.Count);
-
-          foreach (string assetPath in assetsAdded) {
-            AddAsset(assetPath);
+          if (assetsAdded.Count > 0) {
+            Logger.Info("Adding", assetsRemoved.Count);
+            foreach (string assetPath in assetsAdded) {
+              AddAsset(assetPath);
+            }
+            assetsAdded.Clear();
           }
-          assetsAdded.Clear();
         }
       }
+
+      clock++;
     }
 
     void AddAsset(string assetPath) {
