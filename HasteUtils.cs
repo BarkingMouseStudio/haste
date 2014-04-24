@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public static class Utils {
+  public static class HasteUtils {
 
     public static string GetHomeFolder() {
       return String.Join(

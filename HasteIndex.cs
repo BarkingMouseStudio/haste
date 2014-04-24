@@ -8,42 +8,36 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  public interface Index {
+  public class HasteIndex {
 
-    void Rebuild();
+    protected readonly Regex boundaryRegex = new Regex(@"\b\w");
 
-    Result[] Filter(string query, int count);
-  }
+    protected IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
 
-  public abstract class AbstractIndex : Index {
+    public void Add(string path, HasteSource source) {
+      MatchCollection matches = boundaryRegex.Matches(path);
 
-    protected IDictionary<char, HashSet<Item>> index = new Dictionary<char, HashSet<Item>>();
-    protected Regex boundaryRegex = new Regex(@"\b\w");
-
-    public virtual void Rebuild() {}
-
-    protected void AddItem(Item item) {
-      MatchCollection matches = boundaryRegex.Matches(item.Path);
-
+      HasteItem item = new HasteItem(path, source);
       foreach (Match match in matches) {
-        char first = Char.ToLower(match.Value[0]);
+        char c = Char.ToLower(match.Value[0]);
 
-        if (!index.ContainsKey(first)) {
-          index.Add(first, new HashSet<Item>());
+        if (!index.ContainsKey(c)) {
+          index.Add(c, new HashSet<HasteItem>());
         }
 
-        index[first].Add(item);
+        index[c].Add(item);
       }
     }
 
-    protected void RemoveItem(string path) {
+    public void Remove(string path, HasteSource source) {
       MatchCollection matches = boundaryRegex.Matches(path);
 
+      HasteItem item = new HasteItem(path, source);
       foreach (Match match in matches) {
-        char first = Char.ToLower(match.Value[0]);
+        char c = Char.ToLower(match.Value[0]);
 
-        if (index.ContainsKey(first)) {
-          index[first].RemoveWhere(item => item.Path == path);
+        if (index.ContainsKey(c)) {
+          index[c].Remove(item);
         }
       }
     }
@@ -97,28 +91,36 @@ namespace Haste {
       return false;
     }
 
-    public Result[] Filter(string query, int count) {
+    public HasteResult[] Filter(string query, int countPerGroup) {
       if (query.Length == 0) {
-        return new Result[0];
+        return new HasteResult[0];
       }
 
-      char first = Char.ToLower(query[0]);
+      char c = Char.ToLower(query[0]);
 
-      if (!index.ContainsKey(first)) {
-        return new Result[0];
+      if (!index.ContainsKey(c)) {
+        return new HasteResult[0];
       }
 
-      IList<Result> matches = new List<Result>();
-      foreach (Item item in index[first]) {
+      IList<HasteResult> matches = new List<HasteResult>();
+      foreach (HasteItem item in index[c]) {
         int score;
-        if (Match(item.Name, query, 2, out score)) {
-          matches.Add(new Result(item, score));
+        if (Match(Path.GetFileName(item.Path), query, 2, out score)) {
+          matches.Add(new HasteResult(item, score));
         } else if (Match(item.Path, query, 1, out score)) {
-          matches.Add(new Result(item, score));
+          matches.Add(new HasteResult(item, score));
         }
       }
 
-      return matches.OrderBy(r => -r.Score).Take(count).ToArray();
+      return matches
+        .GroupBy(r => r.Source) // Group by source
+        .Select(g => {
+          // Order each group by score and take the top N
+          return g.OrderByDescending(r => -r.Score).Take(countPerGroup);
+        })
+        .OrderByDescending(g => -g.First().Score) // Sort each group by score
+        .SelectMany(g => g) // Flatten the groups
+        .ToArray();
     }
   }
 }

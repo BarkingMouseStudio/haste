@@ -8,33 +8,74 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    static HasteScheduler scheduler = new HasteScheduler();
+    public static HasteScheduler Scheduler;
+    public static HasteIndex Index;
+
+    static HasteFileWatcher projectWatcher;
+    static HasteHierarchyWatcher hierarchyWatcher;
 
     static Haste() {
-      IHasteWatcher projectWatcher = new HasteFileWatcher(Application.dataPath);
-      projectWatcher.Created += OnAssetCreated;
-      projectWatcher.Deleted += OnAssetDeleted;
+      Scheduler = new HasteScheduler();
 
-      // IHasteWatcher hierarchyWatcher = new HasteHierarchyWatcher();
-      // hierarchyWatcher.Created += OnGameObjectCreated;
-      // hierarchyWatcher.Deleted += OnGameObjectDeleted;
+      Index = new HasteIndex();
 
-      scheduler.Start(projectWatcher.GetEnumerator());
-      // scheduler.Start(hierarchyWatcher.GetEnumerator());
+      projectWatcher = new HasteFileWatcher(Application.dataPath);
+      projectWatcher.Created += AssetCreated;
+      projectWatcher.Deleted += AssetDeleted;
+      Scheduler.Start(projectWatcher);
+
+      hierarchyWatcher = new HasteHierarchyWatcher();
+      hierarchyWatcher.Created += GameObjectCreated;
+      hierarchyWatcher.Deleted += GameObjectDeleted;
+      Scheduler.Start(hierarchyWatcher);
+
+      // EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
+      EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
+
+      // EditorApplication.projectWindowChanged += ProjectWindowChanged;
+      EditorApplication.projectWindowItemOnGUI += ProjectWindowItemOnGUI;
 
       EditorApplication.update += Update;
     }
 
-    public static void OnAssetCreated(string path) {
-      Logger.Info("Asset Created", path);
+    // public static void HierarchyWindowChanged() {
+    //   if (!hierarchyWatcher.IsRunning) {
+    //     Scheduler.Start(hierarchyWatcher);
+    //   }
+    // }
+
+    public static void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
+      hierarchyWatcher.Add(instanceId);
     }
 
-    public static void OnAssetDeleted(string path) {
-      Logger.Info("Asset Deleted", path);
+    // public static void ProjectWindowChanged() {
+    //   if (!projectWatcher.IsRunning) {
+    //     scheduler.Start(projectWatcher);
+    //   }
+    // }
+
+    public static void ProjectWindowItemOnGUI(string guid, Rect selectionRect) {
+      projectWatcher.Add(AssetDatabase.GUIDToAssetPath(guid));
+    }
+
+    public static void AssetCreated(string path) {
+      Index.Add(path, HasteSource.Project);
+    }
+
+    public static void AssetDeleted(string path) {
+      Index.Remove(path, HasteSource.Project);
+    }
+
+    public static void GameObjectCreated(string path) {
+      Index.Add(path, HasteSource.Hierarchy);
+    }
+
+    public static void GameObjectDeleted(string path) {
+      Index.Remove(path, HasteSource.Hierarchy);
     }
 
     public static void Update() {
-      scheduler.Tick();
+      Scheduler.Tick();
     }
   }
 }

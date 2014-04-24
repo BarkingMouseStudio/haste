@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 namespace Haste {
-  public static class Actions {
+  public static class HasteActions {
 
     public static IDictionary<string, Action> MenuActions = new Dictionary<string, Action>(){
       { "Unity/Preferences...", () => {
@@ -20,23 +20,23 @@ namespace Haste {
     };
 
 
-    public static void DefaultAction(Item item) {
-      switch (item.Source) {
-        case Source.Project:
+    public static void DefaultAction(HasteResult result) {
+      switch (result.Source) {
+        case HasteSource.Project:
           EditorApplication.ExecuteMenuItem("Window/Project");
-          Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(item.Path);
+          Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
           EditorGUIUtility.PingObject(Selection.activeObject);
           break;
-        case Source.Hierarchy:
+        case HasteSource.Hierarchy:
           EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-          Selection.activeObject = GameObject.Find(item.Path);
+          Selection.activeObject = GameObject.Find(result.Path);
           EditorGUIUtility.PingObject(Selection.activeObject);
           break;
-        case Source.Editor:
-          if (Actions.MenuActions.ContainsKey(item.Path)) {
-            Actions.MenuActions[item.Path]();
+        case HasteSource.Editor:
+          if (HasteActions.MenuActions.ContainsKey(result.Path)) {
+            HasteActions.MenuActions[result.Path]();
           } else {
-            EditorApplication.ExecuteMenuItem(item.Path);
+            EditorApplication.ExecuteMenuItem(result.Path);
           }
           break;
       }

@@ -14,10 +14,10 @@ namespace Haste {
       Score = score;
     }
 
-    public HasteResult(HasteItem item) {
+    public HasteResult(HasteItem item, int score = 0) {
       Path = item.Path;
       Source = item.Source;
-      Score = 0;
+      Score = score;
     }
   }
 }

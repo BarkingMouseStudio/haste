@@ -9,6 +9,8 @@ namespace Haste {
   public interface IHasteWatcher : IEnumerable {
     event CreatedHandler Created;
     event DeletedHandled Deleted;
+
+    bool IsRunning { get; }
   }
 
   public abstract class HasteWatcher : IHasteWatcher {
@@ -17,6 +19,8 @@ namespace Haste {
     public event DeletedHandled Deleted;
 
     protected HashSet<string> collection; 
+
+    public bool IsRunning { get; protected set; }
 
     protected void OnCreated(string path) {
       if (Created != null) {
