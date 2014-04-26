@@ -10,17 +10,9 @@ namespace Haste {
 
   public class HasteIndex {
 
-    protected enum Pass {
-      WordBoundary,
-      CapsBoundary,
-      Sequential
-    }
-
     protected readonly Regex boundaryRegex = new Regex(@"\b\w");
 
     protected IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
-
-    protected Pass[] passes = new Pass[]{Pass.WordBoundary, Pass.CapsBoundary, Pass.Sequential};
 
     public void Add(string path, HasteSource source) {
       MatchCollection matches = boundaryRegex.Matches(path);
@@ -50,7 +42,7 @@ namespace Haste {
       }
     }
 
-    protected bool Score(string path, string query, int multiplier, Pass pass, out int score) {
+    protected bool Score(string path, string query, int multiplier, out int score) {
       string queryLower = query.ToLower();
       string pathLower = path.ToLower();
 
@@ -71,22 +63,23 @@ namespace Haste {
           return false;
         }
 
-        // TODO: This check should check CapsBoundary instead if we're on that pass (only sequential gets this)
-        // TODO: Well, its mixed so not quite — we want to check both but _prefer_ Caps
         if (pathLower[pathIndex] == queryLower[queryIndex]) {
+
+          // Word Boundary
           if (boundaryRegex.Match(pathLower, pathIndex, 1).Success) {
+            score += 4 * multiplier;
+
+          // Caps Boundary
+          } else if (path[pathIndex] == Char.ToUpper(path[pathIndex])) {
             score += 3 * multiplier;
-            HasteLogger.Info("Word Boundary", path[pathIndex], query[queryIndex]);
-          } else if (pass == Pass.CapsBoundary || pass == Pass.Sequential) {
-            if (path[pathIndex] == Char.ToUpper(path[pathIndex])) {
-              score += 2 * multiplier;
-              HasteLogger.Info("Caps Boundary", path[pathIndex], query[queryIndex]);
-            } else if (pass == Pass.Sequential) {
-              if (gap == 0) {
-                score += 1 * multiplier;
-                HasteLogger.Info("Caps Boundary", path[pathIndex], query[queryIndex]);
-              }
-            }
+
+          // Sequential Char
+          } else if (gap == 0) {
+            score += 2 * multiplier;
+
+          // Non-sequential Char
+          } else {
+            score += 1 * multiplier;
           }
 
           queryIndex++;
@@ -124,14 +117,10 @@ namespace Haste {
         string path = item.Source == HasteSource.Project ?
           HasteUtils.GetRelativeAssetPath(item.Path) : item.Path;
 
-        foreach (Pass pass in passes) {
-          if (Score(Path.GetFileNameWithoutExtension(path), query, 2, pass, out score)) { // Item Name
-            matches.Add(new HasteResult(path, item.Source, score));
-            break;
-          } else if (Score(path, query, 1, pass, out score)) { // Full Path
-            matches.Add(new HasteResult(path, item.Source, score));
-            break;
-          }
+        if (Score(Path.GetFileNameWithoutExtension(path), query, 2, out score)) { // Item Name
+          matches.Add(new HasteResult(path, item.Source, score));
+        } else if (Score(path, query, 1, out score)) { // Full Path
+          matches.Add(new HasteResult(path, item.Source, score));
         }
       }
 
