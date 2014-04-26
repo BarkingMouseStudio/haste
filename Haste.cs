@@ -14,7 +14,11 @@ namespace Haste {
     static HasteFileWatcher projectWatcher;
     static HasteHierarchyWatcher hierarchyWatcher;
 
+    static string currentScene;
+
     static Haste() {
+      currentScene = EditorApplication.currentScene;
+
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
 
@@ -48,35 +52,31 @@ namespace Haste {
       }
     }
 
+    static bool restartHierarchy = false;
+    static bool restartProject = false;
+
+    public static void SceneChanged(string currentScene, string previousScene) {
+      Scheduler.Stop("Hierarchy");
+      restartHierarchy = true;
+    }
+
     public static void PlaymodeStateChanged() {
-      if (IsPaused) {
-        Logger.Info("PlaymodeStateChanged", "StopAll");
-        Scheduler.StopAll();
-      } else {
-        Logger.Info("PlaymodeStateChanged", "Start (Restarting)");
-        Scheduler.Start(projectWatcher, "Project");
-        Scheduler.Start(hierarchyWatcher, "Hierarchy");
+      Scheduler.StopAll();
+
+      if (!IsPaused) {
+        restartHierarchy = true;
+        restartProject = true;
       }
     }
 
     public static void ProjectWindowChanged() {
-      if (projectWatcher.IsRunning) {
-        Logger.Info("ProjectWindowChanged", "Stop Project");
-        Scheduler.Stop("Project");
-      }
-
-      Logger.Info("ProjectWindowChanged", "Start Project");
-      Scheduler.Start(projectWatcher, "Project");
+      Scheduler.Stop("Project");
+      restartProject = true;
     }
 
     public static void HierarchyWindowChanged() {
-      if (hierarchyWatcher.IsRunning) {
-        Logger.Info("HierarchyWindowChanged", "Stop Hierarchy");
-        Scheduler.Stop("Hierarchy");
-      }
-
-      Logger.Info("HierarchyWindowChanged", "Start Hierarchy");
-      Scheduler.Start(hierarchyWatcher, "Hierarchy");
+      Scheduler.Stop("Hierarchy");
+      restartHierarchy = true;
     }
 
     public static void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
@@ -101,7 +101,23 @@ namespace Haste {
 
     public static void Update() {
       if (!IsPaused) {
+        if (currentScene != EditorApplication.currentScene) {
+          string previousScene = currentScene;
+          currentScene = EditorApplication.currentScene;
+          SceneChanged(currentScene, previousScene);
+        }
+
         Scheduler.Tick();
+
+        if (restartHierarchy) {
+          Scheduler.Start(hierarchyWatcher, "Hierarchy");
+          restartHierarchy = false;
+        }
+
+        if (restartProject) {
+          Scheduler.Start(projectWatcher, "Project");
+          restartProject = false;
+        }
       }
     }
   }

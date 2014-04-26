@@ -56,9 +56,9 @@ namespace Haste {
       }),
 
       new HasteAction("Copy", "Copy the current file...", (result) => {
-        var copyPath = EditorUtility.SaveFilePanelInProject(String.Format("Copying {0}...", result.Path),
+        var copyPath = EditorUtility.SaveFilePanelInProject(String.Format("Copying {0}", result.Path),
           result.Path,
-          Path.GetExtension(result.Path),
+          Path.GetExtension(result.Path).Substring(1),
           "Choose where to save the copy.");
         AssetDatabase.CopyAsset(result.Path, copyPath);
         AssetDatabase.Refresh();
