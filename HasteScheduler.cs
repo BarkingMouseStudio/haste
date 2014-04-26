@@ -7,9 +7,21 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  public class HasteSchedulerNode {
+
+    public string Name;
+    public IEnumerator Enumerator;
+
+    public HasteSchedulerNode(IEnumerator enumerator, string name) {
+      Enumerator = enumerator;
+      Name = name;
+    }
+  }
+
   public class HasteScheduler {
 
-    private LinkedList<IEnumerator> coroutines;
+    private LinkedList<HasteSchedulerNode> coroutines;
+    private HashSet<string> stopping;
    
     public bool IsRunning {
       get {
@@ -18,29 +30,42 @@ namespace Haste {
     }
 
     public HasteScheduler() {
-      coroutines = new LinkedList<IEnumerator>();
+      stopping = new HashSet<string>();
+      coroutines = new LinkedList<HasteSchedulerNode>();
     }
 
-    public LinkedListNode<IEnumerator> Start(IEnumerator fiber) {
-      return coroutines.AddFirst(fiber);
+    public void Start(IEnumerator fiber, string name = "") {
+      coroutines.AddFirst(new HasteSchedulerNode(fiber, name));
     }
 
-    public LinkedListNode<IEnumerator> Start(IEnumerable enumerable) {
-      return coroutines.AddFirst(enumerable.GetEnumerator());
+    public void Start(IEnumerable enumerable, string name = "") {
+      coroutines.AddFirst(new HasteSchedulerNode(enumerable.GetEnumerator(), name));
+    }
+
+    public void Stop(string name) {
+      stopping.Add(name);
+    }
+
+    public void StopAll() {
+      coroutines.Clear();
     }
    
     public void Tick() {
-      LinkedListNode<IEnumerator> coroutine = coroutines.First;
+      LinkedListNode<HasteSchedulerNode> coroutine = coroutines.First;
 
       while (coroutine != null) {
-        LinkedListNode<IEnumerator> next = coroutine.Next;
+        LinkedListNode<HasteSchedulerNode> next = coroutine.Next;
 
-        if (!coroutine.Value.MoveNext()) {
+        if (coroutine.Value.Name != "" && stopping.Contains(coroutine.Value.Name)) {
+          coroutines.Remove(coroutine);
+        } else if (!coroutine.Value.Enumerator.MoveNext()) {
           coroutines.Remove(coroutine);
         }
 
         coroutine = next;
       }
+
+      stopping.Clear();
     }
   }
 }

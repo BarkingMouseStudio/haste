@@ -10,9 +10,17 @@ namespace Haste {
 
   public class HasteIndex {
 
+    protected enum Pass {
+      WordBoundary,
+      CapsBoundary,
+      Sequential
+    }
+
     protected readonly Regex boundaryRegex = new Regex(@"\b\w");
 
     protected IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
+
+    protected Pass[] passes = new Pass[]{Pass.WordBoundary, Pass.CapsBoundary, Pass.Sequential};
 
     public void Add(string path, HasteSource source) {
       MatchCollection matches = boundaryRegex.Matches(path);
@@ -42,13 +50,13 @@ namespace Haste {
       }
     }
 
-    protected bool Match(string path, string query, int multiplier, out int score) {
-      query = query.ToLower();
+    protected bool Score(string path, string query, int multiplier, Pass pass, out int score) {
+      string queryLower = query.ToLower();
       string pathLower = path.ToLower();
 
       score = 0;
 
-      if (pathLower.Length < query.Length) {
+      if (pathLower.Length < queryLower.Length) {
         // Can't match if the string is too short
         return false;
       }
@@ -58,24 +66,32 @@ namespace Haste {
       int gap = 0;
 
       while (pathIndex < pathLower.Length) {
-        if (pathLower.Length - pathIndex < query.Length - queryIndex) {
+        if (pathLower.Length - pathIndex < queryLower.Length - queryIndex) {
           // Can't match if the remaining strings are too short
           return false;
         }
 
-        if (pathLower[pathIndex] == query[queryIndex]) {
+        if (pathLower[pathIndex] == queryLower[queryIndex]) {
           queryIndex++;
 
-          if (gap == 0) {
-            score += multiplier;
-          } else {
-            Match boundaryMatch = boundaryRegex.Match(pathLower, pathIndex, 1);
-            if (path[pathIndex] == Char.ToUpper(path[pathIndex]) || boundaryMatch.Success) {
-              score += multiplier;
+          // We want to score higher on matches near the beginning on strings
+          if (pass == Pass.WordBoundary) {
+            if (boundaryRegex.Match(pathLower, pathIndex, 1).Success) {
+              score += 3 * multiplier;
+            }
+            if (pass == Pass.CapsBoundary) {
+              if (path[pathIndex] == Char.ToUpper(path[pathIndex])) {
+                score += 2 * multiplier;
+              }
+              if (pass == Pass.Sequential) {
+                if (gap == 0) {
+                  score += 1 * multiplier;
+                }
+              }
             }
           }
 
-          if (queryIndex >= query.Length) {
+          if (queryIndex >= queryLower.Length) {
             // We've reached the end of our query with successful matches
             return true;
           }
@@ -105,10 +121,17 @@ namespace Haste {
       IList<HasteResult> matches = new List<HasteResult>();
       foreach (HasteItem item in index[c]) {
         int score;
-        if (Match(Path.GetFileName(item.Path), query, 2, out score)) {
-          matches.Add(new HasteResult(item, score));
-        } else if (Match(item.Path, query, 1, out score)) {
-          matches.Add(new HasteResult(item, score));
+        string path = item.Source == HasteSource.Project ?
+          HasteUtils.GetRelativeAssetPath(item.Path) : item.Path;
+
+        foreach (Pass pass in passes) {
+          if (Score(Path.GetFileNameWithoutExtension(path), query, 2, pass, out score)) { // Item Name
+            matches.Add(new HasteResult(path, item.Source, score));
+            break;
+          } else if (Score(path, query, 1, pass, out score)) { // Full Path
+            matches.Add(new HasteResult(path, item.Source, score));
+            break;
+          }
         }
       }
 
@@ -116,9 +139,9 @@ namespace Haste {
         .GroupBy(r => r.Source) // Group by source
         .Select(g => {
           // Order each group by score and take the top N
-          return g.OrderByDescending(r => -r.Score).Take(countPerGroup);
+          return g.OrderByDescending(r => r.Score).Take(countPerGroup);
         })
-        .OrderByDescending(g => -g.First().Score) // Sort each group by score
+        .OrderByDescending(g => g.First().Score) // Sort each group by score
         .SelectMany(g => g) // Flatten the groups
         .ToArray();
     }

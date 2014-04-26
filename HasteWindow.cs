@@ -12,6 +12,9 @@ namespace Haste {
     static HasteWindow instance;
 
     HasteResult[] results = new HasteResult[0];
+    HasteResult selectedResult;
+
+    HasteAction[] actions = new HasteAction[0];
 
     GUIStyle queryStyle;
     GUIStyle nameStyle;
@@ -26,7 +29,7 @@ namespace Haste {
     int highlightedIndex = 0;
 
     const int itemHeight = 44;
-    const int prefixWidth = 155;
+    const int prefixWidth = 96;
     const int groupSpacing = 10;
 
     const int resultCount = 3;
@@ -75,40 +78,53 @@ namespace Haste {
       }
 
       instance.ShowPopup();
-      instance.Reset();
+      instance.HideActions();
       instance.Focus();
     }
 
-    void Reset() {
+    void HideActions() {
       highlightedIndex = 0;
       displayActions = false;
     }
 
-    // On ESC, clear the query or close the window
+    void ShowActions() {
+      highlightedIndex = 0;
+      displayActions = true;
+    }
+
     void OnEscape() {
-      if (query == "") {
-        Close();
-      } else {
+      // On escape, backtrack out of actions, clear the query or close the window
+      if (displayActions) {
+        HideActions();
+      } else if (query != "") {
         query = "";
+      } else {
+        Close();
       }
     }
 
     void OnReturn() {
-      if (results.Length > 0) {
-        OnResultSelected(results[highlightedIndex]);
-      }
-    }
-
-    void OnLeftArrow() {
-      if (results.Length > 0) {
-        displayActions = false;
+      if (displayActions) {
+        OnActionSelected(actions[highlightedIndex]);
+      } else {
+        if (!displayActions && results.Length > 0) {
+          OnResultSelected(results[highlightedIndex]);
+        }
       }
     }
 
     void OnRightArrow() {
-      if (results.Length > 0) {
-        displayActions = true;
+      if (displayActions || results.Length == 0) {
+        return;
       }
+
+      selectedResult = results[highlightedIndex];
+
+      HasteActions.SelectByResult(selectedResult);
+
+      actions = HasteActions.GetActionsForSource(selectedResult);
+
+      ShowActions();
     }
 
     void OnUpArrow() {
@@ -117,7 +133,11 @@ namespace Haste {
     }
 
     void OnDownArrow() {
-      highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
+      if (displayActions) {
+        highlightedIndex = Math.Min(highlightedIndex + 1, actions.Length - 1);
+      } else {
+        highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
+      }
       UpdateScroll();
     }
 
@@ -139,21 +159,23 @@ namespace Haste {
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
         case KeyCode.Escape:
+          e.Use();
           OnEscape();
           break;
         case KeyCode.Return:
+          e.Use();
           OnReturn();
           break;
         case KeyCode.UpArrow:
+          e.Use();
           OnUpArrow();
           break;
         case KeyCode.DownArrow:
+          e.Use();
           OnDownArrow();
           break;
-        case KeyCode.LeftArrow:
-          OnLeftArrow();
-          break;
         case KeyCode.RightArrow:
+          e.Use();
           OnRightArrow();
           break;
       }
@@ -168,8 +190,9 @@ namespace Haste {
     }
 
     void OnResultSelected(HasteResult result) {
-      HasteActions.DefaultAction(result);
       Close();
+      HasteActions.SelectByResult(result);
+      HasteActions.FocusByResult(result);
     }
 
     void DrawResult(HasteResult result, int index) {
@@ -177,26 +200,44 @@ namespace Haste {
 
       if (GUI.Button(rect, "", GUIStyle.none)) {
         OnResultSelected(result);
+        return;
       }
 
       Texture icon = AssetDatabase.GetCachedIcon(result.Path);
       if (icon != null) {
-        GUI.DrawTexture(
-          EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
-          icon);
+        GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), icon);
       }
 
       EditorGUILayout.BeginVertical();
       EditorGUILayout.LabelField(Path.GetFileName(result.Path), index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(result.Path, descriptionStyle);
+      EditorGUILayout.LabelField(String.Format("({0}) {1}", result.Score.ToString(), result.Path), descriptionStyle);
       EditorGUILayout.EndVertical();
 
       EditorGUILayout.EndHorizontal();
       EditorGUILayout.Space();
     }
 
-    void DrawAction(HasteAction action, int index) {
+    void OnActionSelected(HasteAction action) {
+      // We close the window first in case an action creates a dialog
+      Close();
+      action.Action(selectedResult);
+    }
 
+    void DrawAction(HasteAction action, int index) {
+      var rect = EditorGUILayout.BeginHorizontal();
+
+      if (GUI.Button(rect, "", GUIStyle.none)) {
+        OnActionSelected(action);
+        return;
+      }
+
+      EditorGUILayout.BeginVertical();
+      EditorGUILayout.LabelField(action.Name, index == highlightedIndex ? highlightStyle : nameStyle);
+      EditorGUILayout.LabelField(action.Description, descriptionStyle);
+      EditorGUILayout.EndVertical();
+
+      EditorGUILayout.EndHorizontal();
+      EditorGUILayout.Space();
     }
 
     void DrawActions() {
@@ -204,8 +245,8 @@ namespace Haste {
         GUILayout.ExpandWidth(true),
         GUILayout.ExpandHeight(true));
 
-      for (int i = 0; i < results.Length; i++) {
-        DrawResult(results[i], i);
+      for (int i = 0; i < actions.Length; i++) {
+        DrawAction(actions[i], i);
       }
 
       EditorGUILayout.EndScrollView();
@@ -284,8 +325,8 @@ namespace Haste {
       DrawQuery();
 
       if (GUI.changed) {
-        Reset();
         results = Haste.Index.Filter(query, resultCount);
+        HideActions();
       }
 
       if (results != null && results.Length > 0) {

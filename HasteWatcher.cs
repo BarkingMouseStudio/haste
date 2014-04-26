@@ -18,9 +18,12 @@ namespace Haste {
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
-    protected HashSet<string> collection; 
+    protected HashSet<string> currentCollection; 
+    protected HashSet<string> nextCollection; 
 
     public bool IsRunning { get; protected set; }
+
+    public virtual void Add(string path) {}
 
     protected void OnCreated(string path) {
       if (Created != null) {
@@ -35,11 +38,13 @@ namespace Haste {
     }
 
     public HasteWatcher() {
-      this.collection = new HashSet<string>();
+      this.currentCollection = new HashSet<string>();
+      this.nextCollection = new HashSet<string>();
     }
 
     public HasteWatcher(IEnumerable<string> collection) {
-      this.collection = new HashSet<string>(collection);
+      this.currentCollection = new HashSet<string>(collection);
+      this.nextCollection = new HashSet<string>();
     }
 
     public virtual IEnumerator GetEnumerator() {

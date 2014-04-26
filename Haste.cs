@@ -16,46 +16,71 @@ namespace Haste {
 
     static Haste() {
       Scheduler = new HasteScheduler();
-
       Index = new HasteIndex();
 
       projectWatcher = new HasteFileWatcher(Application.dataPath);
       projectWatcher.Created += AssetCreated;
       projectWatcher.Deleted += AssetDeleted;
-      Scheduler.Start(projectWatcher);
+      Scheduler.Start(projectWatcher, "Project");
 
       hierarchyWatcher = new HasteHierarchyWatcher();
       hierarchyWatcher.Created += GameObjectCreated;
       hierarchyWatcher.Deleted += GameObjectDeleted;
-      Scheduler.Start(hierarchyWatcher);
+      Scheduler.Start(hierarchyWatcher, "Hierarchy");
 
-      // EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
+      EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
+
+      EditorApplication.projectWindowChanged += ProjectWindowChanged;
+
+      EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
       EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
-
-      // EditorApplication.projectWindowChanged += ProjectWindowChanged;
-      EditorApplication.projectWindowItemOnGUI += ProjectWindowItemOnGUI;
 
       EditorApplication.update += Update;
     }
 
-    // public static void HierarchyWindowChanged() {
-    //   if (!hierarchyWatcher.IsRunning) {
-    //     Scheduler.Start(hierarchyWatcher);
-    //   }
-    // }
+    static bool IsPaused {
+      get {
+        return EditorApplication.isCompiling ||
+               EditorApplication.isPaused ||
+               EditorApplication.isPlaying ||
+               EditorApplication.isPlayingOrWillChangePlaymode ||
+               EditorApplication.isUpdating;
+      }
+    }
+
+    public static void PlaymodeStateChanged() {
+      if (IsPaused) {
+        Logger.Info("PlaymodeStateChanged", "StopAll");
+        Scheduler.StopAll();
+      } else {
+        Logger.Info("PlaymodeStateChanged", "Start (Restarting)");
+        Scheduler.Start(projectWatcher, "Project");
+        Scheduler.Start(hierarchyWatcher, "Hierarchy");
+      }
+    }
+
+    public static void ProjectWindowChanged() {
+      if (projectWatcher.IsRunning) {
+        Logger.Info("ProjectWindowChanged", "Stop Project");
+        Scheduler.Stop("Project");
+      }
+
+      Logger.Info("ProjectWindowChanged", "Start Project");
+      Scheduler.Start(projectWatcher, "Project");
+    }
+
+    public static void HierarchyWindowChanged() {
+      if (hierarchyWatcher.IsRunning) {
+        Logger.Info("HierarchyWindowChanged", "Stop Hierarchy");
+        Scheduler.Stop("Hierarchy");
+      }
+
+      Logger.Info("HierarchyWindowChanged", "Start Hierarchy");
+      Scheduler.Start(hierarchyWatcher, "Hierarchy");
+    }
 
     public static void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
       hierarchyWatcher.Add(instanceId);
-    }
-
-    // public static void ProjectWindowChanged() {
-    //   if (!projectWatcher.IsRunning) {
-    //     scheduler.Start(projectWatcher);
-    //   }
-    // }
-
-    public static void ProjectWindowItemOnGUI(string guid, Rect selectionRect) {
-      projectWatcher.Add(AssetDatabase.GUIDToAssetPath(guid));
     }
 
     public static void AssetCreated(string path) {
@@ -75,7 +100,9 @@ namespace Haste {
     }
 
     public static void Update() {
-      Scheduler.Tick();
+      if (!IsPaused) {
+        Scheduler.Tick();
+      }
     }
   }
 }

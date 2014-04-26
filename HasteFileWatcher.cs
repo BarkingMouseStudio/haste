@@ -16,15 +16,10 @@ namespace Haste {
       this.watchPath = watchPath;
     }
 
-    public void Add(string path) {
-    }
-
     public override IEnumerator GetEnumerator() {
-      Queue<string> directories = new Queue<string>();
-      HashSet<string> newCollection;
+      IsRunning = true;
 
-      // Initialize a new collection
-      newCollection = new HashSet<string>();
+      Queue<string> directories = new Queue<string>();
 
       // Start with our top-level directory
       directories.Enqueue(watchPath);
@@ -44,11 +39,11 @@ namespace Haste {
           }
 
           // If our original collection doesn't contain the file, its new
-          if (!collection.Contains(filePath)) {
+          if (!currentCollection.Contains(filePath)) {
             OnCreated(filePath);
           }
 
-          newCollection.Add(filePath);
+          nextCollection.Add(filePath);
         }
 
         foreach (string directoryPath in Directory.GetDirectories(currentPath)) {
@@ -59,24 +54,34 @@ namespace Haste {
           directories.Enqueue(directoryPath);
 
           // If our original collection doesn't contain the directory, its new
-          if (!collection.Contains(directoryPath)) {
+          if (!currentCollection.Contains(directoryPath)) {
             OnCreated(directoryPath);
           }
 
-          newCollection.Add(directoryPath);
+          nextCollection.Add(directoryPath);
         }
 
         yield return null;
       }
 
       // Check for deleted paths
-      foreach (string path in collection.Except(newCollection)) {
+      foreach (string path in currentCollection) {
         // If an item from our original collection is not found
         // in our new collection, it has been removed.
-        OnDeleted(path);
+        if (!nextCollection.Contains(path)) {
+          OnDeleted(path);
+        }
+
+        yield return null;
       }
 
-      collection = newCollection;
+      var temp = currentCollection;
+      currentCollection = nextCollection;
+
+      nextCollection = temp;
+      nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
+
+      IsRunning = false;
     }
   }
 }

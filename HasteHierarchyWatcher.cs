@@ -19,45 +19,84 @@ namespace Haste {
     }
 
     public void Add(int instanceId) {
+      GameObject go = (GameObject)EditorUtility.InstanceIDToObject(instanceId);
+
+      foreach (Transform child in go.transform) {
+        Add(child.gameObject.GetInstanceID());
+      }
+
+      if (IsRunning) {
+        nextCollection.Add(GetPath(go.transform));
+      } else {
+        currentCollection.Add(GetPath(go.transform));
+      }
     }
 
     public override IEnumerator GetEnumerator() {
-      HashSet<string> newCollection;
+      IsRunning = true;
 
-      // Poll indefinitely
-      while (true) {
-        paths.Clear();
-
-        // Initialize a new collection
-        newCollection = new HashSet<string>();
-
-        // Add active objects
-        foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
-          string path = GetPath(go.transform);
-
-          if (!collection.Contains(path)) {
-            OnCreated(path);
-          }
-
-          newCollection.Add(path);
+      // Add active objects
+      foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
+        if (!go.activeInHierarchy) {
+          continue;
         }
 
-        // Check for deleted paths
-        foreach (string path in collection) {
-          // If an item from our original collection is not found
-          // in our new collection, it has been removed.
-          if (!newCollection.Contains(path)) {
-            OnDeleted(path);
-          }
+        string path = GetPath(go.transform);
+
+        if (nextCollection.Contains(path)) {
+          continue;
         }
 
-        collection = newCollection;
-
-        int ticks = 1000; // Wait about 10s
-        while (ticks-- > 0) {
-          yield return null;
+        if (!currentCollection.Contains(path)) {
+          OnCreated(path);
         }
+
+        nextCollection.Add(path);
+
+        yield return null;
       }
+
+      // Add recent objects
+      foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>()) {
+        if (!go.activeInHierarchy) {
+          continue;
+        }
+
+        string path = GetPath(go.transform);
+
+        if (nextCollection.Contains(path)) {
+          continue;
+        }
+
+        if (!currentCollection.Contains(path)) {
+          OnCreated(path);
+        }
+
+        nextCollection.Add(path);
+
+        yield return null;
+      }
+
+      // Check for deleted paths
+      foreach (string path in currentCollection) {
+        // If an item from our original collection is not found
+        // in our new collection, it has been removed.
+        if (!nextCollection.Contains(path)) {
+          OnDeleted(path);
+        }
+
+        yield return null;
+      }
+
+      var temp = currentCollection;
+      currentCollection = nextCollection;
+
+      nextCollection = temp;
+      nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
+
+      paths.Clear();
+
+      IsRunning = false;
     }
 
     protected string GetPath(Transform transform) {
@@ -68,7 +107,7 @@ namespace Haste {
         if (transform.parent == null) {
           path = transform.gameObject.name;
         } else {
-          path = GetPath(transform.parent) + "/" + transform.gameObject.name;
+          path = GetPath(transform.parent) + Path.DirectorySeparatorChar + transform.gameObject.name;
         }
 
         paths.Add(id, path);
