@@ -203,7 +203,8 @@ namespace Haste {
         return;
       }
 
-      Texture icon = AssetDatabase.GetCachedIcon(result.Path);
+      Texture icon = HasteUtils.GetIconForSource(result.Source, result.Path);
+
       if (icon != null) {
         GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), icon);
       }
@@ -308,6 +309,7 @@ namespace Haste {
       GUI.SetNextControlName("query");
       query = EditorGUILayout.TextField(query, queryStyle,
         GUILayout.Height(instance.queryStyle.fixedHeight));
+      query = query.Trim();
       EditorGUI.FocusTextInControl("query");
     }
 

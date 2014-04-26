@@ -71,25 +71,25 @@ namespace Haste {
           return false;
         }
 
+        // TODO: This check should check CapsBoundary instead if we're on that pass (only sequential gets this)
+        // TODO: Well, its mixed so not quite — we want to check both but _prefer_ Caps
         if (pathLower[pathIndex] == queryLower[queryIndex]) {
-          queryIndex++;
-
-          // We want to score higher on matches near the beginning on strings
-          if (pass == Pass.WordBoundary) {
-            if (boundaryRegex.Match(pathLower, pathIndex, 1).Success) {
-              score += 3 * multiplier;
-            }
-            if (pass == Pass.CapsBoundary) {
-              if (path[pathIndex] == Char.ToUpper(path[pathIndex])) {
-                score += 2 * multiplier;
-              }
-              if (pass == Pass.Sequential) {
-                if (gap == 0) {
-                  score += 1 * multiplier;
-                }
+          if (boundaryRegex.Match(pathLower, pathIndex, 1).Success) {
+            score += 3 * multiplier;
+            HasteLogger.Info("Word Boundary", path[pathIndex], query[queryIndex]);
+          } else if (pass == Pass.CapsBoundary || pass == Pass.Sequential) {
+            if (path[pathIndex] == Char.ToUpper(path[pathIndex])) {
+              score += 2 * multiplier;
+              HasteLogger.Info("Caps Boundary", path[pathIndex], query[queryIndex]);
+            } else if (pass == Pass.Sequential) {
+              if (gap == 0) {
+                score += 1 * multiplier;
+                HasteLogger.Info("Caps Boundary", path[pathIndex], query[queryIndex]);
               }
             }
           }
+
+          queryIndex++;
 
           if (queryIndex >= queryLower.Length) {
             // We've reached the end of our query with successful matches
