@@ -84,11 +84,11 @@ namespace Haste {
     }
 
     public static void AssetCreated(string path) {
-      Index.Add(path, HasteSource.Project);
+      Index.Add(HasteUtils.GetRelativeAssetPath(path), HasteSource.Project);
     }
 
     public static void AssetDeleted(string path) {
-      Index.Remove(path, HasteSource.Project);
+      Index.Remove(HasteUtils.GetRelativeAssetPath(path), HasteSource.Project);
     }
 
     public static void GameObjectCreated(string path) {

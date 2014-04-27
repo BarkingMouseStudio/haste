@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -80,6 +81,11 @@ namespace Haste {
       instance.ShowPopup();
       instance.HideActions();
       instance.Focus();
+      instance.PrefillResults();
+    }
+
+    void PrefillResults() {
+      results = HasteUtils.GetResultsFromObjects(Selection.objects);
     }
 
     void HideActions() {
@@ -90,6 +96,7 @@ namespace Haste {
     void ShowActions() {
       highlightedIndex = 0;
       displayActions = true;
+      query = "";
     }
 
     void OnEscape() {
@@ -122,7 +129,7 @@ namespace Haste {
 
       HasteActions.SelectByResult(selectedResult);
 
-      actions = HasteActions.GetActionsForSource(selectedResult);
+      actions = HasteActions.GetActionsForSource(selectedResult.Source);
 
       ShowActions();
     }
@@ -143,9 +150,11 @@ namespace Haste {
 
     void UpdateScroll() {
       int previousGroups = 0;
-      for (int i = 0; i <= highlightedIndex; i++) {
-        if (i > 0 && results[i].Source != results[i - 1].Source) {
-          previousGroups++;
+      if (!displayActions) {
+        for (int i = 0; i <= highlightedIndex; i++) {
+          if (i > 0 && results[i].Source != results[i - 1].Source) {
+            previousGroups++;
+          }
         }
       }
 
@@ -327,8 +336,11 @@ namespace Haste {
       DrawQuery();
 
       if (GUI.changed) {
-        results = Haste.Index.Filter(query, resultCount);
-        HideActions();
+        if (displayActions) {
+          actions = HasteActions.GetActionsForSource(selectedResult.Source).FuzzyFilter(query);
+        } else {
+          results = Haste.Index.Filter(query, resultCount);
+        }
       }
 
       if (results != null && results.Length > 0) {

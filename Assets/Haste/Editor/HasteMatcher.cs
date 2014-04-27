@@ -43,8 +43,8 @@ namespace Haste {
             matchedChar = true;
 
           } else if (!onlyBoundaries) {
-            // Try to match this query char on a boundary later, otherwise
-            // we fall back to a sequential character match.
+            // Try to match this query char on a boundary in the future,
+            // otherwise we fall back to a sequential character match.
             float temp = 0;
             if (!Match(path.Substring(pathIndex + 1), query.Substring(queryIndex), 1, true, out temp)) {
               score += (1 / (gap + 1)) * multiplier;

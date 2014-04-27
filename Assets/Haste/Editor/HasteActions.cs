@@ -4,82 +4,22 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Haste {
   public static class HasteActions {
 
-    public static void DisplayPreferences() {
-      var asm = Assembly.GetAssembly(typeof(EditorWindow));
-      var T = asm.GetType("UnityEditor.PreferencesWindow");
-      var method = T.GetMethod("ShowPreferencesWindow", BindingFlags.NonPublic|BindingFlags.Static);
-      method.Invoke(null, null);
+    // Extensions
+    public static HasteAction[] FuzzyFilter(this HasteAction[] actions, string query) {
+      Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
+      return actions.Where(a => queryRegex.IsMatch(a.Name.ToLower())).ToArray();
     }
-
-    public static void FrameSelected() {
-      SceneView.lastActiveSceneView.FrameSelected();
-    }
-
-    public static UnityEngine.Object Clone(GameObject go) {
-      UnityEngine.Object prefabRoot = PrefabUtility.GetPrefabParent(go);
-      if (prefabRoot != null) {
-        return PrefabUtility.InstantiatePrefab(prefabRoot);
-      } else {
-        return UnityEngine.Object.Instantiate(go);
-      }
-    }
-
-    public static HasteAction[] MenuActions = new HasteAction[]{
-
-      new HasteAction("Unity/Preferences...", "", (result) => {
-        DisplayPreferences();
-      }),
-
-      new HasteAction("Edit/Frame Selected", "", (result) => {
-        FrameSelected();
-      }),
-    };
-
-    public static HasteAction[] ProjectActions = new HasteAction[]{
-      new HasteAction("Open", "Open the current file...", (result) => {
-        Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
-
-        switch (Path.GetExtension(result.Path)) {
-          case ".unity": // Scene
-            EditorApplication.SaveCurrentSceneIfUserWantsTo();
-            EditorApplication.OpenScene(result.Path);
-            break;
-          default:
-            AssetDatabase.OpenAsset(Selection.activeObject);
-            break;
-        }
-      }),
-
-      new HasteAction("Copy", "Copy the current file...", (result) => {
-        var copyPath = EditorUtility.SaveFilePanelInProject(String.Format("Copying {0}", result.Path),
-          result.Path,
-          Path.GetExtension(result.Path).Substring(1),
-          "Choose where to save the copy.");
-        AssetDatabase.CopyAsset(result.Path, copyPath);
-        AssetDatabase.Refresh();
-      }),
-    };
-
-    public static HasteAction[] HierarchyActions = new HasteAction[]{
-      new HasteAction("Focus", "Focus the selected object in the scene...", (result) => {
-        FrameSelected();
-      }),
-
-      new HasteAction("Clone", "Clone the selected object in the scene...", (result) => {
-        Selection.activeObject = Clone(Selection.activeGameObject);
-        EditorGUIUtility.PingObject(Selection.activeObject);
-      }),
-    };
 
     public static void FocusByHierarchyPath(string path) {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
       Selection.activeObject = GameObject.Find(path);
-      EditorGUIUtility.PingObject(Selection.activeObject);
     }
 
     public static void FocusByProjectPath(string path) {
@@ -92,7 +32,6 @@ namespace Haste {
       for (int i = 0; i < pieces.Length; i++) {
         fullPath = Path.Combine(fullPath, pieces[i]);
         Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(fullPath);
-        EditorGUIUtility.PingObject(Selection.activeObject);
       }
     }
 
@@ -120,8 +59,8 @@ namespace Haste {
       Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(path);
     }
 
-    public static HasteAction[] GetActionsForSource(HasteResult result) {
-      switch (result.Source) {
+    public static HasteAction[] GetActionsForSource(HasteSource source) {
+      switch (source) {
         case HasteSource.Project:
           return ProjectActions;
         case HasteSource.Hierarchy:
@@ -144,5 +83,122 @@ namespace Haste {
           break;
       }
     }
+
+    public static void DisplayPreferences() {
+      var asm = Assembly.GetAssembly(typeof(EditorWindow));
+      var T = asm.GetType("UnityEditor.PreferencesWindow");
+      var method = T.GetMethod("ShowPreferencesWindow", BindingFlags.NonPublic|BindingFlags.Static);
+      method.Invoke(null, null);
+    }
+
+    public static void FrameSelected() {
+      SceneView.lastActiveSceneView.FrameSelected();
+    }
+
+    public static UnityEngine.Object Clone(GameObject go) {
+      UnityEngine.Object prefabRoot = PrefabUtility.GetPrefabParent(go);
+      if (prefabRoot != null) {
+        return PrefabUtility.InstantiatePrefab(prefabRoot);
+      } else {
+        return UnityEngine.Object.Instantiate(go);
+      }
+    }
+
+    public static HasteAction[] ProjectActions = new HasteAction[]{
+      new HasteAction("Open", "Open the current file...", result => {
+        Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
+
+        switch (Path.GetExtension(result.Path)) {
+          case ".unity": // Scene
+            EditorApplication.SaveCurrentSceneIfUserWantsTo();
+            EditorApplication.OpenScene(result.Path);
+            break;
+          default:
+            AssetDatabase.OpenAsset(Selection.activeObject);
+            break;
+        }
+      }),
+
+      new HasteAction("Copy", "Copy the current file...", result => {
+        var copyPath = EditorUtility.SaveFilePanelInProject(String.Format("Copying {0}", result.Path),
+          Path.GetFileNameWithoutExtension(result.Path),
+          Path.GetExtension(result.Path).Substring(1),
+          "Choose where to save the copy.");
+        AssetDatabase.CopyAsset(result.Path, copyPath);
+        AssetDatabase.Refresh();
+      }),
+
+      new HasteAction("Rename", "Rename the current file...", result => {
+        var renamePath = EditorUtility.SaveFilePanelInProject(String.Format("Renaming {0}", result.Path),
+          Path.GetFileNameWithoutExtension(result.Path),
+          Path.GetExtension(result.Path).Substring(1),
+          "Choose where to save the copy.");
+        AssetDatabase.RenameAsset(result.Path, renamePath);
+        AssetDatabase.Refresh();
+      }),
+
+      new HasteAction("Delete", "Delete the current file...", result => {
+        bool cont = EditorUtility.DisplayDialog(
+          String.Format("Delete {0}",
+          Path.GetFileName(result.Path)),
+          String.Format("Are you sure you want to delete \"{0}\"?", result.Path), "Delete", "Cancel");
+        if (cont) {
+          AssetDatabase.MoveAssetToTrash(result.Path);
+          AssetDatabase.Refresh();
+        }
+      }),
+
+      new HasteAction("Instantiate Prefab", "Instantiate the currently selected prefab...", result => {
+        PrefabType prefabType = PrefabUtility.GetPrefabType(Selection.activeObject);
+        if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
+          PrefabUtility.InstantiatePrefab(Selection.activeObject);
+        }
+      }),
+    };
+
+    public static HasteAction[] HierarchyActions = new HasteAction[]{
+      new HasteAction("Focus", "Focus the selected object", result => {
+        FrameSelected();
+      }),
+
+      new HasteAction("Clone", "Clone the selected object", result => {
+        Selection.activeObject = Clone(Selection.activeGameObject);
+      }),
+
+      new HasteAction("Select Prefab", "Select the prefab of the selected object", result => {
+        Selection.activeObject = PrefabUtility.GetPrefabParent(Selection.activeGameObject);
+      }),
+
+      new HasteAction("Break Prefab", "Break the prefab connection of the selected object", result => {
+        PrefabUtility.DisconnectPrefabInstance(Selection.activeGameObject);
+      }),
+
+      new HasteAction("Revert to Prefab", "Revert the selected object to its prefab", result => {
+        PrefabUtility.ResetToPrefabState(Selection.activeGameObject);
+      }),
+
+      new HasteAction("Reconnect to Prefab", "Reconncet the selected object to its last prefab", result => {
+        PrefabUtility.ReconnectToLastPrefab(Selection.activeGameObject);
+      }),
+
+      new HasteAction("Select Parent", "Select the parent of the selected object", result => {
+        GameObject go = Selection.activeGameObject;
+        if (go.transform != null && go.transform.parent != null) {
+          Selection.activeGameObject = go.transform.parent.gameObject;
+        }
+      }),
+
+      new HasteAction("Select Children", "Select the children of the selected object", result => {
+        GameObject go = Selection.activeGameObject;
+        Transform parent = go.transform;
+        if (parent != null && parent.childCount > 0) {
+          IList<GameObject> children = new List<GameObject>(parent.childCount); 
+          foreach (Transform transform in parent) {
+            children.Add(transform.gameObject);
+          }
+          Selection.objects = children.ToArray();
+        }
+      }),
+    };
   }
 }

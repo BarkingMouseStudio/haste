@@ -71,7 +71,10 @@ namespace Haste {
         .GroupBy(r => r.Source) // Group by source
         .Select(g => {
           // Order each group by score and take the top N
-          return g.OrderByDescending(r => r.Score).Take(countPerGroup);
+          return g
+            .OrderByDescending(r => r.Score)
+            .ThenBy(r => Path.GetFileNameWithoutExtension(r.Path))
+            .Take(countPerGroup);
         })
         .OrderByDescending(g => g.First().Score) // Sort each group by score
         .SelectMany(g => g) // Flatten the groups
