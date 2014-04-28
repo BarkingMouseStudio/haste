@@ -42,6 +42,10 @@ namespace Haste {
       }
     }
 
+    public void Clear() {
+      index = new Dictionary<char, HashSet<HasteItem>>();
+    }
+
     public HasteResult[] Filter(string query, int countPerGroup) {
       if (query.Length == 0) {
         return new HasteResult[0];

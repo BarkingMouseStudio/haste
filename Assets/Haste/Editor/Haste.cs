@@ -16,6 +16,9 @@ namespace Haste {
 
     static string currentScene;
 
+    static bool restartHierarchy = false;
+    static bool restartProject = false;
+
     static Haste() {
       currentScene = EditorApplication.currentScene;
 
@@ -42,6 +45,18 @@ namespace Haste {
       EditorApplication.update += Update;
     }
 
+    public static void Rebuild() {
+      Scheduler.StopAll();
+
+      Index.Clear();
+
+      hierarchyWatcher.Clear();
+      projectWatcher.Clear();
+
+      restartHierarchy = true;
+      restartProject = true;
+    }
+
     static bool IsPaused {
       get {
         return EditorApplication.isCompiling ||
@@ -52,15 +67,12 @@ namespace Haste {
       }
     }
 
-    static bool restartHierarchy = false;
-    static bool restartProject = false;
-
-    public static void SceneChanged(string currentScene, string previousScene) {
+    static void SceneChanged(string currentScene, string previousScene) {
       Scheduler.Stop("Hierarchy");
       restartHierarchy = true;
     }
 
-    public static void PlaymodeStateChanged() {
+    static void PlaymodeStateChanged() {
       Scheduler.StopAll();
 
       if (!IsPaused) {
@@ -69,37 +81,37 @@ namespace Haste {
       }
     }
 
-    public static void ProjectWindowChanged() {
+    static void ProjectWindowChanged() {
       Scheduler.Stop("Project");
       restartProject = true;
     }
 
-    public static void HierarchyWindowChanged() {
+    static void HierarchyWindowChanged() {
       Scheduler.Stop("Hierarchy");
       restartHierarchy = true;
     }
 
-    public static void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
+    static void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
       hierarchyWatcher.Add(instanceId);
     }
 
-    public static void AssetCreated(string path) {
+    static void AssetCreated(string path) {
       Index.Add(HasteUtils.GetRelativeAssetPath(path), HasteSource.Project);
     }
 
-    public static void AssetDeleted(string path) {
+    static void AssetDeleted(string path) {
       Index.Remove(HasteUtils.GetRelativeAssetPath(path), HasteSource.Project);
     }
 
-    public static void GameObjectCreated(string path) {
+    static void GameObjectCreated(string path) {
       Index.Add(path, HasteSource.Hierarchy);
     }
 
-    public static void GameObjectDeleted(string path) {
+    static void GameObjectDeleted(string path) {
       Index.Remove(path, HasteSource.Hierarchy);
     }
 
-    public static void Update() {
+    static void Update() {
       if (!IsPaused) {
         if (currentScene != EditorApplication.currentScene) {
           string previousScene = currentScene;
@@ -110,13 +122,17 @@ namespace Haste {
         Scheduler.Tick();
 
         if (restartHierarchy) {
-          Scheduler.Start(hierarchyWatcher, "Hierarchy");
           restartHierarchy = false;
+
+          hierarchyWatcher.Restart();
+          Scheduler.Start(hierarchyWatcher, "Hierarchy");
         }
 
         if (restartProject) {
-          Scheduler.Start(projectWatcher, "Project");
           restartProject = false;
+
+          projectWatcher.Restart();
+          Scheduler.Start(projectWatcher, "Project");
         }
       }
     }

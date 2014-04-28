@@ -25,6 +25,15 @@ namespace Haste {
 
     public virtual void Add(string path) {}
 
+    public virtual void Clear() {
+      currentCollection.Clear();
+      nextCollection.Clear();
+    }
+
+    public virtual void Restart() {
+      nextCollection.Clear();
+    }
+
     protected void OnCreated(string path) {
       if (Created != null) {
         Created(path);

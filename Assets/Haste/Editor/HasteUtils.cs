@@ -16,9 +16,9 @@ namespace Haste {
           return EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
         case HasteSource.Project:
           return AssetDatabase.GetCachedIcon(path);
+        default:
+          return null;
       }
-
-      return null;
     }
 
     public static string GetHomeFolder() {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Haste {
 
@@ -36,6 +37,15 @@ namespace Haste {
     const int resultCount = 3;
 
     bool displayActions = false;
+
+    [PreferenceItem("Haste")]
+    public static void PreferencesGUI() {
+      if (GUILayout.Button("Rebuild Index", GUILayout.Width(128))) {
+        Haste.Rebuild();
+      }
+      EditorGUILayout.LabelField("Rebuilds the internal index used for fast searching in Haste.");
+      EditorGUILayout.LabelField("Use this if Haste starts providing weird results.");
+    }
 
     [MenuItem("Window/Haste %p")]
     public static void Open() {
@@ -220,7 +230,7 @@ namespace Haste {
 
       EditorGUILayout.BeginVertical();
       EditorGUILayout.LabelField(Path.GetFileName(result.Path), index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(String.Format("({0}) {1}", result.Score.ToString(), result.Path), descriptionStyle);
+      EditorGUILayout.LabelField(result.Path, descriptionStyle);
       EditorGUILayout.EndVertical();
 
       EditorGUILayout.EndHorizontal();
@@ -337,7 +347,10 @@ namespace Haste {
 
       if (GUI.changed) {
         if (displayActions) {
-          actions = HasteActions.GetActionsForSource(selectedResult.Source).FuzzyFilter(query);
+          Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
+          actions = HasteActions.GetActionsForSource(selectedResult.Source)
+            .Where(a => queryRegex.IsMatch(a.Name.ToLower()))
+            .ToArray();
         } else {
           results = Haste.Index.Filter(query, resultCount);
         }

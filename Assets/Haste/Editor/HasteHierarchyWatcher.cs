@@ -27,13 +27,18 @@ namespace Haste {
 
       if (IsRunning) {
         nextCollection.Add(GetPath(go.transform));
-      } else {
-        currentCollection.Add(GetPath(go.transform));
       }
     }
 
     public override IEnumerator GetEnumerator() {
       IsRunning = true;
+
+      // Add GUI new objects
+      foreach (string path in nextCollection) {
+        if (!currentCollection.Contains(path)) {
+          OnCreated(path);
+        }
+      }
 
       // Add active objects
       foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {

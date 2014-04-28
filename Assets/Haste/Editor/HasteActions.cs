@@ -6,16 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Haste {
   public static class HasteActions {
-
-    // Extensions
-    public static HasteAction[] FuzzyFilter(this HasteAction[] actions, string query) {
-      Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
-      return actions.Where(a => queryRegex.IsMatch(a.Name.ToLower())).ToArray();
-    }
 
     public static void FocusByHierarchyPath(string path) {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
@@ -124,8 +117,10 @@ namespace Haste {
           Path.GetFileNameWithoutExtension(result.Path),
           Path.GetExtension(result.Path).Substring(1),
           "Choose where to save the copy.");
-        AssetDatabase.CopyAsset(result.Path, copyPath);
-        AssetDatabase.Refresh();
+        if (copyPath.Length != 0) {
+          AssetDatabase.CopyAsset(result.Path, copyPath);
+          AssetDatabase.Refresh();
+        }
       }),
 
       new HasteAction("Rename", "Rename the current file...", result => {
@@ -133,8 +128,10 @@ namespace Haste {
           Path.GetFileNameWithoutExtension(result.Path),
           Path.GetExtension(result.Path).Substring(1),
           "Choose where to save the copy.");
-        AssetDatabase.RenameAsset(result.Path, renamePath);
-        AssetDatabase.Refresh();
+        if (renamePath.Length != 0) {
+          AssetDatabase.RenameAsset(result.Path, renamePath);
+          AssetDatabase.Refresh();
+        }
       }),
 
       new HasteAction("Delete", "Delete the current file...", result => {
@@ -151,7 +148,8 @@ namespace Haste {
       new HasteAction("Instantiate Prefab", "Instantiate the currently selected prefab...", result => {
         PrefabType prefabType = PrefabUtility.GetPrefabType(Selection.activeObject);
         if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
-          PrefabUtility.InstantiatePrefab(Selection.activeObject);
+          Selection.activeObject = PrefabUtility.InstantiatePrefab(Selection.activeObject);
+          Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Instantiated prefab");
         }
       }),
     };
@@ -163,6 +161,7 @@ namespace Haste {
 
       new HasteAction("Clone", "Clone the selected object", result => {
         Selection.activeObject = Clone(Selection.activeGameObject);
+        Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Cloned game object");
       }),
 
       new HasteAction("Select Prefab", "Select the prefab of the selected object", result => {
@@ -170,14 +169,17 @@ namespace Haste {
       }),
 
       new HasteAction("Break Prefab", "Break the prefab connection of the selected object", result => {
+        Undo.RecordObject(Selection.activeGameObject, "Break prefab");
         PrefabUtility.DisconnectPrefabInstance(Selection.activeGameObject);
       }),
 
       new HasteAction("Revert to Prefab", "Revert the selected object to its prefab", result => {
+        Undo.RecordObject(Selection.activeGameObject, "Reset prefab state");
         PrefabUtility.ResetToPrefabState(Selection.activeGameObject);
       }),
 
-      new HasteAction("Reconnect to Prefab", "Reconncet the selected object to its last prefab", result => {
+      new HasteAction("Reconnect to Prefab", "Reconnect the selected object to its last prefab", result => {
+        Undo.RecordObject(Selection.activeGameObject, "Reconnect prefab");
         PrefabUtility.ReconnectToLastPrefab(Selection.activeGameObject);
       }),
 
@@ -198,6 +200,10 @@ namespace Haste {
           }
           Selection.objects = children.ToArray();
         }
+      }),
+
+      new HasteAction("Delete", "Delete the selected object", result => {
+        Undo.DestroyObjectImmediate(Selection.activeGameObject);
       }),
     };
   }
