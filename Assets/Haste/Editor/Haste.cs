@@ -11,6 +11,20 @@ namespace Haste {
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
 
+    public static int usageCount = -1;
+    public static int UsageCount {
+      get {
+        if (usageCount < 0) {
+          usageCount = EditorPrefs.GetInt("HasteUsageCount", 0);
+        }
+        return usageCount;
+      }
+      internal set {
+        usageCount = value;
+        EditorPrefs.SetInt("HasteUsageCount", usageCount);
+      }
+    }
+
     static HasteFileWatcher projectWatcher;
     static HasteHierarchyWatcher hierarchyWatcher;
 

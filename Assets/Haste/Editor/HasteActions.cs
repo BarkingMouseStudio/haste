@@ -89,7 +89,7 @@ namespace Haste {
     }
 
     public static UnityEngine.Object Clone(GameObject go) {
-      UnityEngine.Object prefabRoot = PrefabUtility.GetPrefabParent(go);
+      var prefabRoot = PrefabUtility.GetPrefabParent(go);
       if (prefabRoot != null) {
         return PrefabUtility.InstantiatePrefab(prefabRoot);
       } else {
@@ -99,17 +99,17 @@ namespace Haste {
 
     public static HasteAction[] ProjectActions = new HasteAction[]{
       new HasteAction("Open", "Open the current file...", result => {
-        Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
-
+        var selectedObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
         switch (Path.GetExtension(result.Path)) {
           case ".unity": // Scene
             EditorApplication.SaveCurrentSceneIfUserWantsTo();
             EditorApplication.OpenScene(result.Path);
             break;
           default:
-            AssetDatabase.OpenAsset(Selection.activeObject);
+            AssetDatabase.OpenAsset(selectedObject);
             break;
         }
+        Selection.activeObject = selectedObject;
       }),
 
       new HasteAction("Copy", "Copy the current file...", result => {
@@ -117,9 +117,9 @@ namespace Haste {
           Path.GetFileNameWithoutExtension(result.Path),
           Path.GetExtension(result.Path).Substring(1),
           "Choose where to save the copy.");
-        if (copyPath.Length != 0) {
-          AssetDatabase.CopyAsset(result.Path, copyPath);
+        if (copyPath.Length != 0 && AssetDatabase.CopyAsset(result.Path, copyPath)) {
           AssetDatabase.Refresh();
+          Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(copyPath);
         }
       }),
 
@@ -128,9 +128,9 @@ namespace Haste {
           Path.GetFileNameWithoutExtension(result.Path),
           Path.GetExtension(result.Path).Substring(1),
           "Choose where to save the copy.");
-        if (renamePath.Length != 0) {
-          AssetDatabase.RenameAsset(result.Path, renamePath);
+        if (renamePath.Length != 0 && AssetDatabase.RenameAsset(result.Path, renamePath) == "") {
           AssetDatabase.Refresh();
+          Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(renamePath);
         }
       }),
 
@@ -146,11 +146,13 @@ namespace Haste {
       }),
 
       new HasteAction("Instantiate Prefab", "Instantiate the currently selected prefab...", result => {
+        var selectedObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
         PrefabType prefabType = PrefabUtility.GetPrefabType(Selection.activeObject);
         if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
           Selection.activeObject = PrefabUtility.InstantiatePrefab(Selection.activeObject);
           Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Instantiated prefab");
         }
+        Selection.activeObject = selectedObject;
       }),
     };
 
@@ -160,50 +162,81 @@ namespace Haste {
       }),
 
       new HasteAction("Clone", "Clone the selected object", result => {
-        Selection.activeObject = Clone(Selection.activeGameObject);
-        Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Cloned game object");
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          var clonedObject = Clone(selectedObject);
+          Undo.RegisterCreatedObjectUndo(clonedObject, "Cloned game object");
+          Selection.activeObject = clonedObject;
+        }
       }),
 
       new HasteAction("Select Prefab", "Select the prefab of the selected object", result => {
-        Selection.activeObject = PrefabUtility.GetPrefabParent(Selection.activeGameObject);
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          var parentObject = PrefabUtility.GetPrefabParent(selectedObject);
+          if (parentObject != null) {
+            FocusByProjectPath(AssetDatabase.GetAssetPath(parentObject));
+          }
+        }
       }),
 
       new HasteAction("Break Prefab", "Break the prefab connection of the selected object", result => {
-        Undo.RecordObject(Selection.activeGameObject, "Break prefab");
-        PrefabUtility.DisconnectPrefabInstance(Selection.activeGameObject);
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          Undo.RegisterFullObjectHierarchyUndo(selectedObject);
+          PrefabUtility.DisconnectPrefabInstance(selectedObject);
+          Selection.activeGameObject = selectedObject;
+        }
       }),
 
       new HasteAction("Revert to Prefab", "Revert the selected object to its prefab", result => {
-        Undo.RecordObject(Selection.activeGameObject, "Reset prefab state");
-        PrefabUtility.ResetToPrefabState(Selection.activeGameObject);
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          Undo.RegisterFullObjectHierarchyUndo(Selection.activeGameObject);
+          PrefabUtility.RevertPrefabInstance(Selection.activeGameObject);
+          Selection.activeGameObject = selectedObject;
+        }
       }),
 
       new HasteAction("Reconnect to Prefab", "Reconnect the selected object to its last prefab", result => {
-        Undo.RecordObject(Selection.activeGameObject, "Reconnect prefab");
-        PrefabUtility.ReconnectToLastPrefab(Selection.activeGameObject);
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          Undo.RegisterFullObjectHierarchyUndo(selectedObject);
+          PrefabUtility.ReconnectToLastPrefab(selectedObject);
+          Selection.activeGameObject = selectedObject;
+        }
       }),
 
       new HasteAction("Select Parent", "Select the parent of the selected object", result => {
-        GameObject go = Selection.activeGameObject;
-        if (go.transform != null && go.transform.parent != null) {
-          Selection.activeGameObject = go.transform.parent.gameObject;
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          if (selectedObject.transform != null) {
+            if (selectedObject.transform.parent != null) {
+              Selection.activeGameObject = selectedObject.transform.parent.gameObject;
+            }
+          }
         }
       }),
 
       new HasteAction("Select Children", "Select the children of the selected object", result => {
-        GameObject go = Selection.activeGameObject;
-        Transform parent = go.transform;
-        if (parent != null && parent.childCount > 0) {
-          IList<GameObject> children = new List<GameObject>(parent.childCount); 
-          foreach (Transform transform in parent) {
-            children.Add(transform.gameObject);
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          Transform parent = selectedObject.transform;
+          if (parent != null && parent.childCount > 0) {
+            IList<GameObject> children = new List<GameObject>(parent.childCount); 
+            foreach (Transform transform in parent) {
+              children.Add(transform.gameObject);
+            }
+            Selection.objects = children.ToArray();
           }
-          Selection.objects = children.ToArray();
         }
       }),
 
       new HasteAction("Delete", "Delete the selected object", result => {
-        Undo.DestroyObjectImmediate(Selection.activeGameObject);
+        GameObject selectedObject = GameObject.Find(result.Path);
+        if (selectedObject != null) {
+          Undo.DestroyObjectImmediate(selectedObject);
+        }
       }),
     };
   }

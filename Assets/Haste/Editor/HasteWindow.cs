@@ -40,11 +40,19 @@ namespace Haste {
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
+      EditorGUILayout.Space();
       if (GUILayout.Button("Rebuild Index", GUILayout.Width(128))) {
         Haste.Rebuild();
       }
-      EditorGUILayout.LabelField("Rebuilds the internal index used for fast searching in Haste.");
-      EditorGUILayout.LabelField("Use this if Haste starts providing weird results.");
+
+      EditorGUILayout.Space();
+      EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
+
+      EditorGUILayout.Space();
+      EditorGUILayout.LabelField("Open Count", Haste.UsageCount.ToString());
+
+      EditorGUILayout.Space();
+      EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
     }
 
     [MenuItem("Window/Haste %p")]
@@ -87,6 +95,8 @@ namespace Haste {
         instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
         instance.title = "Haste";
       }
+
+      Haste.UsageCount++;
 
       instance.ShowPopup();
       instance.HideActions();
