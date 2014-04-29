@@ -21,24 +21,33 @@ namespace Haste {
     public void Add(int instanceId) {
       GameObject go = (GameObject)EditorUtility.InstanceIDToObject(instanceId);
 
+      // We want to add children first since the rest of our search is bottom-up
+      // (and paths are built that way).
       foreach (Transform child in go.transform) {
         Add(child.gameObject.GetInstanceID());
       }
 
+      string path = GetPath(go.transform);
+
       if (IsRunning) {
-        nextCollection.Add(GetPath(go.transform));
+        if (!nextCollection.Contains(path)) {
+          // We have to add to the next collection since we don't know where GetEnumerator
+          // is at in the run and next collection is used in checking deletions.
+          nextCollection.Add(path);
+        }
+      }
+
+      // - If we are running, we want to add and trigger the event manually
+      // since a flush won't work if we're already past that step.
+      // - If we're not running we want to treat it as a one-off.
+      if (!currentCollection.Contains(path)) {
+        currentCollection.Add(path);
+        OnCreated(path);
       }
     }
 
     public override IEnumerator GetEnumerator() {
       IsRunning = true;
-
-      // Add GUI new objects
-      foreach (string path in nextCollection) {
-        if (!currentCollection.Contains(path)) {
-          OnCreated(path);
-        }
-      }
 
       // Add active objects
       foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
@@ -48,15 +57,13 @@ namespace Haste {
 
         string path = GetPath(go.transform);
 
-        if (nextCollection.Contains(path)) {
-          continue;
-        }
+        if (!nextCollection.Contains(path)) {
+          if (!currentCollection.Contains(path)) {
+            OnCreated(path);
+          }
 
-        if (!currentCollection.Contains(path)) {
-          OnCreated(path);
+          nextCollection.Add(path);
         }
-
-        nextCollection.Add(path);
 
         yield return null;
       }
@@ -69,15 +76,13 @@ namespace Haste {
 
         string path = GetPath(go.transform);
 
-        if (nextCollection.Contains(path)) {
-          continue;
-        }
+        if (!nextCollection.Contains(path)) {
+          if (!currentCollection.Contains(path)) {
+            OnCreated(path);
+          }
 
-        if (!currentCollection.Contains(path)) {
-          OnCreated(path);
+          nextCollection.Add(path);
         }
-
-        nextCollection.Add(path);
 
         yield return null;
       }

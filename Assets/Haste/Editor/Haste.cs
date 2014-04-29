@@ -8,6 +8,8 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
+    internal static readonly bool IS_PRO = true;
+
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
 

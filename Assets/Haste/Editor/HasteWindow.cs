@@ -234,7 +234,6 @@ namespace Haste {
 
       if (GUI.Button(rect, "", GUIStyle.none)) {
         OnResultSelected(result);
-        return;
       }
 
       Texture icon = HasteUtils.GetIconForSource(result.Source, result.Path);
@@ -253,9 +252,11 @@ namespace Haste {
     }
 
     void OnActionSelected(HasteAction action) {
-      // We close the window first in case an action creates a dialog
-      Close();
-      action.Action(selectedResult);
+      if (Haste.IS_PRO) {
+        // We close the window first in case an action creates a dialog
+        Close();
+        action.Action(selectedResult);
+      }
     }
 
     void DrawAction(HasteAction action, int index) {
@@ -263,12 +264,13 @@ namespace Haste {
 
       if (GUI.Button(rect, "", GUIStyle.none)) {
         OnActionSelected(action);
-        return;
       }
+
+      string description = Haste.IS_PRO ? action.Description : "Download Haste Pro from the Unity Asset Store";
 
       EditorGUILayout.BeginVertical();
       EditorGUILayout.LabelField(action.Name, index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(action.Description, descriptionStyle);
+      EditorGUILayout.LabelField(description, descriptionStyle);
       EditorGUILayout.EndVertical();
 
       EditorGUILayout.EndHorizontal();
