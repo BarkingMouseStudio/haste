@@ -9,9 +9,16 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
+  public enum HasteWindowState {
+    Search = 0,
+    Action = 1,
+  }
+
   public class HasteWindow : EditorWindow {
 
     static HasteWindow instance;
+
+    HasteWindowState state = HasteWindowState.Search;
 
     HasteResult[] results = new HasteResult[0];
     HasteResult selectedResult;
@@ -35,8 +42,6 @@ namespace Haste {
     const int groupSpacing = 10;
 
     const int resultCount = 3;
-
-    bool displayActions = false;
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
@@ -110,18 +115,18 @@ namespace Haste {
 
     void HideActions() {
       highlightedIndex = 0;
-      displayActions = false;
+      state = HasteWindowState.Search;
     }
 
     void ShowActions() {
       highlightedIndex = 0;
-      displayActions = true;
+      state = HasteWindowState.Action;
       query = "";
     }
 
     void OnEscape() {
       // On escape, backtrack out of actions, clear the query or close the window
-      if (displayActions) {
+      if (state == HasteWindowState.Action) {
         HideActions();
       } else if (query != "") {
         query = "";
@@ -131,17 +136,17 @@ namespace Haste {
     }
 
     void OnReturn() {
-      if (displayActions) {
+      if (state == HasteWindowState.Action) {
         OnActionSelected(actions[highlightedIndex]);
       } else {
-        if (!displayActions && results.Length > 0) {
+        if (state != HasteWindowState.Action && results.Length > 0) {
           OnResultSelected(results[highlightedIndex]);
         }
       }
     }
 
     void OnRightArrow() {
-      if (displayActions || results.Length == 0) {
+      if (state == HasteWindowState.Action || results.Length == 0) {
         return;
       }
 
@@ -160,7 +165,7 @@ namespace Haste {
     }
 
     void OnDownArrow() {
-      if (displayActions) {
+      if (state == HasteWindowState.Action) {
         highlightedIndex = Math.Min(highlightedIndex + 1, actions.Length - 1);
       } else {
         highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
@@ -170,7 +175,7 @@ namespace Haste {
 
     void UpdateScroll() {
       int previousGroups = 0;
-      if (!displayActions) {
+      if (state != HasteWindowState.Action) {
         for (int i = 0; i <= highlightedIndex; i++) {
           if (i > 0 && results[i].Source != results[i - 1].Source) {
             previousGroups++;
@@ -356,7 +361,7 @@ namespace Haste {
       DrawQuery();
 
       if (GUI.changed) {
-        if (displayActions) {
+        if (state == HasteWindowState.Action) {
           Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
           actions = HasteActions.GetActionsForSource(selectedResult.Source)
             .Where(a => queryRegex.IsMatch(a.Name.ToLower()))
@@ -367,7 +372,7 @@ namespace Haste {
       }
 
       if (results != null && results.Length > 0) {
-        if (displayActions) {
+        if (state == HasteWindowState.Action) {
           DrawActions();
         } else {
           DrawResults();
