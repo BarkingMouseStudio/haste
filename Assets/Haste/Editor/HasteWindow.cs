@@ -30,6 +30,8 @@ namespace Haste {
     GUIStyle descriptionStyle;
     GUIStyle prefixStyle;
     GUIStyle highlightStyle;
+    GUIStyle disabledNameStyle;
+    GUIStyle disabledDescriptionStyle;
 
     Vector2 scrollPosition = Vector2.zero;
 
@@ -74,8 +76,18 @@ namespace Haste {
         instance.nameStyle.alignment = TextAnchor.MiddleLeft;
         instance.nameStyle.fixedHeight = 24;
         instance.nameStyle.fontSize = 16;
-        instance.nameStyle.hover.textColor = Color.white;
-        instance.nameStyle.onHover.textColor = Color.white;
+
+        instance.disabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
+        instance.disabledNameStyle.alignment = TextAnchor.MiddleLeft;
+        instance.disabledNameStyle.fixedHeight = 24;
+        instance.disabledNameStyle.fontSize = 16;
+        instance.disabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+
+        instance.disabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
+        instance.disabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
+        instance.disabledDescriptionStyle.fixedHeight = 24;
+        instance.disabledDescriptionStyle.fontSize = 12;
+        instance.disabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
 
         instance.descriptionStyle = new GUIStyle(EditorStyles.largeLabel);
         instance.descriptionStyle.alignment = TextAnchor.MiddleLeft;
@@ -91,6 +103,12 @@ namespace Haste {
         instance.highlightStyle.alignment = TextAnchor.MiddleLeft;
         instance.highlightStyle.fixedHeight = 24;
         instance.highlightStyle.fontSize = 16;
+
+        if (EditorGUIUtility.isProSkin) {
+          instance.highlightStyle.normal.textColor = new Color(0.275f, 0.475f, 0.95f);
+        } else {
+          instance.highlightStyle.normal.textColor = new Color(0.045f, 0.22f, 0.895f);
+        }
 
         int width = 500;
         int height = 300;
@@ -266,11 +284,21 @@ namespace Haste {
         OnActionSelected(action);
       }
 
-      string description = Haste.IS_PRO ? action.Description : "Download Haste Pro from the Unity Asset Store";
+      string description = Haste.IS_PRO ? action.Description : "Download Haste Pro from the Unity Asset Store (Disabled)";
+
+      GUIStyle currentNameStyle = nameStyle;
+      GUIStyle currentDescriptionStyle = descriptionStyle;
+
+      if (!Haste.IS_PRO) {
+        currentNameStyle = disabledNameStyle;
+        currentDescriptionStyle = disabledDescriptionStyle;
+      } else if (index == highlightedIndex) {
+        currentNameStyle = highlightStyle;
+      }
 
       EditorGUILayout.BeginVertical();
-      EditorGUILayout.LabelField(action.Name, index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(description, descriptionStyle);
+      EditorGUILayout.LabelField(action.Name, currentNameStyle);
+      EditorGUILayout.LabelField(description, currentDescriptionStyle);
       EditorGUILayout.EndVertical();
 
       EditorGUILayout.EndHorizontal();
