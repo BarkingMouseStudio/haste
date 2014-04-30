@@ -62,7 +62,7 @@ namespace Haste {
       EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
     }
 
-    [MenuItem("Window/Haste %p")]
+    [MenuItem("Window/Haste %k")]
     public static void Open() {
       if (instance == null) {
         instance = EditorWindow.CreateInstance<HasteWindow>();
