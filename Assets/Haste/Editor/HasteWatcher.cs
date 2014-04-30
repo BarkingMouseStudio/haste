@@ -21,7 +21,7 @@ namespace Haste {
     protected HashSet<string> currentCollection; 
     protected HashSet<string> nextCollection; 
 
-    HasteScheduler scheduler;
+    protected HasteScheduler scheduler;
 
     bool shouldRestart = false;
 
@@ -31,21 +31,19 @@ namespace Haste {
       this.scheduler = new HasteScheduler();
 
       EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
-
-      EditorApplication.update += Update;
     }
 
     public virtual IEnumerator GetEnumerator() {
       return null;
     }
 
-    void OnCreated(string path) {
+    protected void OnCreated(string path) {
       if (Created != null) {
         Created(path);
       }
     }
 
-    void OnDeleted(string path) {
+    protected void OnDeleted(string path) {
       if (Deleted != null) {
         Deleted(path);
       }
@@ -75,6 +73,11 @@ namespace Haste {
       shouldRestart = true;
     }
 
+    public void ResetAndRestart() {
+      Restart();
+      Reset();
+    }
+
     public void ClearAndRestart() {
       Restart();
       Clear();
@@ -84,11 +87,7 @@ namespace Haste {
       Restart();
     }
 
-    void Update() {
-      if (Haste.IsApplicationBusy) {
-        return;
-      }
-
+    public void Tick() {
       scheduler.Tick();
 
       if (shouldRestart) {

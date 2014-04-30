@@ -14,7 +14,7 @@ namespace Haste {
 
     public static readonly bool IS_PRO = true;
 
-    static int usageCount = -1;
+    private static int usageCount = -1;
     public static int UsageCount {
       get {
         if (usageCount < 0) {
@@ -30,15 +30,15 @@ namespace Haste {
 
     public static bool IsApplicationBusy {
       get {
-        return EditorApplication.isCompiling ||
-               EditorApplication.isPaused ||
+        return EditorApplication.isPlayingOrWillChangePlaymode ||
+               EditorApplication.isCompiling ||
+               EditorApplication.isUpdating ||
                EditorApplication.isPlaying ||
-               EditorApplication.isPlayingOrWillChangePlaymode ||
-               EditorApplication.isUpdating;
+               EditorApplication.isPaused;
       }
     }
 
-    static HasteIndex Index;
+    public static HasteIndex Index;
     static HasteFileWatcher projectWatcher;
     static HasteHierarchyWatcher hierarchyWatcher;
 
@@ -62,7 +62,7 @@ namespace Haste {
       EditorApplication.update += Update;
     }
 
-    static void Rebuild() {
+    public static void Rebuild() {
       Index.Clear();
 
       hierarchyWatcher.ClearAndRestart();
@@ -92,13 +92,18 @@ namespace Haste {
     }
 
     static void Update() {
-      if (!IsApplicationBusy) {
-        if (currentScene != EditorApplication.currentScene) {
-          string previousScene = currentScene;
-          currentScene = EditorApplication.currentScene;
-          OnSceneChanged(currentScene, previousScene);
-        }
+      if (IsApplicationBusy) {
+        return;
       }
+
+      if (currentScene != EditorApplication.currentScene) {
+        string previousScene = currentScene;
+        currentScene = EditorApplication.currentScene;
+        OnSceneChanged(currentScene, previousScene);
+      }
+
+      hierarchyWatcher.Tick();
+      projectWatcher.Tick();
     }
   }
 }

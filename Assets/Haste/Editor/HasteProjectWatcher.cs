@@ -14,7 +14,7 @@ namespace Haste {
     }
 
     void ProjectWindowChanged() {
-      Restart();
+      ResetAndRestart();
     }
   }
 }

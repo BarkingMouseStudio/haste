@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Haste {
 
-  public class HasteFileWatcher : HasteWatcher, IEnumerable {
+  public class HasteFileWatcher : HasteWatcher {
 
     string watchPath;
 

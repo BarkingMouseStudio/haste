@@ -7,39 +7,39 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  internal class HasteScheduler {
+  public class HasteScheduler {
 
     private LinkedList<IEnumerator> coroutines;
    
-    internal bool IsRunning {
+    public bool IsRunning {
       get {
         return coroutines.Count > 0;
       }
     }
 
-    internal HasteScheduler() {
+    public HasteScheduler() {
       coroutines = new LinkedList<IEnumerator>();
     }
 
-    internal void Start(IEnumerator fiber) {
+    public void Start(IEnumerator fiber) {
       coroutines.AddFirst(fiber);
     }
 
-    internal void Start(IEnumerable enumerable) {
+    public void Start(IEnumerable enumerable) {
       coroutines.AddFirst(enumerable.GetEnumerator());
     }
 
-    internal void Stop() {
+    public void Stop() {
       coroutines.Clear();
     }
    
-    internal void Tick() {
+    public void Tick() {
       LinkedListNode<IEnumerator> coroutine = coroutines.First;
 
       while (coroutine != null) {
         LinkedListNode<IEnumerator> next = coroutine.Next;
 
-        if (!coroutine.Value.Enumerator.MoveNext()) {
+        if (!coroutine.Value.MoveNext()) {
           coroutines.Remove(coroutine);
         }
 

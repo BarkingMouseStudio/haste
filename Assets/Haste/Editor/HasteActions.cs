@@ -161,11 +161,30 @@ namespace Haste {
         FrameSelected();
       }),
 
+      new HasteAction("Create Empty GameObject", "Create an GameObject under the selected object", result => {
+        GameObject selectedObject = GameObject.Find(result.Path);
+        GameObject newEmptyGameObject = new GameObject("GameObject");
+        newEmptyGameObject.transform.parent = selectedObject.transform;
+        Undo.RegisterCreatedObjectUndo(newEmptyGameObject, "Create Empty GameObject");
+        Selection.activeObject = newEmptyGameObject;
+      }),
+
+      new HasteAction("Reset Transform", "Reset transform of the selected object", result => {
+        GameObject selectedObject = GameObject.Find(result.Path);
+
+        Undo.RecordObject(selectedObject.transform, "Reset Transform");
+        selectedObject.transform.localRotation = Quaternion.identity;
+        selectedObject.transform.localPosition = Vector3.zero;
+        selectedObject.transform.localScale = Vector3.one;
+
+        Selection.activeObject = selectedObject;
+      }),
+
       new HasteAction("Clone", "Clone the selected object", result => {
         GameObject selectedObject = GameObject.Find(result.Path);
         if (selectedObject != null) {
           var clonedObject = Clone(selectedObject);
-          Undo.RegisterCreatedObjectUndo(clonedObject, "Cloned game object");
+          Undo.RegisterCreatedObjectUndo(clonedObject, "Clone GameObject");
           Selection.activeObject = clonedObject;
         }
       }),

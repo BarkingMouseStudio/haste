@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace Haste {
 
-  class HasteHierarchyWatcher : HasteWatcher, IEnumerable {
+  public class HasteHierarchyWatcher : HasteWatcher {
 
     IDictionary<int, string> paths = new Dictionary<int, string>();
 
-    internal HasteHierarchyWatcher() : base() {
+    public HasteHierarchyWatcher() : base() {
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
       EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
 
@@ -19,11 +19,11 @@ namespace Haste {
     }
 
     void SceneChanged(string currentScene, string previousScene) {
-      Restart();
+      ResetAndRestart();
     }
 
     void HierarchyWindowChanged() {
-      Restart();
+      ResetAndRestart();
     }
 
     void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
