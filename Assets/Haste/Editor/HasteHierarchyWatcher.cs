@@ -6,19 +6,31 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Haste {
-  public class HasteHierarchyWatcher : HasteWatcher {
 
-    protected IDictionary<int, string> paths;
+  class HasteHierarchyWatcher : HasteWatcher, IEnumerable {
 
-    public HasteHierarchyWatcher() : base() {
-      this.paths = new Dictionary<int, string>();
+    IDictionary<int, string> paths = new Dictionary<int, string>();
+
+    internal HasteHierarchyWatcher() : base() {
+      EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
+      EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
+
+      Haste.SceneChanged += SceneChanged;
     }
 
-    public HasteHierarchyWatcher(IEnumerable<string> collection) : base(collection) {
-      this.paths = new Dictionary<int, string>();
+    void SceneChanged(string currentScene, string previousScene) {
+      Restart();
     }
 
-    public void Add(int instanceId) {
+    void HierarchyWindowChanged() {
+      Restart();
+    }
+
+    void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
+      Add(instanceId);
+    }
+
+    void Add(int instanceId) {
       GameObject go = (GameObject)EditorUtility.InstanceIDToObject(instanceId);
 
       // We want to add children first since the rest of our search is bottom-up
@@ -29,7 +41,7 @@ namespace Haste {
 
       string path = GetPath(go.transform);
 
-      if (IsRunning) {
+      if (scheduler.IsRunning) {
         if (!nextCollection.Contains(path)) {
           // We have to add to the next collection since we don't know where GetEnumerator
           // is at in the run and next collection is used in checking deletions.
@@ -47,8 +59,6 @@ namespace Haste {
     }
 
     public override IEnumerator GetEnumerator() {
-      IsRunning = true;
-
       // Add active objects
       foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
         if (!go.activeInHierarchy) {
@@ -105,11 +115,9 @@ namespace Haste {
       nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
 
       paths.Clear();
-
-      IsRunning = false;
     }
 
-    protected string GetPath(Transform transform) {
+    string GetPath(Transform transform) {
       int id = transform.gameObject.GetInstanceID();
       string path;
 

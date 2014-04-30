@@ -7,65 +7,44 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public class HasteSchedulerNode {
+  internal class HasteScheduler {
 
-    public string Name;
-    public IEnumerator Enumerator;
-
-    public HasteSchedulerNode(IEnumerator enumerator, string name) {
-      Enumerator = enumerator;
-      Name = name;
-    }
-  }
-
-  public class HasteScheduler {
-
-    private LinkedList<HasteSchedulerNode> coroutines;
-    private HashSet<string> stopping;
+    private LinkedList<IEnumerator> coroutines;
    
-    public bool IsRunning {
+    internal bool IsRunning {
       get {
         return coroutines.Count > 0;
       }
     }
 
-    public HasteScheduler() {
-      stopping = new HashSet<string>();
-      coroutines = new LinkedList<HasteSchedulerNode>();
+    internal HasteScheduler() {
+      coroutines = new LinkedList<IEnumerator>();
     }
 
-    public void Start(IEnumerator fiber, string name = "") {
-      coroutines.AddFirst(new HasteSchedulerNode(fiber, name));
+    internal void Start(IEnumerator fiber) {
+      coroutines.AddFirst(fiber);
     }
 
-    public void Start(IEnumerable enumerable, string name = "") {
-      coroutines.AddFirst(new HasteSchedulerNode(enumerable.GetEnumerator(), name));
+    internal void Start(IEnumerable enumerable) {
+      coroutines.AddFirst(enumerable.GetEnumerator());
     }
 
-    public void Stop(string name) {
-      stopping.Add(name);
-    }
-
-    public void StopAll() {
+    internal void Stop() {
       coroutines.Clear();
     }
    
-    public void Tick() {
-      LinkedListNode<HasteSchedulerNode> coroutine = coroutines.First;
+    internal void Tick() {
+      LinkedListNode<IEnumerator> coroutine = coroutines.First;
 
       while (coroutine != null) {
-        LinkedListNode<HasteSchedulerNode> next = coroutine.Next;
+        LinkedListNode<IEnumerator> next = coroutine.Next;
 
-        if (coroutine.Value.Name != "" && stopping.Contains(coroutine.Value.Name)) {
-          coroutines.Remove(coroutine);
-        } else if (!coroutine.Value.Enumerator.MoveNext()) {
+        if (!coroutine.Value.Enumerator.MoveNext()) {
           coroutines.Remove(coroutine);
         }
 
         coroutine = next;
       }
-
-      stopping.Clear();
     }
   }
 }

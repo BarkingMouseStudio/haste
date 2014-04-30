@@ -4,20 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Haste {
-  public class HasteFileWatcher : HasteWatcher {
 
-    protected string watchPath;
+  public class HasteFileWatcher : HasteWatcher, IEnumerable {
+
+    string watchPath;
 
     public HasteFileWatcher(string watchPath) : base() {
       this.watchPath = watchPath;
     }
 
-    public HasteFileWatcher(string watchPath, IEnumerable<string> collection) : base(collection) {
-      this.watchPath = watchPath;
-    }
-
     public override IEnumerator GetEnumerator() {
-      IsRunning = true;
+      isRunning = true;
 
       Queue<string> directories = new Queue<string>();
 
@@ -81,7 +78,7 @@ namespace Haste {
       nextCollection = temp;
       nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
 
-      IsRunning = false;
+      isRunning = false;
     }
   }
 }
