@@ -18,8 +18,8 @@ namespace Haste {
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
-    HashSet<string> currentCollection; 
-    HashSet<string> nextCollection; 
+    protected HashSet<string> currentCollection; 
+    protected HashSet<string> nextCollection; 
 
     HasteScheduler scheduler;
 

@@ -14,8 +14,6 @@ namespace Haste {
     }
 
     public override IEnumerator GetEnumerator() {
-      isRunning = true;
-
       Queue<string> directories = new Queue<string>();
 
       // Start with our top-level directory
@@ -77,8 +75,6 @@ namespace Haste {
 
       nextCollection = temp;
       nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
-
-      isRunning = false;
     }
   }
 }
