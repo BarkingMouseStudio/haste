@@ -270,11 +270,11 @@ namespace Haste {
     }
 
     void OnActionSelected(HasteAction action) {
-      if (Haste.IS_PRO) {
+      #if IS_PRO
         // We close the window first in case an action creates a dialog
         Close();
         action.Action(selectedResult);
-      }
+      #endif
     }
 
     void DrawAction(HasteAction action, int index) {
@@ -284,17 +284,23 @@ namespace Haste {
         OnActionSelected(action);
       }
 
-      string description = Haste.IS_PRO ? action.Description : "Download Haste Pro from the Unity Asset Store (Disabled)";
+      #if IS_PRO
+        string description = action.Description;
+      #else
+        string description = "Download Haste Pro from the Unity Asset Store (Disabled)";
+      #endif
 
       GUIStyle currentNameStyle = nameStyle;
       GUIStyle currentDescriptionStyle = descriptionStyle;
 
-      if (!Haste.IS_PRO) {
+      #if IS_PRO
+        if (index == highlightedIndex) {
+          currentNameStyle = highlightStyle;
+        }
+      #else
         currentNameStyle = disabledNameStyle;
         currentDescriptionStyle = disabledDescriptionStyle;
-      } else if (index == highlightedIndex) {
-        currentNameStyle = highlightStyle;
-      }
+      #endif
 
       EditorGUILayout.BeginVertical();
       EditorGUILayout.LabelField(action.Name, currentNameStyle);

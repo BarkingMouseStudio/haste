@@ -1,3 +1,5 @@
+#define IS_PRO
+
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
@@ -11,8 +13,6 @@ namespace Haste {
   public static class Haste {
 
     public static event SceneChangedHandler SceneChanged;
-
-    public static readonly bool IS_PRO = false;
 
     private static int usageCount = -1;
     public static int UsageCount {
