@@ -10,7 +10,7 @@ namespace Haste {
     public static void Info(params object[] args) {
       string[] sargs = ((IEnumerable)args)
         .Cast<object>()
-        .Select(x => x.ToString())
+        .Select(x => x == null ? "null" : x.ToString())
         .ToArray();
       Debug.Log(String.Join(", ", sargs));
     }
@@ -18,7 +18,7 @@ namespace Haste {
     public static void Warn(params object[] args) {
       string[] sargs = ((IEnumerable)args)
         .Cast<object>()
-        .Select(x => x.ToString())
+        .Select(x => x == null ? "null" : x.ToString())
         .ToArray();
       Debug.LogWarning(String.Join(", ", sargs));
     }
@@ -26,7 +26,7 @@ namespace Haste {
     public static void Error(params object[] args) {
       string[] sargs = ((IEnumerable)args)
         .Cast<object>()
-        .Select(x => x.ToString())
+        .Select(x => x == null ? "null" : x.ToString())
         .ToArray();
       Debug.LogError(String.Join(", ", sargs));
     }
