@@ -57,17 +57,29 @@ namespace Haste {
         return new HasteResult[0];
       }
 
-      HasteMatcher matcher = new HasteMatcher(query);
-
       IList<HasteResult> matches = new List<HasteResult>();
       foreach (HasteItem item in index[c]) {
         float score;
 
         string filename = Path.GetFileNameWithoutExtension(item.Path);
-        if (matcher.Match(filename, 2, out score)) { // Filename
-          matches.Add(new HasteResult(item, score));
-        } else if (matcher.Match(item.Path, 1, out score)) { // Full path
-          matches.Add(new HasteResult(item, score));
+        string directory = Path.GetDirectoryName(item.Path);
+        IList<int> indices;
+
+        if (HasteFuzzyMatching.FuzzyMatch(filename, query, out indices, out score)) { // Filename
+          // Increment indices to account for being only the filename
+          if (directory.Length > 0) {
+            for (int i = 0; i < indices.Count; i++) {
+              indices[i] += directory.Length + 1; // Add 1 to account for slash
+            }
+          }
+
+          matches.Add(new HasteResult(item, indices, score * 2));
+          continue;
+        }
+
+        if (HasteFuzzyMatching.FuzzyMatch(item.Path, query, out indices, out score)) { // Full path
+          matches.Add(new HasteResult(item, indices, score));
+          continue;
         }
       }
 

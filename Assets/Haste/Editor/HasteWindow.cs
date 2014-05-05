@@ -93,6 +93,7 @@ namespace Haste {
         instance.descriptionStyle.alignment = TextAnchor.MiddleLeft;
         instance.descriptionStyle.fixedHeight = 24;
         instance.descriptionStyle.fontSize = 12;
+        instance.descriptionStyle.richText = true;
 
         instance.prefixStyle = new GUIStyle(EditorStyles.largeLabel);
         instance.prefixStyle.alignment = TextAnchor.MiddleRight;
@@ -247,6 +248,23 @@ namespace Haste {
       HasteActions.FocusByResult(result);
     }
 
+    string BoldLabel(string str, int[] indices) {
+      string bolded = "";
+
+      // TODO: This could iterate indices and use substring instead
+      int index = 0;
+      for (int i = 0; i < str.Length; i++) {
+        if (index < indices.Length && i == indices[index]) {
+          bolded += "<color=\"white\">" + str[i] + "</color>";
+          index++;
+        } else {
+          bolded += str[i];
+        }
+      }
+
+      return bolded;
+    }
+
     void DrawResult(HasteResult result, int index) {
       var rect = EditorGUILayout.BeginHorizontal();
 
@@ -262,7 +280,7 @@ namespace Haste {
 
       EditorGUILayout.BeginVertical();
       EditorGUILayout.LabelField(Path.GetFileName(result.Path), index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(result.Path, descriptionStyle);
+      EditorGUILayout.LabelField(BoldLabel(result.Path, result.Indices.ToArray()), descriptionStyle);
       EditorGUILayout.EndVertical();
 
       EditorGUILayout.EndHorizontal();
