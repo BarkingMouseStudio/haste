@@ -409,20 +409,26 @@ namespace Haste {
       }
     }
 
+    void OnGUIChanged() {
+      if (state == HasteWindowState.Action) {
+        Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
+        actions = HasteActions.GetActionsForSource(selectedResult.Source)
+          .Where(a => queryRegex.IsMatch(a.Name.ToLower()))
+          .ToArray();
+      } else {
+        results = Haste.Index.Filter(query, resultCount);
+      }
+
+      highlightedIndex = 0;
+    }
+
     void OnGUI() {
       OnEvent(Event.current);
 
       DrawQuery();
 
       if (GUI.changed) {
-        if (state == HasteWindowState.Action) {
-          Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
-          actions = HasteActions.GetActionsForSource(selectedResult.Source)
-            .Where(a => queryRegex.IsMatch(a.Name.ToLower()))
-            .ToArray();
-        } else {
-          results = Haste.Index.Filter(query, resultCount);
-        }
+        OnGUIChanged();
       }
 
       if (results != null && results.Length > 0) {
