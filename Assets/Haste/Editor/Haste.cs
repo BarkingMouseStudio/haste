@@ -14,6 +14,8 @@ namespace Haste {
 
     public static event SceneChangedHandler SceneChanged;
 
+    public static HasteScheduler Scheduler;
+
     private static int usageCount = -1;
     public static int UsageCount {
       get {
@@ -39,50 +41,54 @@ namespace Haste {
     }
 
     public static HasteIndex Index;
-    static HasteFileWatcher projectWatcher;
-    static HasteHierarchyWatcher hierarchyWatcher;
+    static IHasteWatcher projectWatcher;
+    static IHasteWatcher hierarchyWatcher;
 
     static string currentScene;
 
     static Haste() {
       currentScene = EditorApplication.currentScene;
 
+      Scheduler = new HasteScheduler();
       Index = new HasteIndex();
 
       projectWatcher = new HasteProjectWatcher();
-      projectWatcher.Created += AssetCreated;
-      projectWatcher.Deleted += AssetDeleted;
+      projectWatcher.Created += AddToIndex;
+      projectWatcher.Deleted += RemoveFromIndex;
       projectWatcher.Start();
 
       hierarchyWatcher = new HasteHierarchyWatcher();
-      hierarchyWatcher.Created += GameObjectCreated;
-      hierarchyWatcher.Deleted += GameObjectDeleted;
+      hierarchyWatcher.Created += AddToIndex;
+      hierarchyWatcher.Deleted += RemoveFromIndex;
       hierarchyWatcher.Start();
 
       EditorApplication.update += Update;
+      EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
     }
 
     public static void Rebuild() {
+      Scheduler.Stop();
+
       Index.Clear();
 
-      hierarchyWatcher.ClearAndRestart();
-      projectWatcher.ClearAndRestart();
+      hierarchyWatcher.Reset();
+      projectWatcher.Reset();
+
+      hierarchyWatcher.Restart();
+      projectWatcher.Restart();
     }
 
-    static void AssetCreated(string path) {
-      Index.Add(HasteUtils.GetRelativeAssetPath(path), HasteSource.Project);
+    static void AddToIndex(HasteItem item) {
+      Index.Add(item);
     }
 
-    static void AssetDeleted(string path) {
-      Index.Remove(HasteUtils.GetRelativeAssetPath(path), HasteSource.Project);
+    static void RemoveFromIndex(HasteItem item) {
+      Index.Remove(item);
     }
 
-    static void GameObjectCreated(string path) {
-      Index.Add(path, HasteSource.Hierarchy);
-    }
-
-    static void GameObjectDeleted(string path) {
-      Index.Remove(path, HasteSource.Hierarchy);
+    static void PlaymodeStateChanged() {
+      Scheduler.Stop();
+      // TODO: Restart the watchers
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {
@@ -104,6 +110,8 @@ namespace Haste {
 
       hierarchyWatcher.Tick();
       projectWatcher.Tick();
+
+      Scheduler.Tick();
     }
   }
 }

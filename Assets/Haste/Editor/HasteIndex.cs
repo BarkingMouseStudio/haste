@@ -14,10 +14,9 @@ namespace Haste {
 
     IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
 
-    public void Add(string path, HasteSource source) {
-      MatchCollection matches = boundaryRegex.Matches(path);
+    public void Add(HasteItem item) {
+      MatchCollection matches = boundaryRegex.Matches(item.Path);
 
-      HasteItem item = new HasteItem(path, source);
       foreach (Match match in matches) {
         char c = Char.ToLower(match.Value[0]);
 
@@ -29,10 +28,9 @@ namespace Haste {
       }
     }
 
-    public void Remove(string path, HasteSource source) {
-      MatchCollection matches = boundaryRegex.Matches(path);
+    public void Remove(HasteItem item) {
+      MatchCollection matches = boundaryRegex.Matches(item.Path);
 
-      HasteItem item = new HasteItem(path, source);
       foreach (Match match in matches) {
         char c = Char.ToLower(match.Value[0]);
 

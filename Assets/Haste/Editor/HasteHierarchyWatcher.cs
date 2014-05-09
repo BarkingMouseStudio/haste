@@ -9,70 +9,82 @@ namespace Haste {
 
   public class HasteHierarchyWatcher : HasteWatcher {
 
+    HashSet<HasteItem> currentCollection; 
+    HashSet<HasteItem> nextCollection; 
+
     IDictionary<int, string> paths = new Dictionary<int, string>();
 
-    public HasteHierarchyWatcher() : base() {
+    public HasteHierarchyWatcher() {
+      this.currentCollection = new HashSet<HasteItem>();
+      this.nextCollection = new HashSet<HasteItem>();
+
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
       EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
 
       Haste.SceneChanged += SceneChanged;
     }
 
+    public override void Reset() {
+      // Forget everything
+      currentCollection.Clear();
+      nextCollection.Clear();
+    }
+
     void SceneChanged(string currentScene, string previousScene) {
-      ResetAndRestart();
+      // Start again
+      nextCollection.Clear();
+      Restart();
     }
 
     void HierarchyWindowChanged() {
-      ResetAndRestart();
+      // Start again
+      nextCollection.Clear();
+      Restart();
     }
 
     void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
-      Add(instanceId);
+      AddItem((GameObject)EditorUtility.InstanceIDToObject(instanceId));
     }
 
-    void Add(int instanceId) {
-      GameObject go = (GameObject)EditorUtility.InstanceIDToObject(instanceId);
-
+    void AddItem(GameObject go) {
       // We want to add children first since the rest of our search is bottom-up
       // (and paths are built that way).
       foreach (Transform child in go.transform) {
-        Add(child.gameObject.GetInstanceID());
+        AddItem(child.gameObject);
       }
 
-      string path = GetPath(go.transform);
+      HasteItem item = new HasteItem(GetPath(go.transform), go.GetInstanceID(), HasteSource.Hierarchy);
 
       if (scheduler.IsRunning) {
-        if (!nextCollection.Contains(path)) {
-          // We have to add to the next collection since we don't know where GetEnumerator
-          // is at in the run and next collection is used in checking deletions.
-          nextCollection.Add(path);
-        }
+        // We have to add to the next collection since we don't know where GetEnumerator
+        // is at in the run and next collection is used in checking deletions.
+        nextCollection.Add(item);
       }
 
-      // - If we are running, we want to add and trigger the event manually
+      // If we are running, we want to add and trigger the event manually
       // since a flush won't work if we're already past that step.
-      // - If we're not running we want to treat it as a one-off.
-      if (!currentCollection.Contains(path)) {
-        currentCollection.Add(path);
-        OnCreated(path);
+
+      // If we're not running we want to treat it as a one-off.
+
+      if (!currentCollection.Contains(item)) {
+        currentCollection.Add(item);
+        OnCreated(item);
       }
     }
 
     public override IEnumerator GetEnumerator() {
+      // TODO: Should we move reset code here?
+
       // Add active objects
       foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
-        if (!go.activeInHierarchy) {
-          continue;
-        }
+        HasteItem item = new HasteItem(GetPath(go.transform), go.GetInstanceID(), HasteSource.Hierarchy);
 
-        string path = GetPath(go.transform);
-
-        if (!nextCollection.Contains(path)) {
-          if (!currentCollection.Contains(path)) {
-            OnCreated(path);
+        if (!nextCollection.Contains(item)) {
+          if (!currentCollection.Contains(item)) {
+            OnCreated(item);
           }
 
-          nextCollection.Add(path);
+          nextCollection.Add(item);
         }
 
         yield return null;
@@ -80,29 +92,25 @@ namespace Haste {
 
       // Add recent objects
       foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>()) {
-        if (!go.activeInHierarchy) {
-          continue;
-        }
+        HasteItem item = new HasteItem(GetPath(go.transform), go.GetInstanceID(), HasteSource.Hierarchy);
 
-        string path = GetPath(go.transform);
-
-        if (!nextCollection.Contains(path)) {
-          if (!currentCollection.Contains(path)) {
-            OnCreated(path);
+        if (!nextCollection.Contains(item)) {
+          if (!currentCollection.Contains(item)) {
+            OnCreated(item);
           }
 
-          nextCollection.Add(path);
+          nextCollection.Add(item);
         }
 
         yield return null;
       }
 
       // Check for deleted paths
-      foreach (string path in currentCollection) {
+      foreach (HasteItem item in currentCollection) {
         // If an item from our original collection is not found
         // in our new collection, it has been removed.
-        if (!nextCollection.Contains(path)) {
-          OnDeleted(path);
+        if (!nextCollection.Contains(item)) {
+          OnDeleted(item);
         }
 
         yield return null;

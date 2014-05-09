@@ -7,6 +7,7 @@ namespace Haste {
     Unknown = 0,
     Project = 1,
     Hierarchy = 2,
-    Editor = 4
+    Editor = 4,
+    FileSystem = 8
   }
 }

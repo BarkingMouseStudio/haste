@@ -31,15 +31,15 @@ namespace Haste {
 
     public static HasteResult GetResultFromObject(UnityEngine.Object obj) {
       if (AssetDatabase.Contains(obj)) {
-        return new HasteResult(AssetDatabase.GetAssetPath(obj), HasteSource.Project);
+        return new HasteResult(AssetDatabase.GetAssetPath(obj), obj.GetInstanceID(), HasteSource.Project);
       } else if (obj.GetType() == typeof(Transform)) {
         Transform transform = (Transform)obj;
-        return new HasteResult(HasteUtils.GetHierarchyPath(transform), HasteSource.Hierarchy);
+        return new HasteResult(HasteUtils.GetHierarchyPath(transform), obj.GetInstanceID(), HasteSource.Hierarchy);
       } else if (obj.GetType() == typeof(GameObject)) {
         GameObject go = (GameObject)obj;
-        return new HasteResult(HasteUtils.GetHierarchyPath(go.transform), HasteSource.Hierarchy);
+        return new HasteResult(HasteUtils.GetHierarchyPath(go.transform), obj.GetInstanceID(), HasteSource.Hierarchy);
       } else {
-        return new HasteResult(obj.name, HasteSource.Unknown);
+        return new HasteResult(obj.name, obj.GetInstanceID(), HasteSource.Unknown);
       }
     }
 

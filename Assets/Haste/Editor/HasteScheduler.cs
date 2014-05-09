@@ -7,9 +7,22 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  public class HasteSchedulerNode {
+    public IEnumerator Fiber;
+    public bool IsStopping;
+
+    public HasteSchedulerNode(IEnumerator fiber) {
+      Fiber = fiber;
+    }
+
+    public void Stop() {
+      IsStopping = true;
+    }
+  }
+
   public class HasteScheduler {
 
-    private LinkedList<IEnumerator> coroutines;
+    private LinkedList<HasteSchedulerNode> coroutines;
    
     public bool IsRunning {
       get {
@@ -18,15 +31,19 @@ namespace Haste {
     }
 
     public HasteScheduler() {
-      coroutines = new LinkedList<IEnumerator>();
+      coroutines = new LinkedList<HasteSchedulerNode>();
     }
 
-    public void Start(IEnumerator fiber) {
-      coroutines.AddFirst(fiber);
+    public HasteSchedulerNode Start(IEnumerator fiber) {
+      var node = new HasteSchedulerNode(fiber);
+      coroutines.AddFirst(node);
+      return node;
     }
 
-    public void Start(IEnumerable enumerable) {
-      coroutines.AddFirst(enumerable.GetEnumerator());
+    public HasteSchedulerNode Start(IEnumerable enumerable) {
+      var node = new HasteSchedulerNode(enumerable.GetEnumerator());
+      coroutines.AddFirst(node);
+      return node;
     }
 
     public void Stop() {
@@ -34,13 +51,18 @@ namespace Haste {
     }
    
     public void Tick() {
-      LinkedListNode<IEnumerator> coroutine = coroutines.First;
+      LinkedListNode<HasteSchedulerNode> coroutine = coroutines.First;
 
       while (coroutine != null) {
-        LinkedListNode<IEnumerator> next = coroutine.Next;
+        LinkedListNode<HasteSchedulerNode> next = coroutine.Next;
 
-        if (!coroutine.Value.MoveNext()) {
+        // Remove the coroutine if its marked as stopping
+        if (coroutine.Value.IsStopping) {
           coroutines.Remove(coroutine);
+        } else {
+          if (!coroutine.Value.Fiber.MoveNext()) {
+            coroutines.Remove(coroutine);
+          }
         }
 
         coroutine = next;

@@ -30,5 +30,5 @@ namespace Haste {
         .ToArray();
       Debug.LogError(String.Join(", ", sargs));
     }
-}
+  }
 }

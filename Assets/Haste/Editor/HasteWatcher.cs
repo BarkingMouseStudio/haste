@@ -1,16 +1,22 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Haste {
 
-  public delegate void CreatedHandler(string path);
-  public delegate void DeletedHandled(string path);
+  public delegate void CreatedHandler(HasteItem item);
+  public delegate void DeletedHandled(HasteItem item);
 
   public interface IHasteWatcher {
     event CreatedHandler Created;
     event DeletedHandled Deleted;
+
+    void Start();
+    void Reset();
+    void Restart();
+    void Tick();
   }
 
   public abstract class HasteWatcher : IHasteWatcher, IEnumerable {
@@ -18,69 +24,39 @@ namespace Haste {
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
-    protected HashSet<string> currentCollection; 
-    protected HashSet<string> nextCollection; 
-
     protected HasteScheduler scheduler;
 
     bool shouldRestart = false;
 
     public HasteWatcher() {
-      this.currentCollection = new HashSet<string>();
-      this.nextCollection = new HashSet<string>();
       this.scheduler = new HasteScheduler();
 
       EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
     }
 
-    public virtual IEnumerator GetEnumerator() {
-      return null;
-    }
-
-    protected void OnCreated(string path) {
+    protected void OnCreated(HasteItem item) {
       if (Created != null) {
-        Created(path);
+        Created(item);
       }
     }
 
-    protected void OnDeleted(string path) {
+    protected void OnDeleted(HasteItem item) {
       if (Deleted != null) {
-        Deleted(path);
+        Deleted(item);
       }
     }
+
+    public abstract void Reset();
+
+    public abstract IEnumerator GetEnumerator();
 
     public void Start() {
       scheduler.Start(this);
     }
 
-    void Stop() {
+    public void Restart() {
       scheduler.Stop();
-    }
-
-    void Clear() {
-      // Forget everything
-      currentCollection.Clear();
-      nextCollection.Clear();
-    }
-
-    void Reset() {
-      // Start again
-      nextCollection.Clear();
-    }
-
-    void Restart() {
-      Stop();
       shouldRestart = true;
-    }
-
-    public void ResetAndRestart() {
-      Restart();
-      Reset();
-    }
-
-    public void ClearAndRestart() {
-      Restart();
-      Clear();
     }
 
     void PlaymodeStateChanged() {
