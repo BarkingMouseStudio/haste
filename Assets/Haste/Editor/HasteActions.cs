@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace Haste {
+
   public static class HasteActions {
 
     public static void FocusByHierarchyPath(string path) {
@@ -39,19 +40,6 @@ namespace Haste {
       }
     }
 
-    public static void SelectByHierarchyPath(string path) {
-      GameObject go = GameObject.Find(path);
-      if (go.transform == null) {
-        Selection.activeGameObject = go;
-      } else {
-        Selection.activeTransform = go.transform;
-      }
-    }
-
-    public static void SelectByProjectPath(string path) {
-      Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(path);
-    }
-
     public static HasteAction[] GetActionsForSource(HasteSource source) {
       switch (source) {
         case HasteSource.Project:
@@ -66,10 +54,11 @@ namespace Haste {
     public static void SelectByResult(HasteResult result) {
       switch (result.Source) {
         case HasteSource.Project:
-          SelectByProjectPath(result.Path);
+          Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
           break;
         case HasteSource.Hierarchy:
-          SelectByHierarchyPath(result.Path);
+          Selection.activeInstanceID = result.InstanceId;
+          EditorGUIUtility.PingObject(result.InstanceId);
           break;
         case HasteSource.Editor:
           EditorApplication.ExecuteMenuItem(result.Path);

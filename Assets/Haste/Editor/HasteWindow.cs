@@ -56,7 +56,7 @@ namespace Haste {
       EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
 
       EditorGUILayout.Space();
-      EditorGUILayout.LabelField("Open Count", Haste.UsageCount.ToString());
+      EditorGUILayout.LabelField("Open Count", HasteUsage.Count.ToString());
 
       EditorGUILayout.Space();
       EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
@@ -120,7 +120,7 @@ namespace Haste {
         instance.title = "Haste";
       }
 
-      Haste.UsageCount++;
+      HasteUsage.Count++;
 
       instance.ShowPopup();
       instance.HideActions();
@@ -175,7 +175,9 @@ namespace Haste {
 
       actions = HasteActions.GetActionsForSource(selectedResult.Source);
 
-      ShowActions();
+      if (actions.Length > 0) {
+        ShowActions();
+      }
     }
 
     void OnUpArrow() {
@@ -272,10 +274,8 @@ namespace Haste {
         OnResultSelected(result);
       }
 
-      Texture icon = HasteUtils.GetIconForSource(result.Source, result.Path);
-
-      if (icon != null) {
-        GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), icon);
+      if (result.Icon != null) {
+        GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), result.Icon);
       }
 
       EditorGUILayout.BeginVertical();
@@ -288,7 +288,7 @@ namespace Haste {
     }
 
     void OnActionSelected(HasteAction action) {
-      #if IS_PRO
+      #if IS_HASTE_PRO
         // We close the window first in case an action creates a dialog
         Close();
         action.Action(selectedResult);
@@ -302,7 +302,7 @@ namespace Haste {
         OnActionSelected(action);
       }
 
-      #if IS_PRO
+      #if IS_HASTE_PRO
         string description = action.Description;
       #else
         string description = "Download Haste Pro from the Unity Asset Store (Disabled)";
@@ -311,7 +311,7 @@ namespace Haste {
       GUIStyle currentNameStyle = nameStyle;
       GUIStyle currentDescriptionStyle = descriptionStyle;
 
-      #if IS_PRO
+      #if IS_HASTE_PRO
         if (index == highlightedIndex) {
           currentNameStyle = highlightStyle;
         }

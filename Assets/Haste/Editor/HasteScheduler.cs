@@ -9,7 +9,9 @@ namespace Haste {
 
   public class HasteSchedulerNode {
     public IEnumerator Fiber;
-    public bool IsStopping;
+    public bool IsStopping { get; private set; }
+
+    public bool IsRunning { get { return !IsStopping; } }
 
     public HasteSchedulerNode(IEnumerator fiber) {
       Fiber = fiber;

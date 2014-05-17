@@ -10,17 +10,6 @@ namespace Haste {
 
   public static class HasteUtils {
 
-    public static Texture GetIconForSource(HasteSource source, string path) {
-      switch (source) {
-        case HasteSource.Hierarchy:
-          return EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
-        case HasteSource.Project:
-          return AssetDatabase.GetCachedIcon(path);
-        default:
-          return null;
-      }
-    }
-
     public static string GetHomeFolder() {
       return String.Join(
         Path.DirectorySeparatorChar.ToString(),

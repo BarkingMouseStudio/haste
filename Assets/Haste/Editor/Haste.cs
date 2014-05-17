@@ -1,4 +1,4 @@
-#define IS_PRO
+#define IS_HASTE_PRO
 
 using UnityEngine;
 using UnityEditor;
@@ -12,24 +12,6 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    public static event SceneChangedHandler SceneChanged;
-
-    public static HasteScheduler Scheduler;
-
-    private static int usageCount = -1;
-    public static int UsageCount {
-      get {
-        if (usageCount < 0) {
-          usageCount = EditorPrefs.GetInt("HasteUsageCount", 0);
-        }
-        return usageCount;
-      }
-      set {
-        usageCount = value;
-        EditorPrefs.SetInt("HasteUsageCount", usageCount);
-      }
-    }
-
     public static bool IsApplicationBusy {
       get {
         return EditorApplication.isPlayingOrWillChangePlaymode ||
@@ -40,11 +22,14 @@ namespace Haste {
       }
     }
 
-    public static HasteIndex Index;
-    static IHasteWatcher projectWatcher;
-    static IHasteWatcher hierarchyWatcher;
+    public static event SceneChangedHandler SceneChanged;
 
     static string currentScene;
+
+    public static HasteScheduler Scheduler;
+    public static HasteIndex Index;
+
+    static HasteWatcherManager watchers;
 
     static Haste() {
       currentScene = EditorApplication.currentScene;
@@ -52,43 +37,38 @@ namespace Haste {
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
 
-      projectWatcher = new HasteProjectWatcher();
-      projectWatcher.Created += AddToIndex;
-      projectWatcher.Deleted += RemoveFromIndex;
-      projectWatcher.Start();
+      watchers = new HasteWatcherManager();
 
-      hierarchyWatcher = new HasteHierarchyWatcher();
-      hierarchyWatcher.Created += AddToIndex;
-      hierarchyWatcher.Deleted += RemoveFromIndex;
-      hierarchyWatcher.Start();
+      watchers.AddSource("Project", () => new HasteProjectSource());
+      watchers.AddSource("Hierarchy", () => new HasteHierarchySource());
+
+      #if IS_HASTE_PRO
+        watchers.AddSource("MenuItems", () => new HasteMenuItemSource());
+      #endif
+
+      EditorApplication.projectWindowChanged += ProjectWindowChanged;
+      EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
+
+      Haste.SceneChanged += HandleSceneChanged;
 
       EditorApplication.update += Update;
-      EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
+    }
+
+    static void ProjectWindowChanged() {
+      watchers.RestartSource("Project");
+    }
+
+    static void HierarchyWindowChanged() {
+      watchers.RestartSource("Hierarchy");
+    }
+
+    static void HandleSceneChanged(string currentScene, string previousScene) {
+      watchers.RestartSource("Hierarchy");
     }
 
     public static void Rebuild() {
-      Scheduler.Stop();
-
       Index.Clear();
-
-      hierarchyWatcher.Reset();
-      projectWatcher.Reset();
-
-      hierarchyWatcher.Restart();
-      projectWatcher.Restart();
-    }
-
-    static void AddToIndex(HasteItem item) {
-      Index.Add(item);
-    }
-
-    static void RemoveFromIndex(HasteItem item) {
-      Index.Remove(item);
-    }
-
-    static void PlaymodeStateChanged() {
-      Scheduler.Stop();
-      // TODO: Restart the watchers
+      watchers.RestartAll();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {
@@ -97,21 +77,20 @@ namespace Haste {
       }
     }
 
-    static void Update() {
-      if (IsApplicationBusy) {
-        return;
-      }
+    public static int frame = 0;
 
+    static void Update() {
       if (currentScene != EditorApplication.currentScene) {
         string previousScene = currentScene;
         currentScene = EditorApplication.currentScene;
         OnSceneChanged(currentScene, previousScene);
       }
 
-      hierarchyWatcher.Tick();
-      projectWatcher.Tick();
+      if (!IsApplicationBusy) {
+        Scheduler.Tick();
+      }
 
-      Scheduler.Tick();
+      frame++;
     }
   }
 }

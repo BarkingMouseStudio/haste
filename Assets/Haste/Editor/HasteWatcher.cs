@@ -14,62 +14,96 @@ namespace Haste {
     event DeletedHandled Deleted;
 
     void Start();
-    void Reset();
+    void Stop();
     void Restart();
-    void Tick();
+
+    bool IsRunning { get; }
   }
 
-  public abstract class HasteWatcher : IHasteWatcher, IEnumerable {
+  public class HasteWatcher : IHasteWatcher, IEnumerable {
 
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
-    protected HasteScheduler scheduler;
+    HashSet<HasteItem> currentCollection = new HashSet<HasteItem>();
+    HashSet<HasteItem> nextCollection = new HashSet<HasteItem>();
 
-    bool shouldRestart = false;
+    HasteSchedulerNode node;
+    SourceFactory factory;
 
-    public HasteWatcher() {
-      this.scheduler = new HasteScheduler();
-
-      EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
+    public HasteWatcher(SourceFactory factory) {
+      this.factory = factory;
     }
 
-    protected void OnCreated(HasteItem item) {
+    public bool IsRunning {
+      get {
+        return node != null ? node.IsRunning : false;
+      }
+    }
+
+    public void Start() {
+      if (!IsRunning) {
+        nextCollection.Clear(); // Clear next to begin traversal again
+        node = Haste.Scheduler.Start(this);
+      }
+    }
+
+    public void Stop() {
+      if (IsRunning) {
+        node.Stop();
+
+        // Clear both to free memory
+        currentCollection.Clear();
+        nextCollection.Clear();
+      }
+    }
+
+    public void Restart() {
+      if (IsRunning) {
+        node.Stop();
+      }
+
+      nextCollection.Clear(); // Clear next to begin traversal again
+      node = Haste.Scheduler.Start(this);
+    }
+
+    void OnCreated(HasteItem item) {
       if (Created != null) {
         Created(item);
       }
     }
 
-    protected void OnDeleted(HasteItem item) {
+    void OnDeleted(HasteItem item) {
       if (Deleted != null) {
         Deleted(item);
       }
     }
 
-    public abstract void Reset();
+    public IEnumerator GetEnumerator() {
+      foreach (HasteItem item in factory()) {
+        if (!currentCollection.Contains(item)) {
+          OnCreated(item);
+        }
 
-    public abstract IEnumerator GetEnumerator();
-
-    public void Start() {
-      scheduler.Start(this);
-    }
-
-    public void Restart() {
-      scheduler.Stop();
-      shouldRestart = true;
-    }
-
-    void PlaymodeStateChanged() {
-      Restart();
-    }
-
-    public void Tick() {
-      scheduler.Tick();
-
-      if (shouldRestart) {
-        shouldRestart = false;
-        Start();
+        yield return null;
       }
+
+      // Check for deleted paths
+      foreach (HasteItem item in currentCollection) {
+        // If an item from our original collection is not found
+        // in our new collection, it has been removed.
+        if (!nextCollection.Contains(item)) {
+          OnDeleted(item);
+        }
+
+        yield return null;
+      }
+
+      var temp = currentCollection;
+      currentCollection = nextCollection;
+
+      nextCollection = temp;
+      nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
     }
   }
 }

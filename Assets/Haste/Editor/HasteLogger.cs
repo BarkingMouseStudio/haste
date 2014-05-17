@@ -1,3 +1,5 @@
+#define DEBUG
+
 using UnityEngine;
 using System;
 using System.Linq;
@@ -7,6 +9,7 @@ namespace Haste {
 
   public static class HasteLogger {
 
+    [System.Diagnostics.Conditional("DEBUG")]
     public static void Info(params object[] args) {
       string[] sargs = ((IEnumerable)args)
         .Cast<object>()
@@ -15,6 +18,7 @@ namespace Haste {
       Debug.Log(String.Join(", ", sargs));
     }
 
+    [System.Diagnostics.Conditional("DEBUG")]
     public static void Warn(params object[] args) {
       string[] sargs = ((IEnumerable)args)
         .Cast<object>()
@@ -23,6 +27,7 @@ namespace Haste {
       Debug.LogWarning(String.Join(", ", sargs));
     }
 
+    [System.Diagnostics.Conditional("DEBUG")]
     public static void Error(params object[] args) {
       string[] sargs = ((IEnumerable)args)
         .Cast<object>()
