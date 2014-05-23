@@ -41,10 +41,10 @@ namespace Haste {
     }
 
     public void Clear() {
-      index = new Dictionary<char, HashSet<HasteItem>>();
+      index.Clear();
     }
 
-    public HasteResult[] Filter(string query, int countPerGroup) {
+    public HasteResult[] Filter(string query, int countPerGroup, HasteSource source = HasteSource.Unknown) {
       if (query.Length == 0) {
         return new HasteResult[0];
       }
@@ -81,7 +81,12 @@ namespace Haste {
         }
       }
 
-      return matches
+      IEnumerable<HasteResult> filteredMatches = matches;
+      if (source != HasteSource.Unknown) {
+        filteredMatches = filteredMatches.Where(m => m.Source == source);
+      }
+
+      return filteredMatches
         .GroupBy(r => r.Source) // Group by source
         .Select(g => {
           // Order each group by score and take the top N
