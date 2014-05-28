@@ -1,3 +1,5 @@
+#define IS_HASTE_PRO
+
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -9,21 +11,12 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  public enum HasteWindowState {
-    Search = 0,
-    Action = 1,
-  }
-
   public class HasteWindow : EditorWindow {
 
     static HasteWindow instance;
 
-    HasteWindowState state = HasteWindowState.Search;
-
     HasteResult[] results = new HasteResult[0];
     HasteResult selectedResult;
-
-    HasteAction[] actions = new HasteAction[0];
 
     GUIStyle queryStyle;
     GUIStyle nameStyle;
@@ -43,7 +36,7 @@ namespace Haste {
     const int prefixWidth = 96;
     const int groupSpacing = 10;
 
-    const int resultCount = 3;
+    const int resultCount = 5;
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
@@ -62,92 +55,80 @@ namespace Haste {
       EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
     }
 
+    static void Init() {
+      instance = EditorWindow.CreateInstance<HasteWindow>();
+
+      instance.queryStyle = new GUIStyle(EditorStyles.textField);
+      instance.queryStyle.fixedHeight = 64;
+      instance.queryStyle.alignment = TextAnchor.MiddleLeft;
+      instance.queryStyle.fontSize = 32;
+
+      instance.nameStyle = new GUIStyle(EditorStyles.largeLabel);
+      instance.nameStyle.alignment = TextAnchor.MiddleLeft;
+      instance.nameStyle.fixedHeight = 24;
+      instance.nameStyle.fontSize = 16;
+
+      instance.disabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
+      instance.disabledNameStyle.alignment = TextAnchor.MiddleLeft;
+      instance.disabledNameStyle.fixedHeight = 24;
+      instance.disabledNameStyle.fontSize = 16;
+      instance.disabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+
+      instance.disabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
+      instance.disabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
+      instance.disabledDescriptionStyle.fixedHeight = 24;
+      instance.disabledDescriptionStyle.fontSize = 12;
+      instance.disabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+
+      instance.descriptionStyle = new GUIStyle(EditorStyles.largeLabel);
+      instance.descriptionStyle.alignment = TextAnchor.MiddleLeft;
+      instance.descriptionStyle.fixedHeight = 24;
+      instance.descriptionStyle.fontSize = 12;
+      instance.descriptionStyle.richText = true;
+
+      instance.prefixStyle = new GUIStyle(EditorStyles.largeLabel);
+      instance.prefixStyle.alignment = TextAnchor.MiddleRight;
+      instance.prefixStyle.fixedHeight = 18;
+      instance.prefixStyle.fontSize = 12;
+
+      instance.highlightStyle = new GUIStyle(EditorStyles.whiteLargeLabel);
+      instance.highlightStyle.alignment = TextAnchor.MiddleLeft;
+      instance.highlightStyle.fixedHeight = 24;
+      instance.highlightStyle.fontSize = 16;
+
+      if (EditorGUIUtility.isProSkin) {
+        instance.highlightStyle.normal.textColor = new Color(0.275f, 0.475f, 0.95f);
+      } else {
+        instance.highlightStyle.normal.textColor = new Color(0.045f, 0.22f, 0.895f);
+      }
+
+      int width = 500;
+      int height = 300;
+      int x = (Screen.currentResolution.width - width) / 2;
+      int y = (Screen.currentResolution.height - height) / 2;
+      instance.position = new Rect(x, y, width, height);
+      instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
+      instance.title = "Haste";
+    }
+
     [MenuItem("Window/Haste %k")]
     public static void Open() {
       if (instance == null) {
-        instance = EditorWindow.CreateInstance<HasteWindow>();
-
-        instance.queryStyle = new GUIStyle(EditorStyles.textField);
-        instance.queryStyle.fixedHeight = 64;
-        instance.queryStyle.alignment = TextAnchor.MiddleLeft;
-        instance.queryStyle.fontSize = 32;
-
-        instance.nameStyle = new GUIStyle(EditorStyles.largeLabel);
-        instance.nameStyle.alignment = TextAnchor.MiddleLeft;
-        instance.nameStyle.fixedHeight = 24;
-        instance.nameStyle.fontSize = 16;
-
-        instance.disabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
-        instance.disabledNameStyle.alignment = TextAnchor.MiddleLeft;
-        instance.disabledNameStyle.fixedHeight = 24;
-        instance.disabledNameStyle.fontSize = 16;
-        instance.disabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
-
-        instance.disabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
-        instance.disabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
-        instance.disabledDescriptionStyle.fixedHeight = 24;
-        instance.disabledDescriptionStyle.fontSize = 12;
-        instance.disabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
-
-        instance.descriptionStyle = new GUIStyle(EditorStyles.largeLabel);
-        instance.descriptionStyle.alignment = TextAnchor.MiddleLeft;
-        instance.descriptionStyle.fixedHeight = 24;
-        instance.descriptionStyle.fontSize = 12;
-        instance.descriptionStyle.richText = true;
-
-        instance.prefixStyle = new GUIStyle(EditorStyles.largeLabel);
-        instance.prefixStyle.alignment = TextAnchor.MiddleRight;
-        instance.prefixStyle.fixedHeight = 18;
-        instance.prefixStyle.fontSize = 12;
-
-        instance.highlightStyle = new GUIStyle(EditorStyles.whiteLargeLabel);
-        instance.highlightStyle.alignment = TextAnchor.MiddleLeft;
-        instance.highlightStyle.fixedHeight = 24;
-        instance.highlightStyle.fontSize = 16;
-
-        if (EditorGUIUtility.isProSkin) {
-          instance.highlightStyle.normal.textColor = new Color(0.275f, 0.475f, 0.95f);
-        } else {
-          instance.highlightStyle.normal.textColor = new Color(0.045f, 0.22f, 0.895f);
-        }
-
-        int width = 500;
-        int height = 300;
-        int x = (Screen.currentResolution.width - width) / 2;
-        int y = (Screen.currentResolution.height - height) / 2;
-        instance.position = new Rect(x, y, width, height);
-        instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
-        instance.title = "Haste";
+        Init();
       }
 
       HasteUsage.Count++;
 
       instance.ShowPopup();
-      instance.HideActions();
       instance.Focus();
-      instance.PrefillResults();
-    }
 
-    void PrefillResults() {
-      results = HasteUtils.GetResultsFromObjects(Selection.objects);
-    }
-
-    void HideActions() {
-      highlightedIndex = 0;
-      state = HasteWindowState.Search;
-    }
-
-    void ShowActions() {
-      highlightedIndex = 0;
-      state = HasteWindowState.Action;
-      query = "";
+      // TODO: Populate initial results with "selectedResult" filtered actions?
     }
 
     void OnEscape() {
-      // On escape, backtrack out of actions, clear the query or close the window
-      if (state == HasteWindowState.Action) {
-        HideActions();
-      } else if (query != "") {
+      // On escape, clear context, clear the query or close the window
+      // TODO: Clear context
+      if (query != "") {
         query = "";
       } else {
         Close();
@@ -155,28 +136,15 @@ namespace Haste {
     }
 
     void OnReturn() {
-      if (state == HasteWindowState.Action) {
-        OnActionSelected(actions[highlightedIndex]);
-      } else {
-        if (state != HasteWindowState.Action && results.Length > 0) {
-          OnResultSelected(results[highlightedIndex]);
-        }
+      if (results.Length > 0) {
+        selectedResult = results[highlightedIndex];
       }
     }
 
     void OnRightArrow() {
-      if (state == HasteWindowState.Action || results.Length == 0) {
-        return;
-      }
-
-      selectedResult = results[highlightedIndex];
-
-      HasteActions.SelectByResult(selectedResult);
-
-      actions = HasteActions.GetActionsForSource(selectedResult.Source);
-
-      if (actions.Length > 0) {
-        ShowActions();
+      if (results.Length > 0) {
+        selectedResult = results[highlightedIndex];
+        // TODO: Clear query, re-filter results
       }
     }
 
@@ -186,21 +154,15 @@ namespace Haste {
     }
 
     void OnDownArrow() {
-      if (state == HasteWindowState.Action) {
-        highlightedIndex = Math.Min(highlightedIndex + 1, actions.Length - 1);
-      } else {
-        highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
-      }
+      highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
       UpdateScroll();
     }
 
     void UpdateScroll() {
       int previousGroups = 0;
-      if (state != HasteWindowState.Action) {
-        for (int i = 0; i <= highlightedIndex; i++) {
-          if (i > 0 && results[i].Source != results[i - 1].Source) {
-            previousGroups++;
-          }
+      for (int i = 0; i <= highlightedIndex; i++) {
+        if (i > 0 && results[i].Source != results[i - 1].Source) {
+          previousGroups++;
         }
       }
 
@@ -278,67 +240,20 @@ namespace Haste {
         GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), result.Icon);
       }
 
-      EditorGUILayout.BeginVertical();
-      EditorGUILayout.LabelField(Path.GetFileName(result.Path), index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(BoldLabel(result.Path, result.Indices.ToArray()), descriptionStyle);
-      EditorGUILayout.EndVertical();
-
-      EditorGUILayout.EndHorizontal();
-      EditorGUILayout.Space();
-    }
-
-    void OnActionSelected(HasteAction action) {
       #if IS_HASTE_PRO
-        // We close the window first in case an action creates a dialog
-        Close();
-        action.Action(selectedResult);
-      #endif
-    }
-
-    void DrawAction(HasteAction action, int index) {
-      var rect = EditorGUILayout.BeginHorizontal();
-
-      if (GUI.Button(rect, "", GUIStyle.none)) {
-        OnActionSelected(action);
-      }
-
-      #if IS_HASTE_PRO
-        string description = action.Description;
+        // string description = result.Description;
       #else
         string description = "Download Haste Pro from the Unity Asset Store (Disabled)";
       #endif
 
-      GUIStyle currentNameStyle = nameStyle;
-      GUIStyle currentDescriptionStyle = descriptionStyle;
-
-      #if IS_HASTE_PRO
-        if (index == highlightedIndex) {
-          currentNameStyle = highlightStyle;
-        }
-      #else
-        currentNameStyle = disabledNameStyle;
-        currentDescriptionStyle = disabledDescriptionStyle;
-      #endif
-
       EditorGUILayout.BeginVertical();
-      EditorGUILayout.LabelField(action.Name, currentNameStyle);
-      EditorGUILayout.LabelField(description, currentDescriptionStyle);
+      EditorGUILayout.LabelField(Path.GetFileName(result.Path), index == highlightedIndex ? highlightStyle : nameStyle);
+      EditorGUILayout.LabelField(BoldLabel(result.Path, result.Indices.ToArray()), descriptionStyle);
+      EditorGUILayout.LabelField(result.Description, descriptionStyle);
       EditorGUILayout.EndVertical();
 
       EditorGUILayout.EndHorizontal();
       EditorGUILayout.Space();
-    }
-
-    void DrawActions() {
-      scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
-        GUILayout.ExpandWidth(true),
-        GUILayout.ExpandHeight(true));
-
-      for (int i = 0; i < actions.Length; i++) {
-        DrawAction(actions[i], i);
-      }
-
-      EditorGUILayout.EndScrollView();
     }
 
     void DrawResults() {
@@ -410,15 +325,7 @@ namespace Haste {
     }
 
     void OnGUIChanged() {
-      if (state == HasteWindowState.Action) {
-        Regex queryRegex = HasteUtils.GetFuzzyFilterRegex(query);
-        actions = HasteActions.GetActionsForSource(selectedResult.Source)
-          .Where(a => queryRegex.IsMatch(a.Name.ToLower()))
-          .ToArray();
-      } else {
-        results = Haste.Index.Filter(query, resultCount);
-      }
-
+      results = Haste.Index.Filter(query, resultCount);
       highlightedIndex = 0;
     }
 
@@ -432,11 +339,7 @@ namespace Haste {
       }
 
       if (results != null && results.Length > 0) {
-        if (state == HasteWindowState.Action) {
-          DrawActions();
-        } else {
-          DrawResults();
-        }
+        DrawResults();
       }
     }
   }
