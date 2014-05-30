@@ -9,15 +9,13 @@ namespace Haste {
 
   public class HasteHierarchySource : IEnumerable<HasteItem> {
 
+    public static readonly string NAME = "Hierarchy";
+
     IDictionary<int, string> paths = new Dictionary<int, string>();
 
     HashSet<HasteItem> incoming = new HashSet<HasteItem>();
 
-    Texture gameObjectIcon;
-
     public HasteHierarchySource() {
-      gameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
-
       EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
     }
 
@@ -49,11 +47,10 @@ namespace Haste {
         AddGameObject(child.gameObject);
       }
 
-      incoming.Add(new HasteItem(
-        GetTransformPath(go.transform),
-        go.GetInstanceID(),
-        HasteSource.Hierarchy,
-        gameObjectIcon));
+      string path = GetTransformPath(go.transform);
+      int id = go.GetInstanceID();
+      HasteItem item = new HasteItem(path, id, NAME);
+      incoming.Add(item);
     }
 
     public IEnumerator<HasteItem> GetEnumerator() {
@@ -66,20 +63,16 @@ namespace Haste {
 
       // Add active objects
       foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
-        yield return new HasteItem(
-          GetTransformPath(go.transform),
-          go.GetInstanceID(),
-          HasteSource.Hierarchy,
-          gameObjectIcon);
+        string path = GetTransformPath(go.transform);
+        int id = go.GetInstanceID();
+        yield return new HasteItem(path, id, NAME);
       }
 
       // Add recent objects
       foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>()) {
-        yield return new HasteItem(
-          GetTransformPath(go.transform),
-          go.GetInstanceID(),
-          HasteSource.Hierarchy,
-          gameObjectIcon);
+        string path = GetTransformPath(go.transform);
+        int id = go.GetInstanceID();
+        yield return new HasteItem(path, id, NAME);
       }
     }
 

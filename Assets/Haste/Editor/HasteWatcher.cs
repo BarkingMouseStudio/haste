@@ -29,9 +29,9 @@ namespace Haste {
     HashSet<HasteItem> nextCollection = new HashSet<HasteItem>();
 
     HasteSchedulerNode node;
-    SourceFactory factory;
+    HasteSourceFactory factory;
 
-    public HasteWatcher(SourceFactory factory) {
+    public HasteWatcher(HasteSourceFactory factory) {
       this.factory = factory;
     }
 

@@ -44,24 +44,24 @@ namespace Haste {
       index.Clear();
     }
 
-    public HasteResult[] Filter(string query, int countPerGroup, HasteSource source = HasteSource.Unknown) {
+    public IHasteResult[] Filter(string query, int countPerGroup, string source = "") {
       if (query.Length == 0) {
-        return new HasteResult[0];
+        return new IHasteResult[0];
       }
 
       char c = Char.ToLower(query[0]);
 
       if (!index.ContainsKey(c)) {
-        return new HasteResult[0];
+        return new IHasteResult[0];
       }
 
-      IList<HasteResult> matches = new List<HasteResult>();
+      IList<IHasteResult> matches = new List<IHasteResult>();
       foreach (HasteItem item in index[c]) {
         float score;
 
         string filename = Path.GetFileNameWithoutExtension(item.Path);
         string directory = Path.GetDirectoryName(item.Path);
-        IList<int> indices;
+        List<int> indices;
 
         if (HasteFuzzyMatching.FuzzyMatch(filename, query, out indices, out score)) { // Filename
           // Increment indices to account for being only the filename
@@ -71,28 +71,28 @@ namespace Haste {
             }
           }
 
-          matches.Add(new HasteResult(item, indices, score * 2));
+          matches.Add(Haste.Types.GetType(item, score * 2, indices));
           continue;
         }
 
         if (HasteFuzzyMatching.FuzzyMatch(item.Path, query, out indices, out score)) { // Full path
-          matches.Add(new HasteResult(item, indices, score));
+          matches.Add(Haste.Types.GetType(item, score, indices));
           continue;
         }
       }
 
-      IEnumerable<HasteResult> filteredMatches = matches;
-      if (source != HasteSource.Unknown) {
-        filteredMatches = filteredMatches.Where(m => m.Source == source);
+      IEnumerable<IHasteResult> filteredMatches = matches;
+      if (source != "") {
+        filteredMatches = filteredMatches.Where(m => m.Item.Source == source);
       }
 
       return filteredMatches
-        .GroupBy(r => r.Source) // Group by source
+        .GroupBy(r => r.Item.Source) // Group by source
         .Select(g => {
           // Order each group by score and take the top N
           return g
             .OrderByDescending(r => r.Score)
-            .ThenBy(r => Path.GetFileNameWithoutExtension(r.Path))
+            .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
             .Take(countPerGroup);
         })
         .OrderByDescending(g => g.First().Score) // Sort each group by score

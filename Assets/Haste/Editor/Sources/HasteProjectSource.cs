@@ -9,6 +9,8 @@ namespace Haste {
 
   public class HasteProjectSource : IEnumerable<HasteItem> {
 
+    public static readonly string NAME = "Project";
+
     public IEnumerator<HasteItem> GetEnumerator() {
       Queue<string> directories = new Queue<string>();
 
@@ -29,11 +31,8 @@ namespace Haste {
             continue; // Ignore hidden files
           }
 
-          yield return new HasteItem(
-            HasteUtils.GetRelativeAssetPath(filePath),
-            0,
-            HasteSource.Project,
-            AssetDatabase.GetCachedIcon(filePath));
+          string path = HasteUtils.GetRelativeAssetPath(filePath);
+          yield return new HasteItem(path, 0, NAME);
         }
 
         foreach (string directoryPath in Directory.GetDirectories(currentPath)) {
@@ -43,11 +42,8 @@ namespace Haste {
 
           directories.Enqueue(directoryPath);
 
-          yield return new HasteItem(
-            HasteUtils.GetRelativeAssetPath(directoryPath),
-            0,
-            HasteSource.Project,
-            AssetDatabase.GetCachedIcon(directoryPath));
+          string path = HasteUtils.GetRelativeAssetPath(directoryPath);
+          yield return new HasteItem(path, 0, NAME);
         }
       }
     }

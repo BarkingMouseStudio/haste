@@ -6,22 +6,13 @@ namespace Haste {
 
   public struct HasteItem {
     public string Path;
-    public int InstanceId;
-    public HasteSource Source;
-    public Texture Icon;
+    public int Id;
+    public string Source;
 
-    public HasteItem(string path, int instanceId, HasteSource source, Texture icon = null) {
+    public HasteItem(string path, int id, string source) {
       Path = path;
+      Id = id;
       Source = source;
-      InstanceId = instanceId;
-      Icon = icon;
-    }
-
-    public HasteItem(HasteResult result) {
-      Path = result.Path;
-      Source = result.Source;
-      InstanceId = result.InstanceId;
-      Icon = result.Icon;
     }
   }
 }

@@ -7,7 +7,10 @@ using System.Reflection;
 
 namespace Haste {
 
+  #if IS_HASTE_PRO
   public class HasteMenuItemSource : IEnumerable<HasteItem> {
+
+    public static readonly string NAME = "MenuItem";
 
     public static string[] MenuItems = new string[]{
       "Unity/Preferences",
@@ -119,7 +122,7 @@ namespace Haste {
             foreach (Object attribute in info.GetCustomAttributes(typeof(MenuItem), true)) {
               MenuItem menuItem = (MenuItem)attribute;
               if (!menuItem.validate) {
-                yield return new HasteItem(menuItem.menuItem, menuItem.priority, HasteSource.Editor);
+                yield return new HasteItem(menuItem.menuItem, menuItem.priority, NAME);
               }
             }
           }
@@ -127,7 +130,7 @@ namespace Haste {
       }
 
       foreach (string path in MenuItems) {
-        yield return new HasteItem(path, 0, HasteSource.Editor);
+        yield return new HasteItem(path, 0, NAME);
       }
     }
 
@@ -135,4 +138,5 @@ namespace Haste {
       return GetEnumerator();
     }
   }
+  #endif
 }

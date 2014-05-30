@@ -1,5 +1,3 @@
-#define IS_HASTE_PRO
-
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
@@ -22,28 +20,64 @@ namespace Haste {
       }
     }
 
+    private static int usageCount = -1;
+    public static int UsageCount {
+      get {
+        if (usageCount < 0) {
+          usageCount = EditorPrefs.GetInt("HasteUsageCount", 0);
+        }
+        return usageCount;
+      }
+      set {
+        usageCount = value;
+        EditorPrefs.SetInt("HasteUsageCount", usageCount);
+      }
+    }
+
     public static event SceneChangedHandler SceneChanged;
 
     static string currentScene;
 
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
-
-    static HasteWatcherManager watchers;
+    public static HasteWatcherManager Watchers;
+    public static HasteTypeManager Types;
 
     static Haste() {
       currentScene = EditorApplication.currentScene;
 
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
+      Watchers = new HasteWatcherManager();
+      Types = new HasteTypeManager();
 
-      watchers = new HasteWatcherManager();
+      Types.AddType(HasteProjectSource.NAME, (HasteItem item, float score, List<int> indices) => {
+        return new HasteProjectResult(item, score, indices);
+      });
 
-      watchers.AddSource("Project", () => new HasteProjectSource());
-      watchers.AddSource("Hierarchy", () => new HasteHierarchySource());
+      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, float score, List<int> indices) => {
+        return new HasteHierarchyResult(item, score, indices);
+      });
+
+      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, float score, List<int> indices) => {
+        return new HasteMenuItemResult(item, score, indices);
+      });
+
+      Types.AddType(HasteProjectActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
+        return new HasteResult(item, score, indices);
+      });
+
+      Types.AddType(HasteHierarchyActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
+        return new HasteResult(item, score, indices);
+      });
+
+      Watchers.AddSource(HasteProjectSource.NAME, () => new HasteProjectSource());
+      Watchers.AddSource(HasteHierarchySource.NAME, () => new HasteHierarchySource());
+      Watchers.AddSource(HasteProjectActionSource.NAME, () => new HasteProjectActionSource());
+      Watchers.AddSource(HasteHierarchyActionSource.NAME, () => new HasteHierarchyActionSource());
 
       #if IS_HASTE_PRO
-        watchers.AddSource("MenuItems", () => new HasteMenuItemSource());
+        Watchers.AddSource(HasteMenuItemSource.NAME, () => new HasteMenuItemSource());
       #endif
 
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
@@ -55,20 +89,20 @@ namespace Haste {
     }
 
     static void ProjectWindowChanged() {
-      watchers.RestartSource("Project");
+      Watchers.RestartSource(HasteProjectSource.NAME);
     }
 
     static void HierarchyWindowChanged() {
-      watchers.RestartSource("Hierarchy");
+      Watchers.RestartSource(HasteHierarchySource.NAME);
     }
 
     static void HandleSceneChanged(string currentScene, string previousScene) {
-      watchers.RestartSource("Hierarchy");
+      Watchers.RestartSource(HasteHierarchySource.NAME);
     }
 
     public static void Rebuild() {
       Index.Clear();
-      watchers.RestartAll();
+      Watchers.RestartAll();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {

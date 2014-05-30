@@ -50,7 +50,7 @@ namespace Haste {
       return false;
     }
 
-    public static bool FuzzyMatch(string str, string query, out IList<int> indices, out float score) {
+    public static bool FuzzyMatch(string str, string query, out List<int> indices, out float score) {
       string queryLower = query.ToLower();
       string strLower = str.ToLower();
 

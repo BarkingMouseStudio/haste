@@ -1,5 +1,3 @@
-#define IS_HASTE_PRO
-
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -11,20 +9,30 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
+  public enum HasteWindowState {
+    Search = 0,
+    Action = 1,
+  }
+
   public class HasteWindow : EditorWindow {
+
+    public static GUIStyle QueryStyle;
+    public static GUIStyle NameStyle;
+    public static GUIStyle DescriptionStyle;
+    public static GUIStyle PrefixStyle;
+    public static GUIStyle NonHighlightStyle;
+    public static GUIStyle HighlightStyle;
+    public static GUIStyle DisabledNameStyle;
+    public static GUIStyle DisabledDescriptionStyle;
+
+    public static Texture GameObjectIcon;
 
     static HasteWindow instance;
 
-    HasteResult[] results = new HasteResult[0];
-    HasteResult selectedResult;
+    // HasteWindowState state = HasteWindowState.Search;
 
-    GUIStyle queryStyle;
-    GUIStyle nameStyle;
-    GUIStyle descriptionStyle;
-    GUIStyle prefixStyle;
-    GUIStyle highlightStyle;
-    GUIStyle disabledNameStyle;
-    GUIStyle disabledDescriptionStyle;
+    IHasteResult[] results = new IHasteResult[0];
+    IHasteResult selectedResult;
 
     Vector2 scrollPosition = Vector2.zero;
 
@@ -32,7 +40,7 @@ namespace Haste {
 
     int highlightedIndex = 0;
 
-    const int itemHeight = 44;
+    const int itemHeight = 46;
     const int prefixWidth = 96;
     const int groupSpacing = 10;
 
@@ -49,58 +57,60 @@ namespace Haste {
       EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
 
       EditorGUILayout.Space();
-      EditorGUILayout.LabelField("Open Count", HasteUsage.Count.ToString());
+      EditorGUILayout.LabelField("Open Count", Haste.UsageCount.ToString());
 
       EditorGUILayout.Space();
       EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
     }
 
     static void Init() {
-      instance = EditorWindow.CreateInstance<HasteWindow>();
+      HasteWindow.GameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
 
-      instance.queryStyle = new GUIStyle(EditorStyles.textField);
-      instance.queryStyle.fixedHeight = 64;
-      instance.queryStyle.alignment = TextAnchor.MiddleLeft;
-      instance.queryStyle.fontSize = 32;
+      // Styles
+      HasteWindow.QueryStyle = new GUIStyle(EditorStyles.textField);
+      HasteWindow.QueryStyle.fixedHeight = 64;
+      HasteWindow.QueryStyle.alignment = TextAnchor.MiddleLeft;
+      HasteWindow.QueryStyle.fontSize = 32;
 
-      instance.nameStyle = new GUIStyle(EditorStyles.largeLabel);
-      instance.nameStyle.alignment = TextAnchor.MiddleLeft;
-      instance.nameStyle.fixedHeight = 24;
-      instance.nameStyle.fontSize = 16;
+      HasteWindow.NameStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.NameStyle.alignment = TextAnchor.MiddleLeft;
+      HasteWindow.NameStyle.fixedHeight = 24;
+      HasteWindow.NameStyle.fontSize = 16;
 
-      instance.disabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
-      instance.disabledNameStyle.alignment = TextAnchor.MiddleLeft;
-      instance.disabledNameStyle.fixedHeight = 24;
-      instance.disabledNameStyle.fontSize = 16;
-      instance.disabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+      HasteWindow.DisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.DisabledNameStyle.alignment = TextAnchor.MiddleLeft;
+      HasteWindow.DisabledNameStyle.fixedHeight = 24;
+      HasteWindow.DisabledNameStyle.fontSize = 16;
+      HasteWindow.DisabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
 
-      instance.disabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
-      instance.disabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
-      instance.disabledDescriptionStyle.fixedHeight = 24;
-      instance.disabledDescriptionStyle.fontSize = 12;
-      instance.disabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+      HasteWindow.DisabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.DisabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
+      HasteWindow.DisabledDescriptionStyle.fixedHeight = 24;
+      HasteWindow.DisabledDescriptionStyle.fontSize = 12;
+      HasteWindow.DisabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
 
-      instance.descriptionStyle = new GUIStyle(EditorStyles.largeLabel);
-      instance.descriptionStyle.alignment = TextAnchor.MiddleLeft;
-      instance.descriptionStyle.fixedHeight = 24;
-      instance.descriptionStyle.fontSize = 12;
-      instance.descriptionStyle.richText = true;
+      HasteWindow.DescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.DescriptionStyle.alignment = TextAnchor.MiddleLeft;
+      HasteWindow.DescriptionStyle.fixedHeight = 24;
+      HasteWindow.DescriptionStyle.fontSize = 12;
+      HasteWindow.DescriptionStyle.richText = true;
 
-      instance.prefixStyle = new GUIStyle(EditorStyles.largeLabel);
-      instance.prefixStyle.alignment = TextAnchor.MiddleRight;
-      instance.prefixStyle.fixedHeight = 18;
-      instance.prefixStyle.fontSize = 12;
+      HasteWindow.PrefixStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.PrefixStyle.alignment = TextAnchor.MiddleRight;
+      HasteWindow.PrefixStyle.fixedHeight = 18;
+      HasteWindow.PrefixStyle.fontSize = 12;
 
-      instance.highlightStyle = new GUIStyle(EditorStyles.whiteLargeLabel);
-      instance.highlightStyle.alignment = TextAnchor.MiddleLeft;
-      instance.highlightStyle.fixedHeight = 24;
-      instance.highlightStyle.fontSize = 16;
+      HasteWindow.NonHighlightStyle = new GUIStyle();
+      HasteWindow.HighlightStyle = new GUIStyle();
 
       if (EditorGUIUtility.isProSkin) {
-        instance.highlightStyle.normal.textColor = new Color(0.275f, 0.475f, 0.95f);
+        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.275f, 0.475f, 0.95f, 0.2f));
       } else {
-        instance.highlightStyle.normal.textColor = new Color(0.045f, 0.22f, 0.895f);
+        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.045f, 0.22f, 0.895f, 0.2f));
       }
+
+      // Window
+      instance = EditorWindow.CreateInstance<HasteWindow>();
 
       int width = 500;
       int height = 300;
@@ -117,17 +127,14 @@ namespace Haste {
         Init();
       }
 
-      HasteUsage.Count++;
+      Haste.UsageCount++;
 
       instance.ShowPopup();
       instance.Focus();
-
-      // TODO: Populate initial results with "selectedResult" filtered actions?
     }
 
     void OnEscape() {
       // On escape, clear context, clear the query or close the window
-      // TODO: Clear context
       if (query != "") {
         query = "";
       } else {
@@ -138,13 +145,14 @@ namespace Haste {
     void OnReturn() {
       if (results.Length > 0) {
         selectedResult = results[highlightedIndex];
+        OnResultSelected(selectedResult);
       }
     }
 
     void OnRightArrow() {
       if (results.Length > 0) {
         selectedResult = results[highlightedIndex];
-        // TODO: Clear query, re-filter results
+        OnResultSelected(selectedResult);
       }
     }
 
@@ -161,7 +169,7 @@ namespace Haste {
     void UpdateScroll() {
       int previousGroups = 0;
       for (int i = 0; i <= highlightedIndex; i++) {
-        if (i > 0 && results[i].Source != results[i - 1].Source) {
+        if (i > 0 && results[i].Item.Source != results[i - 1].Item.Source) {
           previousGroups++;
         }
       }
@@ -206,112 +214,80 @@ namespace Haste {
       }
     }
 
-    void OnResultSelected(HasteResult result) {
+    void OnResultSelected(IHasteResult result) {
       Close();
-      HasteActions.SelectByResult(result);
-      HasteActions.FocusByResult(result);
+      result.Action();
     }
 
-    string BoldLabel(string str, int[] indices) {
-      string bolded = "";
-
-      // TODO: This could iterate indices and use substring instead
-      int index = 0;
-      for (int i = 0; i < str.Length; i++) {
-        if (index < indices.Length && i == indices[index]) {
-          bolded += "<color=\"white\">" + str[i] + "</color>";
-          index++;
-        } else {
-          bolded += str[i];
+    void DrawResult(IHasteResult result, int index) {
+      var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
+      using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
+        if (UnityEngine.GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
+          OnResultSelected(result);
         }
+
+        result.Draw();
       }
-
-      return bolded;
-    }
-
-    void DrawResult(HasteResult result, int index) {
-      var rect = EditorGUILayout.BeginHorizontal();
-
-      if (GUI.Button(rect, "", GUIStyle.none)) {
-        OnResultSelected(result);
-      }
-
-      if (result.Icon != null) {
-        GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), result.Icon);
-      }
-
-      #if IS_HASTE_PRO
-        // string description = result.Description;
-      #else
-        string description = "Download Haste Pro from the Unity Asset Store (Disabled)";
-      #endif
-
-      EditorGUILayout.BeginVertical();
-      EditorGUILayout.LabelField(Path.GetFileName(result.Path), index == highlightedIndex ? highlightStyle : nameStyle);
-      EditorGUILayout.LabelField(BoldLabel(result.Path, result.Indices.ToArray()), descriptionStyle);
-      EditorGUILayout.LabelField(result.Description, descriptionStyle);
-      EditorGUILayout.EndVertical();
-
-      EditorGUILayout.EndHorizontal();
-      EditorGUILayout.Space();
     }
 
     void DrawResults() {
-      scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
+      using (var scrollView = new HasteScrollView(scrollPosition,
         GUILayout.ExpandWidth(true),
-        GUILayout.ExpandHeight(true));
+        GUILayout.ExpandHeight(true))) {
 
-      for (int i = 0; i < results.Length; i++) {
-        HasteResult result = results[i];
+        scrollPosition = scrollView.ScrollPosition;
 
-        bool isBeginGroup = false;
-        if (i == 0) {
-          isBeginGroup = true;
-        } else {
-          HasteResult prevResult = results[i - 1];
-          if (result.Source != prevResult.Source) {
+        for (int i = 0; i < results.Length; i++) {
+          IHasteResult result = results[i];
+
+          bool isBeginGroup = false;
+          if (i == 0) {
             isBeginGroup = true;
+          } else {
+            IHasteResult prevResult = results[i - 1];
+            if (result.Item.Source != prevResult.Item.Source) {
+              isBeginGroup = true;
+            }
           }
-        }
 
-        if (isBeginGroup) {
-          // Begin group
+          if (isBeginGroup) {
+            // Begin group
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(
+              result.Item.Source,
+              PrefixStyle,
+              GUILayout.Width(prefixWidth));
+            EditorGUILayout.BeginVertical();
+          }
+
+          DrawResult(result, i);
           EditorGUILayout.Space();
-          EditorGUILayout.BeginHorizontal();
-          EditorGUILayout.LabelField(
-            Enum.GetName(typeof(HasteSource), result.Source),
-            prefixStyle,
-            GUILayout.Width(prefixWidth));
-          EditorGUILayout.BeginVertical();
-        }
 
-        DrawResult(result, i);
-
-        bool isEndGroup = false;
-        if (i == results.Length - 1) {
-          isEndGroup = true;
-        } else {
-          HasteResult nextResult = results[i + 1];
-          if (result.Source != nextResult.Source) {
+          bool isEndGroup = false;
+          if (i == results.Length - 1) {
             isEndGroup = true;
+          } else {
+            IHasteResult nextResult = results[i + 1];
+            if (result.Item.Source != nextResult.Item.Source) {
+              isEndGroup = true;
+            }
           }
-        }
 
-        if (isEndGroup) {
-          // End group
-          EditorGUILayout.EndVertical();
-          EditorGUILayout.EndHorizontal();
-          EditorGUILayout.Space();
+          if (isEndGroup) {
+            // End group
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+          }
         }
       }
-
-      EditorGUILayout.EndScrollView();
     }
 
     void DrawQuery() {
-      GUI.SetNextControlName("query");
-      query = EditorGUILayout.TextField(query, queryStyle,
-        GUILayout.Height(instance.queryStyle.fixedHeight));
+      UnityEngine.GUI.SetNextControlName("query");
+      query = EditorGUILayout.TextField(query, QueryStyle,
+        GUILayout.Height(HasteWindow.QueryStyle.fixedHeight));
       query = query.Trim();
       EditorGUI.FocusTextInControl("query");
     }
@@ -334,7 +310,7 @@ namespace Haste {
 
       DrawQuery();
 
-      if (GUI.changed) {
+      if (UnityEngine.GUI.changed) {
         OnGUIChanged();
       }
 

@@ -1,5 +1,3 @@
-#define IS_HASTE_PRO
-
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
@@ -7,14 +5,14 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public delegate IEnumerable<HasteItem> SourceFactory();
+  public delegate IEnumerable<HasteItem> HasteSourceFactory();
 
   public class HasteWatcherManager {
 
     static IDictionary<string, IHasteWatcher> watchers =
       new Dictionary<string, IHasteWatcher>();
 
-    public void AddSource(string name, SourceFactory factory) {
+    public void AddSource(string name, HasteSourceFactory factory) {
       if (!watchers.ContainsKey(name)) {
         IHasteWatcher watcher = new HasteWatcher(factory);
 
@@ -35,6 +33,8 @@ namespace Haste {
 
         watcher.Created -= AddToIndex;
         watcher.Deleted -= RemoveFromIndex;
+
+        watchers.Remove(name);
       }
     }
 
@@ -49,10 +49,6 @@ namespace Haste {
       foreach (IHasteWatcher watcher in watchers.Values) {
         watcher.Restart();
       }
-    }
-
-    public bool GetWatcher(string name, out IHasteWatcher watcher) {
-      return watchers.TryGetValue(name, out watcher);
     }
 
     void AddToIndex(HasteItem item) {
