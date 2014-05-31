@@ -12,35 +12,37 @@ namespace Haste {
 
     public static readonly string NAME = "MenuItem";
 
-    public static string[] MenuItems = new string[]{
+    public static string[] BuiltinMenuItems = new string[]{
       "Unity/Preferences",
 
       "File/New Scene",
       "File/Open Scene...",
       "File/Save Scene",
       "File/Save Scene as...",
-
+      // ---
       "File/New Project...",
-
+      // ---
       "File/Open Project...",
       "File/Save Project",
-
+      // ---
       "File/Build Settings...",
       "File/Build & Run",
 
       "Edit/Undo",
       "Edit/Redo",
-
+      // ---
       "Edit/Cut",
       "Edit/Copy",
       "Edit/Paste",
-
+      // ---
       "Edit/Duplicate",
       "Edit/Delete",
-      "Edit/FrameSelected",
+      "Edit/Frame Selected",
       "Edit/Lock View To Selected",
       "Edit/Select All",
-
+      // ---
+      "Edit/Snap Settings...",
+      // ---
       "Edit/Project Settings/Input",
       "Edit/Project Settings/Tags and Layers",
       "Edit/Project Settings/Audio",
@@ -67,12 +69,22 @@ namespace Haste {
       "Assets/Create/Lens Flare",
       "Assets/Create/Render Texture",
       "Assets/Create/Animation Controller",
-
+      // ---
+      "Assets/Reveal in Finder",
+      "Assets/Open",
+      "Assets/Delete",
+      // ---
       "Assets/Import New Asset...",
-      // "Assets/Import Package/...",
+      "Assets/Import Package/Custom Package...",
       "Assets/Export Package...",
+      "Assets/Find References In Scene",
+      "Assets/Select Dependencies",
+      // ---
       "Assets/Refresh",
+      "Assets/Reimport",
+      // ---
       "Assets/Reimport All",
+      // ---
       "Assets/Sync MonoDevelop Project",
 
       "GameObject/Create Empty",
@@ -81,10 +93,45 @@ namespace Haste {
       "GameObject/Create Other/GUI Text",
       "GameObject/Create Other/GUI Texture",
       "GameObject/Create Other/3D Text",
-      // "GameObject/Create Other/...",
+      // ---
+      "GameObject/Create Other/Directional Light",
+      "GameObject/Create Other/Point Light",
+      "GameObject/Create Other/Spotlight",
+      "GameObject/Create Other/Area Light",
+      // ---
+      "GameObject/Create Other/Cube",
+      "GameObject/Create Other/Sphere",
+      "GameObject/Create Other/Capsule",
+      "GameObject/Create Other/Cylinder",
+      "GameObject/Create Other/Plane",
+      "GameObject/Create Other/Quad",
+      // ---
+      "GameObject/Create Other/Sprite",
+      // ---
+      "GameObject/Create Other/Cloth",
+      // ---
+      "GameObject/Create Other/Audio Reverb Zone",
+      // ---
+      "GameObject/Create Other/Terrain",
+      "GameObject/Create Other/Ragdoll...",
+      "GameObject/Create Other/Tree",
+      "GameObject/Create Other/Wind Zone",
 
-      // "Component/...",
+      "Component/Add...",
 
+      "Window/Minimize",
+      "Window/Zoom",
+      // ---
+      "Window/Bring All to Front",
+      "Window/Layouts/2 by 3",
+      "Window/Layouts/4 Split",
+      "Window/Layouts/Default",
+      "Window/Layouts/Tall",
+      "Window/Layouts/Wide",
+      "Window/Layouts/Save Layout...",
+      "Window/Layouts/Delete Layout...",
+      "Window/Layouts/Revert Factory Settings...",
+      // ---
       "Window/Scene",
       "Window/Game",
       "Window/Inspector",
@@ -97,9 +144,11 @@ namespace Haste {
       "Window/Animator",
       "Window/Sprite Editor",
       "Window/Sprite Packer (Developer Preview)",
+      // ---
       "Window/Lightmapping",
       "Window/Occlusion Culling",
       "Window/Navigation",
+      // ---
       "Window/Console",
     };
 
@@ -121,15 +170,24 @@ namespace Haste {
           foreach (var info in type.GetMethods(BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static|BindingFlags.DeclaredOnly)) {
             foreach (Object attribute in info.GetCustomAttributes(typeof(MenuItem), true)) {
               MenuItem menuItem = (MenuItem)attribute;
-              if (!menuItem.validate) {
-                yield return new HasteItem(menuItem.menuItem, menuItem.priority, NAME);
+
+              if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
+              if (menuItem.menuItem.StartsWith("internal:")) continue;
+              if (menuItem.validate) continue;
+
+              string path = menuItem.menuItem;
+              int keyIndex = path.LastIndexOf('%');
+              if (keyIndex != -1) {
+                path = path.Remove(keyIndex);
               }
+
+              yield return new HasteItem(path, menuItem.priority, NAME);
             }
           }
         }
       }
 
-      foreach (string path in MenuItems) {
+      foreach (string path in BuiltinMenuItems) {
         yield return new HasteItem(path, 0, NAME);
       }
     }

@@ -13,17 +13,26 @@ namespace Haste {
     public static readonly string NAME = "HierarchyAction";
 
     public static string[] Actions = new string[]{
-      "Focus",
+      "Frame",
       "Create Empty GameObject",
       "Reset Transform",
       "Clone",
+      "Rename",
+      "Lock",
+      "Unlock",
+      "Activate",
+      "Deactivate",
+      "Reset Transform",
+      "Select Parent",
+      "Select Children",
+      "Delete",
+
+      // Prefab
       "Select Prefab",
       "Break Prefab",
       "Revert to Prefab",
       "Reconnect to Prefab",
-      "Select Parent",
-      "Select Children",
-      "Delete"
+      "Apply Change to Prefab"
     };
 
     public IEnumerator<HasteItem> GetEnumerator() {

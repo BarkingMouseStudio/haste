@@ -11,186 +11,99 @@ namespace Haste {
 
   public static class HasteActions {
 
-    public static void DisplayPreferences() {
-      var asm = Assembly.GetAssembly(typeof(EditorWindow));
-      var T = asm.GetType("UnityEditor.PreferencesWindow");
-      var method = T.GetMethod("ShowPreferencesWindow", BindingFlags.NonPublic|BindingFlags.Static);
-      method.Invoke(null, null);
-    }
+    public delegate void MenuItemFallbackDelegate();
 
-    public static void FrameSelected() {
-      SceneView.lastActiveSceneView.FrameSelected();
-    }
+    public static IDictionary<string, MenuItemFallbackDelegate> MenuItemFallbacks = new Dictionary<string, MenuItemFallbackDelegate>() {
+      { "Unity/Preferences", () => {
+        HasteUtils.UnityEditorInvoke("UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
+      } },
 
-    public static UnityEngine.Object Clone(GameObject go) {
-      var prefabRoot = PrefabUtility.GetPrefabParent(go);
-      if (prefabRoot != null) {
-        return PrefabUtility.InstantiatePrefab(prefabRoot);
-      } else {
-        return UnityEngine.Object.Instantiate(go);
-      }
-    }
+      { "File/New Scene", () => {
+      } },
+      { "File/Open Scene...", () => {
+      } },
+      { "File/Save Scene", () => {
+      } },
+      { "File/Save Scene as...", () => {
+      } },
 
-    // public static HasteAction[] ProjectActions = new HasteAction[]{
-    //   new HasteAction("Open", "Open the current file...", result => {
-    //     var selectedObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
-    //     switch (Path.GetExtension(result.Path)) {
-    //       case ".unity": // Scene
-    //         EditorApplication.SaveCurrentSceneIfUserWantsTo();
-    //         EditorApplication.OpenScene(result.Path);
-    //         break;
-    //       default:
-    //         AssetDatabase.OpenAsset(selectedObject);
-    //         break;
-    //     }
-    //     Selection.activeObject = selectedObject;
-    //   }),
+      { "File/New Project...", () => {
+      } },
+      { "File/Open Project...", () => {
+      } },
+      { "File/Save Project", () => {
+      } },
 
-    //   new HasteAction("Copy", "Copy the current file...", result => {
-    //     var copyPath = EditorUtility.SaveFilePanelInProject(String.Format("Copying {0}", result.Path),
-    //       Path.GetFileNameWithoutExtension(result.Path),
-    //       Path.GetExtension(result.Path).Substring(1),
-    //       "Choose where to save the copy.");
-    //     if (copyPath.Length != 0 && AssetDatabase.CopyAsset(result.Path, copyPath)) {
-    //       AssetDatabase.Refresh();
-    //       Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(copyPath);
-    //     }
-    //   }),
+      { "File/Build Settings...", () => {
+        HasteUtils.UnityEditorInvoke("UnityEditor.BuildPlayerWindow", "ShowBuildPlayerWindow");
+      } },
 
-    //   new HasteAction("Rename", "Rename the current file...", result => {
-    //     var renamePath = EditorUtility.SaveFilePanelInProject(String.Format("Renaming {0}", result.Path),
-    //       Path.GetFileNameWithoutExtension(result.Path),
-    //       Path.GetExtension(result.Path).Substring(1),
-    //       "Choose where to save the copy.");
-    //     if (renamePath.Length != 0 && AssetDatabase.RenameAsset(result.Path, renamePath) == "") {
-    //       AssetDatabase.Refresh();
-    //       Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(renamePath);
-    //     }
-    //   }),
+      { "File/Build & Run", () => {
+        HasteUtils.UnityEditorInvoke("UnityEditor.BuildPlayerWindow", "BuildPlayerAndRun");
+      } },
 
-    //   new HasteAction("Delete", "Delete the current file...", result => {
-    //     bool cont = EditorUtility.DisplayDialog(
-    //       String.Format("Delete {0}",
-    //       Path.GetFileName(result.Path)),
-    //       String.Format("Are you sure you want to delete \"{0}\"?", result.Path), "Delete", "Cancel");
-    //     if (cont) {
-    //       AssetDatabase.MoveAssetToTrash(result.Path);
-    //       AssetDatabase.Refresh();
-    //     }
-    //   }),
+      { "Edit/Undo", () => {
+        Undo.PerformUndo();
+      } },
+      { "Edit/Redo", () => {
+        Undo.PerformRedo();
+      } },
 
-    //   new HasteAction("Instantiate Prefab", "Instantiate the currently selected prefab...", result => {
-    //     var selectedObject = AssetDatabase.LoadMainAssetAtPath(result.Path);
-    //     PrefabType prefabType = PrefabUtility.GetPrefabType(Selection.activeObject);
-    //     if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
-    //       Selection.activeObject = PrefabUtility.InstantiatePrefab(Selection.activeObject);
-    //       Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Instantiated prefab");
-    //     }
-    //     Selection.activeObject = selectedObject;
-    //   }),
-    // };
+      { "Edit/Cut", () => {
+        EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Cut"));
+      } },
+      { "Edit/Copy", () => {
+        EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Copy"));
+      } },
+      { "Edit/Paste", () => {
+        EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Paste"));
+      } },
+      { "Edit/Duplicate", () => {
+        EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Duplicate"));
+      } },
+      { "Edit/Delete", () => {
+        EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Delete"));
+      } },
 
-    // public static HasteAction[] HierarchyActions = new HasteAction[]{
-    //   new HasteAction("Focus", "Focus the selected object", result => {
-    //     FrameSelected();
-    //   }),
+      { "Edit/Frame Selected", () => {
+        SceneView.lastActiveSceneView.FrameSelected();
+      } },
 
-    //   new HasteAction("Create Empty GameObject", "Create an GameObject under the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     GameObject newEmptyGameObject = new GameObject("GameObject");
-    //     newEmptyGameObject.transform.parent = selectedObject.transform;
-    //     Undo.RegisterCreatedObjectUndo(newEmptyGameObject, "Create Empty GameObject");
-    //     Selection.activeObject = newEmptyGameObject;
-    //   }),
+      { "Edit/Lock View To Selected", () => {
+        SceneView.lastActiveSceneView.FrameSelected(true);
+      } },
 
-    //   new HasteAction("Reset Transform", "Reset transform of the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
+      { "Edit/Select All", () => {
+        EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("SelectAll"));
+      } },
 
-    //     Undo.RecordObject(selectedObject.transform, "Reset Transform");
-    //     selectedObject.transform.localRotation = Quaternion.identity;
-    //     selectedObject.transform.localPosition = Vector3.zero;
-    //     selectedObject.transform.localScale = Vector3.one;
+      { "Edit/Project Settings/Input", () => {
+      } },
+      { "Edit/Project Settings/Tags and Layers", () => {
+      } },
+      { "Edit/Project Settings/Audio", () => {
+      } },
+      { "Edit/Project Settings/Time", () => {
+      } },
+      { "Edit/Project Settings/Player", () => {
+      } },
+      { "Edit/Project Settings/Physics", () => {
+      } },
+      { "Edit/Project Settings/Physics 2D", () => {
+      } },
+      { "Edit/Project Settings/Quality", () => {
+      } },
+      { "Edit/Project Settings/Graphics", () => {
+      } },
+      { "Edit/Project Settings/Network", () => {
+      } },
+      { "Edit/Project Settings/Editor", () => {
+      } },
+      { "Edit/Project Settings/Script Execution Order", () => {
+      } },
 
-    //     Selection.activeObject = selectedObject;
-    //   }),
-
-    //   new HasteAction("Clone", "Clone the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       var clonedObject = Clone(selectedObject);
-    //       Undo.RegisterCreatedObjectUndo(clonedObject, "Clone GameObject");
-    //       Selection.activeObject = clonedObject;
-    //     }
-    //   }),
-
-    //   new HasteAction("Select Prefab", "Select the prefab of the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       var parentObject = PrefabUtility.GetPrefabParent(selectedObject);
-    //       if (parentObject != null) {
-    //         FocusByProjectPath(AssetDatabase.GetAssetPath(parentObject));
-    //       }
-    //     }
-    //   }),
-
-    //   new HasteAction("Break Prefab", "Break the prefab connection of the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       Undo.RegisterFullObjectHierarchyUndo(selectedObject);
-    //       PrefabUtility.DisconnectPrefabInstance(selectedObject);
-    //       Selection.activeGameObject = selectedObject;
-    //     }
-    //   }),
-
-    //   new HasteAction("Revert to Prefab", "Revert the selected object to its prefab", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       Undo.RegisterFullObjectHierarchyUndo(Selection.activeGameObject);
-    //       PrefabUtility.RevertPrefabInstance(Selection.activeGameObject);
-    //       Selection.activeGameObject = selectedObject;
-    //     }
-    //   }),
-
-    //   new HasteAction("Reconnect to Prefab", "Reconnect the selected object to its last prefab", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       Undo.RegisterFullObjectHierarchyUndo(selectedObject);
-    //       PrefabUtility.ReconnectToLastPrefab(selectedObject);
-    //       Selection.activeGameObject = selectedObject;
-    //     }
-    //   }),
-
-    //   new HasteAction("Select Parent", "Select the parent of the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       if (selectedObject.transform != null) {
-    //         if (selectedObject.transform.parent != null) {
-    //           Selection.activeGameObject = selectedObject.transform.parent.gameObject;
-    //         }
-    //       }
-    //     }
-    //   }),
-
-    //   new HasteAction("Select Children", "Select the children of the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       Transform parent = selectedObject.transform;
-    //       if (parent != null && parent.childCount > 0) {
-    //         IList<GameObject> children = new List<GameObject>(parent.childCount); 
-    //         foreach (Transform transform in parent) {
-    //           children.Add(transform.gameObject);
-    //         }
-    //         Selection.objects = children.ToArray();
-    //       }
-    //     }
-    //   }),
-
-    //   new HasteAction("Delete", "Delete the selected object", result => {
-    //     GameObject selectedObject = GameObject.Find(result.Path);
-    //     if (selectedObject != null) {
-    //       Undo.DestroyObjectImmediate(selectedObject);
-    //     }
-    //   }),
-    // };
+      { "Edit/Render Settings", () => {
+      } }
+    };
   }
 }
