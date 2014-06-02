@@ -8,7 +8,7 @@ namespace Haste {
 
   public class HasteProjectResult : AbstractHasteResult {
 
-    public HasteProjectResult(HasteItem item, float score, List<int> indices) : base(item, score, indices, HasteIntent.Search) {}
+    public HasteProjectResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
     public override void Draw() {
       UnityEngine.GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),

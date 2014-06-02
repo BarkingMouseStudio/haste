@@ -9,12 +9,6 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  public enum HasteIntent {
-    None = 0,
-    Search = 1,
-    Action = 2,
-  }
-
   public class HasteWindow : EditorWindow {
 
     public static GUIStyle QueryStyle;
@@ -31,8 +25,6 @@ namespace Haste {
     public static Texture GameObjectIcon;
 
     static HasteWindow instance;
-
-    HasteIntent queryState = HasteIntent.Search;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
@@ -148,9 +140,7 @@ namespace Haste {
 
     void OnEscape() {
       // On escape, clear context, clear the query or close the window
-      if (queryState == HasteIntent.Action) {
-        ChangeIntent(HasteIntent.Search);
-      } else if (query != "") {
+      if (query != "") {
         ClearQuery();
       } else {
         Close();
@@ -163,15 +153,6 @@ namespace Haste {
         selectedResult.Action();
 
         Close();
-      }
-    }
-
-    void OnRightArrow() {
-      if (results.Length > 0) {
-        selectedResult = results[highlightedIndex];
-        selectedResult.Action();
-
-        ChangeIntent(HasteIntent.Action);
       }
     }
 
@@ -217,10 +198,6 @@ namespace Haste {
         case KeyCode.DownArrow:
           e.Use();
           OnDownArrow();
-          break;
-        case KeyCode.RightArrow:
-          e.Use();
-          OnRightArrow();
           break;
       }
     }
@@ -328,31 +305,19 @@ namespace Haste {
       }
     }
 
-    void ChangeIntent(HasteIntent state) {
-      ClearQuery();
-      queryState = state;
+    void UpdateResults(IHasteResult[] updatedResults) {
+      results = updatedResults;
+      highlightedIndex = 0;
     }
 
     void ClearQuery() {
-      results = new IHasteResult[0];
-      highlightedIndex = 0;
+      UpdateResults(new IHasteResult[0]);
       query = "";
     }
 
     void UpdateQuery() {
       if (query != "") {
-        switch (queryState) {
-          case HasteIntent.Search:
-            HasteLogger.Info(queryState);
-            results = Haste.Index.Filter(query, resultCount);
-            break;
-          case HasteIntent.Action:
-            HasteLogger.Info(queryState);
-            results = Haste.Index.Filter(query, resultCount, HasteIntent.Action);
-            break;
-        }
-
-        highlightedIndex = 0;
+        UpdateResults(Haste.Index.Filter(query, resultCount));
       } else {
         ClearQuery();
       }

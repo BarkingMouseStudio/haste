@@ -8,7 +8,7 @@ namespace Haste {
 
   public class HasteMenuItemResult : AbstractHasteResult {
 
-    public HasteMenuItemResult(HasteItem item, float score, List<int> indices) : base(item, score, indices, HasteIntent.Action) {}
+    public HasteMenuItemResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
     public override void Action() {
       HasteActions.MenuItemFallbackDelegate menuItemFallback;

@@ -44,7 +44,7 @@ namespace Haste {
       index.Clear();
     }
 
-    public IHasteResult[] Filter(string query, int countPerGroup, HasteIntent intent = HasteIntent.None) {
+    public IHasteResult[] Filter(string query, int countPerGroup) {
       if (query.Length == 0) {
         return new IHasteResult[0];
       }
@@ -81,12 +81,7 @@ namespace Haste {
         }
       }
 
-      IEnumerable<IHasteResult> filteredMatches = matches;
-      if (intent != HasteIntent.None) {
-        filteredMatches = filteredMatches.Where(m => m.Intent == intent);
-      }
-
-      return filteredMatches
+      return matches
         .GroupBy(r => r.Item.Source) // Group by source
         .Select(g => {
           // Order each group by score and take the top N

@@ -59,22 +59,22 @@ namespace Haste {
         return new HasteHierarchyResult(item, score, indices);
       });
 
-      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteMenuItemResult(item, score, indices);
-      });
-
-      Types.AddType(HasteProjectActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteResult(item, score, indices, HasteIntent.Action);
-      });
-
-      Types.AddType(HasteHierarchyActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteResult(item, score, indices, HasteIntent.Action);
-      });
-
       Watchers.AddSource(HasteProjectSource.NAME, () => new HasteProjectSource());
       Watchers.AddSource(HasteHierarchySource.NAME, () => new HasteHierarchySource());
 
       #if IS_HASTE_PRO
+        Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, float score, List<int> indices) => {
+          return new HasteMenuItemResult(item, score, indices);
+        });
+
+        Types.AddType(HasteProjectActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
+          return new HasteResult(item, score, indices);
+        });
+
+        Types.AddType(HasteHierarchyActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
+          return new HasteResult(item, score, indices);
+        });
+
         Watchers.AddSource(HasteMenuItemSource.NAME, () => new HasteMenuItemSource());
         Watchers.AddSource(HasteProjectActionSource.NAME, () => new HasteProjectActionSource());
         Watchers.AddSource(HasteHierarchyActionSource.NAME, () => new HasteHierarchyActionSource());
