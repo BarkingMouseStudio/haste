@@ -13,16 +13,17 @@ namespace Haste {
     public static readonly string NAME = "MenuItem";
 
     public static string[] BuiltinMenuItems = new string[]{
-      "Unity/Preferences",
+      "Unity/About Unity...",
+      "Unity/Preferences...",
 
       "File/New Scene",
       "File/Open Scene...",
       "File/Save Scene",
       "File/Save Scene as...",
       // ---
-      "File/New Project...",
+      // TODO: "File/New Project...",
       // ---
-      "File/Open Project...",
+      // TODO: "File/Open Project...",
       "File/Save Project",
       // ---
       "File/Build Settings...",
@@ -166,24 +167,20 @@ namespace Haste {
         if (assembly.FullName.StartsWith("UnityEditor")) continue;
         if (assembly.FullName.StartsWith("mscorlib")) continue;
 
-        foreach (var type in assembly.GetTypes()) {
-          foreach (var info in type.GetMethods(BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static|BindingFlags.DeclaredOnly)) {
-            foreach (Object attribute in info.GetCustomAttributes(typeof(MenuItem), true)) {
-              MenuItem menuItem = (MenuItem)attribute;
+        foreach (var attribute in HasteUtils.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
+          MenuItem menuItem = (MenuItem)attribute;
 
-              if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
-              if (menuItem.menuItem.StartsWith("internal:")) continue;
-              if (menuItem.validate) continue;
+          if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
+          if (menuItem.menuItem.StartsWith("internal:")) continue;
+          if (menuItem.validate) continue;
 
-              string path = menuItem.menuItem;
-              int keyIndex = path.LastIndexOf('%');
-              if (keyIndex != -1) {
-                path = path.Remove(keyIndex);
-              }
-
-              yield return new HasteItem(path, menuItem.priority, NAME);
-            }
+          string path = menuItem.menuItem;
+          int keyIndex = path.LastIndexOf('%');
+          if (keyIndex != -1) {
+            path = path.Remove(keyIndex);
           }
+
+          yield return new HasteItem(path, menuItem.priority, NAME);
         }
       }
 

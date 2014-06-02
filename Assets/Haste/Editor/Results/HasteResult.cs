@@ -13,6 +13,7 @@ namespace Haste {
     HasteItem Item { get; }
     List<int> Indices { get; }
     float Score { get; }
+    HasteIntent Intent { get; }
 
     void Draw();
     bool Validate();
@@ -24,11 +25,13 @@ namespace Haste {
     public HasteItem Item { get; protected set; }
     public List<int> Indices { get; protected set; }
     public float Score { get; protected set; }
+    public HasteIntent Intent { get; protected set; }
 
-    public AbstractHasteResult(HasteItem item, float score, List<int> indices) {
+    public AbstractHasteResult(HasteItem item, float score, List<int> indices, HasteIntent intent) {
       Item = item;
       Score = score;
       Indices = indices;
+      Intent = intent;
     }
 
     public virtual bool Validate() {
@@ -48,6 +51,6 @@ namespace Haste {
   }
 
   public class HasteResult : AbstractHasteResult {
-    public HasteResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
+    public HasteResult(HasteItem item, float score, List<int> indices, HasteIntent intent) : base(item, score, indices, intent) {}
   }
 }

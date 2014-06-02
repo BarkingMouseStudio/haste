@@ -64,20 +64,20 @@ namespace Haste {
       });
 
       Types.AddType(HasteProjectActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteResult(item, score, indices);
+        return new HasteResult(item, score, indices, HasteIntent.Action);
       });
 
       Types.AddType(HasteHierarchyActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteResult(item, score, indices);
+        return new HasteResult(item, score, indices, HasteIntent.Action);
       });
 
       Watchers.AddSource(HasteProjectSource.NAME, () => new HasteProjectSource());
       Watchers.AddSource(HasteHierarchySource.NAME, () => new HasteHierarchySource());
-      Watchers.AddSource(HasteProjectActionSource.NAME, () => new HasteProjectActionSource());
-      Watchers.AddSource(HasteHierarchyActionSource.NAME, () => new HasteHierarchyActionSource());
 
       #if IS_HASTE_PRO
         Watchers.AddSource(HasteMenuItemSource.NAME, () => new HasteMenuItemSource());
+        Watchers.AddSource(HasteProjectActionSource.NAME, () => new HasteProjectActionSource());
+        Watchers.AddSource(HasteHierarchyActionSource.NAME, () => new HasteHierarchyActionSource());
       #endif
 
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
@@ -111,8 +111,6 @@ namespace Haste {
       }
     }
 
-    public static int frame = 0;
-
     static void Update() {
       if (currentScene != EditorApplication.currentScene) {
         string previousScene = currentScene;
@@ -123,8 +121,6 @@ namespace Haste {
       if (!IsApplicationBusy) {
         Scheduler.Tick();
       }
-
-      frame++;
     }
   }
 }

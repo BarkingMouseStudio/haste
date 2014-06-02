@@ -14,24 +14,48 @@ namespace Haste {
     public delegate void MenuItemFallbackDelegate();
 
     public static IDictionary<string, MenuItemFallbackDelegate> MenuItemFallbacks = new Dictionary<string, MenuItemFallbackDelegate>() {
-      { "Unity/Preferences", () => {
+      { "Unity/About Unity...", () => {
+        var AboutWindow = typeof(EditorWindow).Assembly.GetType("UnityEditor.AboutWindow");
+        EditorWindow.GetWindow(AboutWindow, true, "About Unity");
+      } },
+
+      { "Unity/Preferences...", () => {
         HasteUtils.UnityEditorInvoke("UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
       } },
 
       { "File/New Scene", () => {
-      } },
-      { "File/Open Scene...", () => {
-      } },
-      { "File/Save Scene", () => {
-      } },
-      { "File/Save Scene as...", () => {
+        EditorApplication.SaveCurrentSceneIfUserWantsTo();
+        EditorApplication.NewScene();
       } },
 
-      { "File/New Project...", () => {
+      { "File/Open Scene...", () => {
+        var scenePath = EditorUtility.OpenFilePanel("Load Scene", Application.dataPath, "unity");
+        if (scenePath.Length != 0) {
+          EditorApplication.SaveCurrentSceneIfUserWantsTo();
+          EditorApplication.OpenScene(scenePath);
+        }
       } },
-      { "File/Open Project...", () => {
+
+      { "File/Save Scene", () => {
+        EditorApplication.SaveScene();
       } },
+
+      { "File/Save Scene as...", () => {
+        EditorApplication.SaveScene(String.Empty, true);
+      } },
+
+      // { "File/New Project...", () => {
+      //   // TODO: Project wizard
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "File/Open Project...", () => {
+      //   // TODO: Project wizard
+      //   throw new NotImplementedException();
+      // } },
+
       { "File/Save Project", () => {
+        AssetDatabase.SaveAssets();
       } },
 
       { "File/Build Settings...", () => {
@@ -45,6 +69,7 @@ namespace Haste {
       { "Edit/Undo", () => {
         Undo.PerformUndo();
       } },
+
       { "Edit/Redo", () => {
         Undo.PerformRedo();
       } },
@@ -52,15 +77,19 @@ namespace Haste {
       { "Edit/Cut", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Cut"));
       } },
+
       { "Edit/Copy", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Copy"));
       } },
+
       { "Edit/Paste", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Paste"));
       } },
+
       { "Edit/Duplicate", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Duplicate"));
       } },
+
       { "Edit/Delete", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("Delete"));
       } },
@@ -75,35 +104,59 @@ namespace Haste {
 
       { "Edit/Select All", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("SelectAll"));
-      } },
-
-      { "Edit/Project Settings/Input", () => {
-      } },
-      { "Edit/Project Settings/Tags and Layers", () => {
-      } },
-      { "Edit/Project Settings/Audio", () => {
-      } },
-      { "Edit/Project Settings/Time", () => {
-      } },
-      { "Edit/Project Settings/Player", () => {
-      } },
-      { "Edit/Project Settings/Physics", () => {
-      } },
-      { "Edit/Project Settings/Physics 2D", () => {
-      } },
-      { "Edit/Project Settings/Quality", () => {
-      } },
-      { "Edit/Project Settings/Graphics", () => {
-      } },
-      { "Edit/Project Settings/Network", () => {
-      } },
-      { "Edit/Project Settings/Editor", () => {
-      } },
-      { "Edit/Project Settings/Script Execution Order", () => {
-      } },
-
-      { "Edit/Render Settings", () => {
       } }
+
+      // { "Edit/Project Settings/Input", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Tags and Layers", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Audio", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Time", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Player", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Physics", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Physics 2D", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Quality", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Graphics", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Network", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Editor", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Project Settings/Script Execution Order", () => {
+      //   throw new NotImplementedException();
+      // } },
+
+      // { "Edit/Render Settings", () => {
+      //   throw new NotImplementedException();
+      // } }
     };
   }
 }

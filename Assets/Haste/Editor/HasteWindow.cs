@@ -9,9 +9,10 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  public enum HasteWindowState {
-    Search = 0,
-    Action = 1,
+  public enum HasteIntent {
+    None = 0,
+    Search = 1,
+    Action = 2,
   }
 
   public class HasteWindow : EditorWindow {
@@ -20,8 +21,10 @@ namespace Haste {
     public static GUIStyle NameStyle;
     public static GUIStyle DescriptionStyle;
     public static GUIStyle PrefixStyle;
+    public static GUIStyle IntroStyle;
     public static GUIStyle NonHighlightStyle;
     public static GUIStyle HighlightStyle;
+    public static GUIStyle EmptyStyle;
     public static GUIStyle DisabledNameStyle;
     public static GUIStyle DisabledDescriptionStyle;
 
@@ -29,7 +32,7 @@ namespace Haste {
 
     static HasteWindow instance;
 
-    // HasteWindowState state = HasteWindowState.Search;
+    HasteIntent queryState = HasteIntent.Search;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
@@ -72,10 +75,20 @@ namespace Haste {
       HasteWindow.QueryStyle.alignment = TextAnchor.MiddleLeft;
       HasteWindow.QueryStyle.fontSize = 32;
 
+      HasteWindow.IntroStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.IntroStyle.fixedHeight = 64;
+      HasteWindow.IntroStyle.alignment = TextAnchor.MiddleCenter;
+      HasteWindow.IntroStyle.fontSize = 32;
+
       HasteWindow.NameStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.NameStyle.alignment = TextAnchor.MiddleLeft;
       HasteWindow.NameStyle.fixedHeight = 24;
       HasteWindow.NameStyle.fontSize = 16;
+
+      HasteWindow.EmptyStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.EmptyStyle.alignment = TextAnchor.MiddleCenter;
+      HasteWindow.EmptyStyle.fixedHeight = 24;
+      HasteWindow.EmptyStyle.fontSize = 16;
 
       HasteWindow.DisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.DisabledNameStyle.alignment = TextAnchor.MiddleLeft;
@@ -135,8 +148,10 @@ namespace Haste {
 
     void OnEscape() {
       // On escape, clear context, clear the query or close the window
-      if (query != "") {
-        query = "";
+      if (queryState == HasteIntent.Action) {
+        ChangeIntent(HasteIntent.Search);
+      } else if (query != "") {
+        ClearQuery();
       } else {
         Close();
       }
@@ -145,14 +160,18 @@ namespace Haste {
     void OnReturn() {
       if (results.Length > 0) {
         selectedResult = results[highlightedIndex];
-        OnResultSelected(selectedResult);
+        selectedResult.Action();
+
+        Close();
       }
     }
 
     void OnRightArrow() {
       if (results.Length > 0) {
         selectedResult = results[highlightedIndex];
-        OnResultSelected(selectedResult);
+        selectedResult.Action();
+
+        ChangeIntent(HasteIntent.Action);
       }
     }
 
@@ -214,16 +233,13 @@ namespace Haste {
       }
     }
 
-    void OnResultSelected(IHasteResult result) {
-      Close();
-      result.Action();
-    }
-
     void DrawResult(IHasteResult result, int index) {
       var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         if (UnityEngine.GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
-          OnResultSelected(result);
+          result.Action();
+          Close();
+          return;
         }
 
         result.Draw();
@@ -284,12 +300,24 @@ namespace Haste {
       }
     }
 
+    void DrawEmptyResults() {
+      using (new HasteSpace()) {
+        EditorGUILayout.LabelField("No results found.", EmptyStyle);
+      }
+    }
+
+    void DrawIntro() {
+      using (new HasteSpace()) {
+        EditorGUILayout.LabelField("Just Type.", IntroStyle);
+      }
+    }
+
     void DrawQuery() {
-      UnityEngine.GUI.SetNextControlName("query");
-      query = EditorGUILayout.TextField(query, QueryStyle,
-        GUILayout.Height(HasteWindow.QueryStyle.fixedHeight));
-      query = query.Trim();
-      EditorGUI.FocusTextInControl("query");
+      using (new HasteFocus("query")) {
+        query = EditorGUILayout.TextField(query, QueryStyle,
+          GUILayout.Height(HasteWindow.QueryStyle.fixedHeight));
+        query = query.Trim();
+      }
     }
 
     void Update() {
@@ -300,9 +328,38 @@ namespace Haste {
       }
     }
 
-    void OnGUIChanged() {
-      results = Haste.Index.Filter(query, resultCount);
+    void ChangeIntent(HasteIntent state) {
+      ClearQuery();
+      queryState = state;
+    }
+
+    void ClearQuery() {
+      results = new IHasteResult[0];
       highlightedIndex = 0;
+      query = "";
+    }
+
+    void UpdateQuery() {
+      if (query != "") {
+        switch (queryState) {
+          case HasteIntent.Search:
+            HasteLogger.Info(queryState);
+            results = Haste.Index.Filter(query, resultCount);
+            break;
+          case HasteIntent.Action:
+            HasteLogger.Info(queryState);
+            results = Haste.Index.Filter(query, resultCount, HasteIntent.Action);
+            break;
+        }
+
+        highlightedIndex = 0;
+      } else {
+        ClearQuery();
+      }
+    }
+
+    void OnGUIChanged() {
+      UpdateQuery();
     }
 
     void OnGUI() {
@@ -314,7 +371,11 @@ namespace Haste {
         OnGUIChanged();
       }
 
-      if (results != null && results.Length > 0) {
+      if (query == "") {
+        DrawIntro();
+      } else if (results.Length == 0) {
+        DrawEmptyResults();
+      } else {
         DrawResults();
       }
     }

@@ -13,11 +13,8 @@ namespace Haste {
     public static readonly string NAME = "ProjectAction";
 
     public static string[] Actions = new string[]{
-      "Open",
-      "Copy",
-      "Rename",
-      "Delete",
-      "Instantiate Prefab"
+      "Assets/Open",
+      "Assets/Instantiate Prefab"
     };
 
     public IEnumerator<HasteItem> GetEnumerator() {

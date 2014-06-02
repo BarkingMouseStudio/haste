@@ -8,7 +8,7 @@ namespace Haste {
 
   public class HasteProjectResult : AbstractHasteResult {
 
-    public HasteProjectResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
+    public HasteProjectResult(HasteItem item, float score, List<int> indices) : base(item, score, indices, HasteIntent.Search) {}
 
     public override void Draw() {
       UnityEngine.GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
@@ -18,8 +18,8 @@ namespace Haste {
     }
 
     public override void Action() {
-      EditorApplication.ExecuteMenuItem("Window/Project");
-      EditorUtility.FocusProjectWindow();
+      // EditorApplication.ExecuteMenuItem("Window/Project");
+      // EditorUtility.FocusProjectWindow();
 
       // Traverse project downwards, pinging each level
       string[] pieces = Item.Path.Split(Path.DirectorySeparatorChar);
