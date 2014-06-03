@@ -54,23 +54,10 @@ namespace Haste {
       EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
 
       EditorGUILayout.Space();
-      EditorGUILayout.LabelField("Open Count", Haste.UsageCount.ToString());
-
       EditorGUILayout.Space();
-      EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
 
+      EditorGUILayout.LabelField("Times Opened", Haste.UsageCount.ToString());
       EditorGUILayout.Space();
-      if (Haste.IsIndexing) {
-        EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
-
-        EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("The state of Haste's current indexing.", MessageType.Info);
-      } else {
-        EditorGUILayout.LabelField("Index Size", Haste.IndexSize.ToString());
-
-        EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("The current number of items indexed by Haste.", MessageType.Info);
-      }
 
       EditorGUILayout.Space();
       EditorGUILayout.Space();
@@ -80,15 +67,21 @@ namespace Haste {
 
       using (var toggleGroup = new HasteToggleGroup("Haste Enabled", Haste.Enabled)) {
         Haste.Enabled = toggleGroup.Enabled;
+        EditorGUILayout.Space();
 
-        foreach (string name in Haste.Watchers.Keys) {
-          IHasteWatcher watcher;
-          if (Haste.Watchers.TryGetWatcher(name, out watcher)) {
-            string label = String.Format("{0} ({1})", name, watcher.IndexedCount);
-            bool enabled = EditorGUILayout.Toggle(label, watcher.Enabled);
-            Haste.Watchers.ToggleSource(name, enabled);
-          }
+        foreach (var watcher in Haste.Watchers) {
+          string label = String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
+          bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
+          Haste.Watchers.ToggleSource(watcher.Key, enabled);
         }
+      }
+
+      EditorGUILayout.Space();
+
+      if (Haste.IsIndexing) {
+        EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
+      } else {
+        EditorGUILayout.LabelField("Index Size", Haste.IndexSize.ToString());
       }
     }
 

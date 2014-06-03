@@ -9,7 +9,7 @@ namespace Haste {
 
   public delegate IEnumerable<HasteItem> HasteSourceFactory();
 
-  public class HasteWatcherManager {
+  public class HasteWatcherManager : IEnumerable<KeyValuePair<string, IHasteWatcher>> {
 
     public bool IsIndexing {
       get { return watchers.Any(w => w.Value.IsIndexing); }
@@ -37,7 +37,11 @@ namespace Haste {
       watcher.Start();
     }
 
-    void StopSource(IHasteWatcher watcher) {
+    void StopSource(IHasteWatcher watcher, bool purge = false) {
+      if (purge) {
+        watcher.Purge();
+      }
+
       watcher.Stop();
 
       watcher.Created -= AddToIndex;
@@ -56,8 +60,7 @@ namespace Haste {
           if (enabled) {
             StartSource(watcher);
           } else {
-            watcher.Purge();
-            StopSource(watcher);
+            StopSource(watcher, true);
           }
         }
       }
@@ -112,6 +115,16 @@ namespace Haste {
 
     void RemoveFromIndex(HasteItem item) {
       Haste.Index.Remove(item);
+    }
+
+    public IEnumerator<KeyValuePair<string, IHasteWatcher>> GetEnumerator() {
+      foreach (var watcher in watchers) {
+        yield return watcher;
+      }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() {
+      return GetEnumerator();
     }
   }
 }
