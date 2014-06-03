@@ -14,6 +14,8 @@ namespace Haste {
 
     IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
 
+    public int Count { get; protected set; }
+
     public void Add(HasteItem item) {
       MatchCollection matches = boundaryRegex.Matches(item.Path);
 
@@ -25,6 +27,7 @@ namespace Haste {
         }
 
         index[c].Add(item);
+        Count++;
       }
     }
 
@@ -36,12 +39,14 @@ namespace Haste {
 
         if (index.ContainsKey(c)) {
           index[c].Remove(item);
+          Count--;
         }
       }
     }
 
     public void Clear() {
       index.Clear();
+      Count = 0;
     }
 
     public IHasteResult[] Filter(string query, int countPerGroup) {

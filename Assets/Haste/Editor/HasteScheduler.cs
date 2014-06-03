@@ -65,6 +65,7 @@ namespace Haste {
           coroutines.Remove(coroutine);
         } else {
           if (!coroutine.Value.Fiber.MoveNext()) {
+            coroutine.Value.Stop();
             coroutines.Remove(coroutine);
           }
         }

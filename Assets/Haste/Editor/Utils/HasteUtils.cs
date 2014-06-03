@@ -71,22 +71,22 @@ namespace Haste {
       }
     }
 
-    public static string GetHomeFolder() {
-      return String.Join(Path.DirectorySeparatorChar.ToString(),
-        Application.dataPath.Split(Path.DirectorySeparatorChar).Slice(0, 3));
-    }
+    public static void SelectByProjectPath(string path) {
+      EditorApplication.ExecuteMenuItem("Window/Project");
+      EditorUtility.FocusProjectWindow();
 
-    public static UnityEngine.Object Clone(GameObject go) {
-      var prefabRoot = PrefabUtility.GetPrefabParent(go);
-      if (prefabRoot != null) {
-        return PrefabUtility.InstantiatePrefab(prefabRoot);
-      } else {
-        return UnityEngine.Object.Instantiate(go);
+      // Traverse project downwards, pinging each level
+      string[] pieces = path.Split(Path.DirectorySeparatorChar);
+      string fullPath = "";
+      for (int i = 0; i < pieces.Length; i++) {
+        fullPath = Path.Combine(fullPath, pieces[i]);
+        Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(fullPath);
       }
     }
 
-    public static UnityEngine.Object GetLightmapSettings() {
-      return (UnityEngine.Object)UnityEditorInvoke("UnityEditor.LightmapEditorSettings", "GetLightmapSettings");
+    public static string GetHomeFolder() {
+      return String.Join(Path.DirectorySeparatorChar.ToString(),
+        Application.dataPath.Split(Path.DirectorySeparatorChar).Slice(0, 3));
     }
 
     public static string BoldLabel(string str, int[] indices) {

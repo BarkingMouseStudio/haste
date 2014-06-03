@@ -12,7 +12,8 @@ namespace Haste {
 
     public static bool IsApplicationBusy {
       get {
-        return EditorApplication.isPlayingOrWillChangePlaymode ||
+        return !Enabled ||
+               EditorApplication.isPlayingOrWillChangePlaymode ||
                EditorApplication.isCompiling ||
                EditorApplication.isUpdating ||
                EditorApplication.isPlaying ||
@@ -20,23 +21,32 @@ namespace Haste {
       }
     }
 
-    private static int usageCount = -1;
+    public static bool Enabled {
+      get { return EditorPrefs.GetBool("HasteEnabled", true); }
+      set { EditorPrefs.SetBool("HasteEnabled", value); }
+    }
+
     public static int UsageCount {
-      get {
-        if (usageCount < 0) {
-          usageCount = EditorPrefs.GetInt("HasteUsageCount", 0);
-        }
-        return usageCount;
-      }
-      set {
-        usageCount = value;
-        EditorPrefs.SetInt("HasteUsageCount", usageCount);
-      }
+      get { return EditorPrefs.GetInt("HasteUsageCount", 0); }
+      set { EditorPrefs.SetInt("HasteUsageCount", value); }
+    }
+
+    public static int IndexSize {
+      get { return Index.Count; }
+    }
+
+    public static int IndexingCount {
+      get { return Watchers.IndexingCount; }
+    }
+
+    public static bool IsIndexing {
+      get { return Watchers.IsIndexing; }
     }
 
     public static event SceneChangedHandler SceneChanged;
 
     static string currentScene;
+    static bool isCompiling = false;
 
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
@@ -45,6 +55,7 @@ namespace Haste {
 
     static Haste() {
       currentScene = EditorApplication.currentScene;
+      isCompiling = EditorApplication.isCompiling;
 
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
@@ -67,17 +78,9 @@ namespace Haste {
           return new HasteMenuItemResult(item, score, indices);
         });
 
-        Types.AddType(HasteProjectActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
-          return new HasteResult(item, score, indices);
+        Watchers.AddSource(HasteMenuItemSource.NAME, () => {
+          return new HasteMenuItemSource();
         });
-
-        Types.AddType(HasteHierarchyActionSource.NAME, (HasteItem item, float score, List<int> indices) => {
-          return new HasteResult(item, score, indices);
-        });
-
-        Watchers.AddSource(HasteMenuItemSource.NAME, () => new HasteMenuItemSource());
-        Watchers.AddSource(HasteProjectActionSource.NAME, () => new HasteProjectActionSource());
-        Watchers.AddSource(HasteHierarchyActionSource.NAME, () => new HasteHierarchyActionSource());
       #endif
 
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
@@ -111,7 +114,23 @@ namespace Haste {
       }
     }
 
+    static void OnScriptsCompiled() {
+      #if IS_HASTE_PRO
+        Watchers.RestartSource(HasteMenuItemSource.NAME);
+      #endif
+    }
+
     static void Update() {
+      // Compiling state changed
+      if (isCompiling != EditorApplication.isCompiling) {
+        isCompiling = EditorApplication.isCompiling;
+
+        // Done compiling
+        if (!isCompiling) {
+          OnScriptsCompiled();
+        }
+      }
+
       if (currentScene != EditorApplication.currentScene) {
         string previousScene = currentScene;
         currentScene = EditorApplication.currentScene;

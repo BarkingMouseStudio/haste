@@ -10,7 +10,24 @@ namespace Haste {
   #if IS_HASTE_PRO
   public class HasteMenuItemSource : IEnumerable<HasteItem> {
 
-    public static readonly string NAME = "MenuItem";
+    public static readonly string NAME = "Menu Item";
+
+    public static string[] CustomMenuItems = new string[]{
+      "Assets/Instantiate Prefab",
+
+      "GameObject/Lock",
+      "GameObject/Unlock",
+      "GameObject/Activate",
+      "GameObject/Deactivate",
+      "GameObject/Reset Transform",
+      "GameObject/Select Parent",
+      "GameObject/Select Children",
+
+      // Prefab
+      "GameObject/Select Prefab",
+      "GameObject/Revert to Prefab",
+      "GameObject/Reconnect to Prefab"
+    };
 
     public static string[] BuiltinMenuItems = new string[]{
       "Unity/About Unity...",
@@ -117,6 +134,17 @@ namespace Haste {
       "GameObject/Create Other/Ragdoll...",
       "GameObject/Create Other/Tree",
       "GameObject/Create Other/Wind Zone",
+      // ---
+      "GameObject/Center On Children",
+      // ---
+      "GameObject/Make Parent",
+      "GameObject/Clear Parent",
+      "GameObject/Apply Changes To Prefab",
+      "GameObject/Break Prefab Instance",
+      // ---
+      "GameObject/Move To View",
+      "GameObject/Align With View",
+      "GameObject/Align View to Selected",
 
       "Component/Add...",
 
@@ -185,6 +213,10 @@ namespace Haste {
       }
 
       foreach (string path in BuiltinMenuItems) {
+        yield return new HasteItem(path, 0, NAME);
+      }
+
+      foreach (string path in CustomMenuItems) {
         yield return new HasteItem(path, 0, NAME);
       }
     }

@@ -16,6 +16,7 @@ namespace Haste {
     public static GUIStyle DescriptionStyle;
     public static GUIStyle PrefixStyle;
     public static GUIStyle IntroStyle;
+    public static GUIStyle IndexingStyle;
     public static GUIStyle NonHighlightStyle;
     public static GUIStyle HighlightStyle;
     public static GUIStyle EmptyStyle;
@@ -23,6 +24,7 @@ namespace Haste {
     public static GUIStyle DisabledDescriptionStyle;
 
     public static Texture GameObjectIcon;
+    public static Texture SpinnerTexture;
 
     static HasteWindow instance;
 
@@ -56,9 +58,42 @@ namespace Haste {
 
       EditorGUILayout.Space();
       EditorGUILayout.HelpBox("Indicates how many times you have opened Haste.", MessageType.Info);
+
+      EditorGUILayout.Space();
+      if (Haste.IsIndexing) {
+        EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
+
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox("The state of Haste's current indexing.", MessageType.Info);
+      } else {
+        EditorGUILayout.LabelField("Index Size", Haste.IndexSize.ToString());
+
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox("The current number of items indexed by Haste.", MessageType.Info);
+      }
+
+      EditorGUILayout.Space();
+      EditorGUILayout.Space();
+
+      EditorGUILayout.LabelField("Available Sources", EditorStyles.whiteLargeLabel);
+      EditorGUILayout.Space();
+
+      using (var toggleGroup = new HasteToggleGroup("Haste Enabled", Haste.Enabled)) {
+        Haste.Enabled = toggleGroup.Enabled;
+
+        foreach (string name in Haste.Watchers.Keys) {
+          IHasteWatcher watcher;
+          if (Haste.Watchers.TryGetWatcher(name, out watcher)) {
+            string label = String.Format("{0} ({1})", name, watcher.IndexedCount);
+            bool enabled = EditorGUILayout.Toggle(label, watcher.Enabled);
+            Haste.Watchers.ToggleSource(name, enabled);
+          }
+        }
+      }
     }
 
     static void Init() {
+      HasteWindow.SpinnerTexture = Resources.LoadAssetAtPath<Texture>("Assets/Editor/Spinner.png");
       HasteWindow.GameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
 
       // Styles
@@ -71,6 +106,12 @@ namespace Haste {
       HasteWindow.IntroStyle.fixedHeight = 64;
       HasteWindow.IntroStyle.alignment = TextAnchor.MiddleCenter;
       HasteWindow.IntroStyle.fontSize = 32;
+
+      HasteWindow.IndexingStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.IndexingStyle.fixedHeight = 24;
+      HasteWindow.IndexingStyle.alignment = TextAnchor.MiddleCenter;
+      HasteWindow.IndexingStyle.fontSize = 16;
+      HasteWindow.IndexingStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
 
       HasteWindow.NameStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.NameStyle.alignment = TextAnchor.MiddleLeft;
@@ -213,7 +254,7 @@ namespace Haste {
     void DrawResult(IHasteResult result, int index) {
       var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
-        if (UnityEngine.GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
+        if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
           result.Action();
           Close();
           return;
@@ -285,7 +326,12 @@ namespace Haste {
 
     void DrawIntro() {
       using (new HasteSpace()) {
-        EditorGUILayout.LabelField("Just Type.", IntroStyle);
+        EditorGUILayout.LabelField("Just Type.", IntroStyle,
+          GUILayout.Height(HasteWindow.IntroStyle.fixedHeight));
+
+        if (Haste.IsIndexing) {
+          EditorGUILayout.LabelField(String.Format("(Indexing {0}...)", Haste.IndexingCount), IndexingStyle);
+        }
       }
     }
 
@@ -298,6 +344,10 @@ namespace Haste {
     }
 
     void Update() {
+      if (query == "") {
+        Repaint();
+      }
+
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
         // Cannot use OnLostFocus due to render bug in Unity
@@ -332,7 +382,7 @@ namespace Haste {
 
       DrawQuery();
 
-      if (UnityEngine.GUI.changed) {
+      if (GUI.changed) {
         OnGUIChanged();
       }
 

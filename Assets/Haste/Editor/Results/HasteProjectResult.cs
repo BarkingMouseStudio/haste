@@ -18,16 +18,7 @@ namespace Haste {
     }
 
     public override void Action() {
-      // EditorApplication.ExecuteMenuItem("Window/Project");
-      // EditorUtility.FocusProjectWindow();
-
-      // Traverse project downwards, pinging each level
-      string[] pieces = Item.Path.Split(Path.DirectorySeparatorChar);
-      string fullPath = "";
-      for (int i = 0; i < pieces.Length; i++) {
-        fullPath = Path.Combine(fullPath, pieces[i]);
-        Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(fullPath);
-      }
+      HasteUtils.SelectByProjectPath(Item.Path);
     }
   }
 }

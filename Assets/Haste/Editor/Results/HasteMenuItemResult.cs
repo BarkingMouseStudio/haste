@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  #if IS_HASTE_PRO
   public class HasteMenuItemResult : AbstractHasteResult {
 
     public HasteMenuItemResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
@@ -23,4 +24,5 @@ namespace Haste {
       }
     }
   }
+  #endif
 }

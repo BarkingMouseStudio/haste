@@ -16,8 +16,13 @@ namespace Haste {
     void Start();
     void Stop();
     void Restart();
+    void Purge();
 
-    bool IsRunning { get; }
+    bool Enabled { get; set; }
+
+    bool IsIndexing { get; }
+    int IndexingCount { get; }
+    int IndexedCount { get; }
   }
 
   public class HasteWatcher : IHasteWatcher, IEnumerable {
@@ -35,31 +40,45 @@ namespace Haste {
       this.factory = factory;
     }
 
-    public bool IsRunning {
-      get {
-        return node != null ? node.IsRunning : false;
-      }
+    public bool Enabled { get; set; }
+
+    public bool IsIndexing {
+      get { return node != null ? node.IsRunning : false; }
+    }
+
+    public int IndexedCount {
+      get { return currentCollection.Count; }
+    }
+
+    public int IndexingCount {
+      get { return nextCollection.Count; }
     }
 
     public void Start() {
-      if (!IsRunning) {
+      if (!IsIndexing) {
         nextCollection.Clear(); // Clear next to begin traversal again
         node = Haste.Scheduler.Start(this);
       }
     }
 
-    public void Stop() {
-      if (IsRunning) {
-        node.Stop();
-
-        // Clear both to free memory
-        currentCollection.Clear();
-        nextCollection.Clear();
+    public void Purge() {
+      foreach (HasteItem item in currentCollection) {
+        OnDeleted(item);
       }
     }
 
+    public void Stop() {
+      if (IsIndexing) {
+        node.Stop();
+      }
+
+      // Clear both to free memory
+      currentCollection.Clear();
+      nextCollection.Clear();
+    }
+
     public void Restart() {
-      if (IsRunning) {
+      if (IsIndexing) {
         node.Stop();
       }
 
@@ -85,6 +104,8 @@ namespace Haste {
           OnCreated(item);
         }
 
+        nextCollection.Add(item);
+
         yield return null;
       }
 
@@ -104,6 +125,8 @@ namespace Haste {
 
       nextCollection = temp;
       nextCollection.Clear(); // We clear it when we're done (not at the beginning in case something was added)
+
+      node = null;
     }
   }
 }
