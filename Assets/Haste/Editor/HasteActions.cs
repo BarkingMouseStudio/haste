@@ -26,7 +26,6 @@ namespace Haste {
           Selection.activeObject = PrefabUtility.InstantiatePrefab(Selection.activeObject);
           Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Instantiated prefab");
         }
-        Selection.activeObject = selectedObject;
       } },
 
       { "GameObject/Lock", () => {
