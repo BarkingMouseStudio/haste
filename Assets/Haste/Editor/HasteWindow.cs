@@ -183,10 +183,10 @@ namespace Haste {
 
     void OnReturn() {
       if (results.Length > 0) {
+        Close();
+
         selectedResult = results[highlightedIndex];
         selectedResult.Action();
-
-        Close();
       }
     }
 

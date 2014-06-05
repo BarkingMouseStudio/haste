@@ -65,6 +65,8 @@ namespace Haste {
       foreach (HasteItem item in currentCollection) {
         OnDeleted(item);
       }
+
+      Stop();
     }
 
     public void Stop() {

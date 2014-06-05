@@ -40,9 +40,9 @@ namespace Haste {
     void StopSource(IHasteWatcher watcher, bool purge = false) {
       if (purge) {
         watcher.Purge();
+      } else {
+        watcher.Stop();
       }
-
-      watcher.Stop();
 
       watcher.Created -= AddToIndex;
       watcher.Deleted -= RemoveFromIndex;
@@ -95,10 +95,6 @@ namespace Haste {
           watcher.Restart();
         }
       }
-    }
-
-    public bool TryGetWatcher(string name, out IHasteWatcher watcher) {
-      return watchers.TryGetValue(name, out watcher);
     }
 
     public void RestartAll() {

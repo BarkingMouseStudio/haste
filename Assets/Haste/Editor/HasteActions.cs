@@ -17,48 +17,76 @@ namespace Haste {
     public static IDictionary<string, MenuItemFallbackDelegate> MenuItemFallbacks = new Dictionary<string, MenuItemFallbackDelegate>() {
 
       #region CUSTOM
-      // TODO: These should just be implemented as MenuItems so they get validation functions and are read like everything else
-      // TODO: All should operate on "Selection" arrays, not one-offs
       { "Assets/Instantiate Prefab", () => {
-        var selectedObject = Selection.activeObject;
-        PrefabType prefabType = PrefabUtility.GetPrefabType(Selection.activeObject);
-        if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
-          Selection.activeObject = PrefabUtility.InstantiatePrefab(Selection.activeObject);
-          Undo.RegisterCreatedObjectUndo(Selection.activeObject, "Instantiated prefab");
+        if (Selection.objects.Length == 0) {
+          return;
+        }
+
+        using (new HasteUndoStack("Instantiate Prefab")) {
+          var objects = new List<UnityEngine.Object>(Selection.objects.Length);
+          foreach (var selectedObject in Selection.objects) {
+            PrefabType prefabType = PrefabUtility.GetPrefabType(selectedObject);
+            if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
+              var instantiatedPrefab = PrefabUtility.InstantiatePrefab(selectedObject);
+              objects.Add(instantiatedPrefab);
+              Undo.RegisterCreatedObjectUndo(selectedObject, "Instantiate Prefab");
+            }
+          }
+          Selection.objects = objects.ToArray();
         }
       } },
 
       { "GameObject/Lock", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        Undo.RecordObjects(Selection.gameObjects, "Lock GameObject");
+        foreach (var selectedObject in Selection.gameObjects) {
           selectedObject.hideFlags = HideFlags.NotEditable;
         }
       } },
 
       { "GameObject/Unlock", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        Undo.RecordObjects(Selection.gameObjects, "Unlock GameObject");
+        foreach (var selectedObject in Selection.gameObjects) {
           selectedObject.hideFlags = HideFlags.None;
         }
       } },
 
       { "GameObject/Activate", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        Undo.RecordObjects(Selection.gameObjects, "Activate GameObject");
+        foreach (var selectedObject in Selection.gameObjects) {
           EditorUtility.SetObjectEnabled(selectedObject, true);
         }
       } },
 
       { "GameObject/Deactivate", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        Undo.RecordObjects(Selection.gameObjects, "Deactivate GameObject");
+        foreach (var selectedObject in Selection.gameObjects) {
           EditorUtility.SetObjectEnabled(selectedObject, false);
         }
       } },
 
       { "GameObject/Reset Transform", () => {
-        Transform selectedTransform = Selection.activeTransform;
-        if (selectedTransform != null) {
+        if (Selection.transforms.Length == 0) {
+          return;
+        }
+
+        Undo.RecordObjects(Selection.transforms, "Reset Transform");
+        foreach (var selectedTransform in Selection.transforms) {
           selectedTransform.localPosition = Vector3.zero;
           selectedTransform.localScale = Vector3.one;
           selectedTransform.localRotation = Quaternion.identity;
@@ -66,54 +94,77 @@ namespace Haste {
       } },
 
       { "GameObject/Select Parent", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
-          if (selectedObject.transform != null) {
-            if (selectedObject.transform.parent != null) {
-              Selection.activeGameObject = selectedObject.transform.parent.gameObject;
-            }
+        if (Selection.transforms.Length == 0) {
+          return;
+        }
+
+        var transforms = new List<Transform>(Selection.transforms.Length);
+        foreach (var selectedTransform in Selection.transforms) {
+          if (selectedTransform.parent != null) {
+            transforms.Add(selectedTransform.parent);
           }
         }
+
+        Selection.objects = transforms.ToArray();
       } },
 
       { "GameObject/Select Children", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
-          Transform parent = selectedObject.transform;
-          if (parent != null && parent.childCount > 0) {
-            IList<GameObject> children = new List<GameObject>(parent.childCount);
-            foreach (Transform transform in parent) {
+        if (Selection.transforms.Length == 0) {
+          return;
+        }
+
+        IList<GameObject> children = new List<GameObject>();
+        foreach (var selectedTransform in Selection.transforms) {
+          if (selectedTransform != null && selectedTransform.childCount > 0) {
+            foreach (Transform transform in selectedTransform) {
               children.Add(transform.gameObject);
             }
-            Selection.objects = children.ToArray();
           }
         }
+
+        Selection.objects = children.ToArray();
       } },
 
       // Prefab
       { "GameObject/Select Prefab", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        var objects = new List<UnityEngine.Object>(Selection.objects.Length);
+        foreach (var selectedObject in Selection.gameObjects) {
           var parentObject = PrefabUtility.GetPrefabParent(selectedObject);
           if (parentObject != null) {
-            HasteUtils.SelectByProjectPath(AssetDatabase.GetAssetPath(parentObject));
+            objects.Add(parentObject);
+          }
+        }
+
+        Selection.objects = objects.ToArray();
+      } },
+
+      { "GameObject/Revert to Prefab", () => {
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        using (new HasteUndoStack("Revert to Prefab")) {
+          foreach (var selectedObject in Selection.gameObjects) {
+            Undo.RegisterFullObjectHierarchyUndo(selectedObject);
+            PrefabUtility.RevertPrefabInstance(selectedObject);
           }
         }
       } },
 
-      { "GameObject/Revert to Prefab", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
-          Undo.RegisterFullObjectHierarchyUndo(selectedObject);
-          PrefabUtility.RevertPrefabInstance(selectedObject);
-        }
-      } },
-
       { "GameObject/Reconnect to Prefab", () => {
-        GameObject selectedObject = Selection.activeGameObject;
-        if (selectedObject != null) {
-          Undo.RegisterFullObjectHierarchyUndo(selectedObject);
-          PrefabUtility.ReconnectToLastPrefab(selectedObject);
+        if (Selection.gameObjects.Length == 0) {
+          return;
+        }
+
+        using (new HasteUndoStack("Reconnect to Prefab")) {
+          foreach (var selectedObject in Selection.gameObjects) {
+            Undo.RegisterFullObjectHierarchyUndo(selectedObject);
+            PrefabUtility.ReconnectToLastPrefab(selectedObject);
+          }
         }
       } },
       #endregion

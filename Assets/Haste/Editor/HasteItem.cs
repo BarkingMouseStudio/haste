@@ -14,5 +14,9 @@ namespace Haste {
       Id = id;
       Source = source;
     }
+
+    public override string ToString() {
+      return System.String.Format("<{0}, {1}, {2}>", Path, Id, Source);
+    }
   }
 }
