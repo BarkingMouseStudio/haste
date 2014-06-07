@@ -7,22 +7,22 @@ namespace Haste {
 
   public class HasteUndoStack : IDisposable {
 
-    private static GameObject s_TempGO;
+    private static GameObject _TempGO;
     private static GameObject TempGO {
       get {
-        if (s_TempGO == null) {
-          s_TempGO = new GameObject("{GameObject}");
-          s_TempGO.hideFlags = HideFlags.HideAndDontSave;
+        if (_TempGO == null) {
+          _TempGO = new GameObject("{GameObject}");
+          _TempGO.hideFlags = HideFlags.HideAndDontSave;
         }
-        return s_TempGO;
+        return _TempGO;
       }
     }
 
     public int GroupId { get; protected set; }
 
     public HasteUndoStack(string label) {
-      Undo.IncrementCurrentGroup();
       GroupId = Undo.GetCurrentGroup();
+      Undo.IncrementCurrentGroup();
 
       Undo.RecordObject(TempGO, label);
       TempGO.transform.localPosition += Vector3.one;

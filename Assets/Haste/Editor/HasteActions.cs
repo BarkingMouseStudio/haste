@@ -22,18 +22,20 @@ namespace Haste {
           return;
         }
 
-        using (new HasteUndoStack("Instantiate Prefab")) {
-          var objects = new List<UnityEngine.Object>(Selection.objects.Length);
+        var instantiatedPrefabs = new List<UnityEngine.Object>(Selection.objects.Length);
+
+        using (new HasteUndoStack("Instantiate Prefabs")) {
           foreach (var selectedObject in Selection.objects) {
             PrefabType prefabType = PrefabUtility.GetPrefabType(selectedObject);
             if (prefabType == PrefabType.Prefab || prefabType == PrefabType.ModelPrefab) {
               var instantiatedPrefab = PrefabUtility.InstantiatePrefab(selectedObject);
-              objects.Add(instantiatedPrefab);
-              Undo.RegisterCreatedObjectUndo(selectedObject, "Instantiate Prefab");
+              instantiatedPrefabs.Add(instantiatedPrefab);
+              Undo.RegisterCreatedObjectUndo(instantiatedPrefab, "Instantiate Prefab");
             }
           }
-          Selection.objects = objects.ToArray();
         }
+
+        Selection.objects = instantiatedPrefabs.ToArray();
       } },
 
       { "GameObject/Lock", () => {
@@ -41,9 +43,9 @@ namespace Haste {
           return;
         }
 
-        Undo.RecordObjects(Selection.gameObjects, "Lock GameObject");
         foreach (var selectedObject in Selection.gameObjects) {
-          selectedObject.hideFlags = HideFlags.NotEditable;
+          selectedObject.hideFlags |= HideFlags.NotEditable;
+          EditorUtility.SetDirty(selectedObject);
         }
       } },
 
@@ -52,9 +54,9 @@ namespace Haste {
           return;
         }
 
-        Undo.RecordObjects(Selection.gameObjects, "Unlock GameObject");
         foreach (var selectedObject in Selection.gameObjects) {
-          selectedObject.hideFlags = HideFlags.None;
+          selectedObject.hideFlags &= ~HideFlags.NotEditable;
+          EditorUtility.SetDirty(selectedObject);
         }
       } },
 
@@ -63,7 +65,7 @@ namespace Haste {
           return;
         }
 
-        Undo.RecordObjects(Selection.gameObjects, "Activate GameObject");
+        Undo.RecordObjects(Selection.gameObjects, "Activate GameObjects");
         foreach (var selectedObject in Selection.gameObjects) {
           EditorUtility.SetObjectEnabled(selectedObject, true);
         }
@@ -74,7 +76,7 @@ namespace Haste {
           return;
         }
 
-        Undo.RecordObjects(Selection.gameObjects, "Deactivate GameObject");
+        Undo.RecordObjects(Selection.gameObjects, "Deactivate GameObjects");
         foreach (var selectedObject in Selection.gameObjects) {
           EditorUtility.SetObjectEnabled(selectedObject, false);
         }
@@ -85,7 +87,7 @@ namespace Haste {
           return;
         }
 
-        Undo.RecordObjects(Selection.transforms, "Reset Transform");
+        Undo.RecordObjects(Selection.transforms, "Reset Transforms");
         foreach (var selectedTransform in Selection.transforms) {
           selectedTransform.localPosition = Vector3.zero;
           selectedTransform.localScale = Vector3.one;
@@ -147,9 +149,9 @@ namespace Haste {
           return;
         }
 
-        using (new HasteUndoStack("Revert to Prefab")) {
+        using (new HasteUndoStack("Revert to Prefabs")) {
           foreach (var selectedObject in Selection.gameObjects) {
-            Undo.RegisterFullObjectHierarchyUndo(selectedObject);
+            Undo.RegisterFullObjectHierarchyUndo(selectedObject, "Revert to Prefab");
             PrefabUtility.RevertPrefabInstance(selectedObject);
           }
         }
@@ -160,9 +162,9 @@ namespace Haste {
           return;
         }
 
-        using (new HasteUndoStack("Reconnect to Prefab")) {
+        using (new HasteUndoStack("Reconnect to Prefabs")) {
           foreach (var selectedObject in Selection.gameObjects) {
-            Undo.RegisterFullObjectHierarchyUndo(selectedObject);
+            Undo.RegisterFullObjectHierarchyUndo(selectedObject, "Reconnect to Prefab");
             PrefabUtility.ReconnectToLastPrefab(selectedObject);
           }
         }
