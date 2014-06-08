@@ -24,6 +24,8 @@ namespace Haste {
     public static GUIStyle DisabledDescriptionStyle;
 
     static HasteWindow instance;
+    static int width = 500;
+    static int height = 300;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
@@ -33,12 +35,14 @@ namespace Haste {
     string query = "";
 
     int highlightedIndex = 0;
+    Texture backgroundTexture;
 
     const int itemHeight = 46;
+    const int itemStepHeightOffset = 6;
     const int prefixWidth = 96;
     const int groupSpacing = 10;
 
-    const int resultCount = 5;
+    const int resultCount = 10;
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
@@ -80,6 +84,28 @@ namespace Haste {
       } else {
         EditorGUILayout.LabelField("Index Size", Haste.IndexSize.ToString());
       }
+    }
+
+    static Texture GrabScreenSwatch(Rect rect) {
+      int width = (int)rect.width;
+      int height = (int)rect.height;
+      int x = (int)rect.x;
+      int y = (int)rect.y;
+      Vector2 position = new Vector2(x, y);
+
+      Color[] pixels = UnityEditorInternal.InternalEditorUtility.ReadScreenPixel(position, width, height);
+      Color pixel;
+      for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+          pixel = pixels[i * height + j];
+          pixels[i * height + j] = pixel;
+        }
+      }
+
+      Texture2D texture = new Texture2D(width, height);
+      texture.SetPixels(pixels);
+      texture.Apply();
+      return texture;
     }
 
     static void Init() {
@@ -137,21 +163,19 @@ namespace Haste {
       HasteWindow.HighlightStyle = new GUIStyle();
 
       if (EditorGUIUtility.isProSkin) {
-        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.275f, 0.475f, 0.95f, 0.2f));
+        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.275f, 0.475f, 0.95f, 0.3f));
       } else {
-        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.045f, 0.22f, 0.895f, 0.2f));
+        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.045f, 0.22f, 0.895f, 0.3f));
       }
 
       // Window
       instance = EditorWindow.CreateInstance<HasteWindow>();
+      instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
+      instance.title = "Haste";
 
-      int width = 500;
-      int height = 300;
       int x = (Screen.currentResolution.width - width) / 2;
       int y = (Screen.currentResolution.height - height) / 2;
       instance.position = new Rect(x, y, width, height);
-      instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
-      instance.title = "Haste";
     }
 
     [MenuItem("Window/Haste %k")]
@@ -162,6 +186,7 @@ namespace Haste {
 
       Haste.UsageCount++;
 
+      instance.backgroundTexture = GrabScreenSwatch(instance.position);
       instance.ShowPopup();
       instance.Focus();
     }
@@ -203,7 +228,7 @@ namespace Haste {
       }
 
       // Account for leading and between group spacing
-      int highlightOffset = highlightedIndex * itemHeight +
+      int highlightOffset = highlightedIndex * (itemHeight + itemStepHeightOffset) +
         (groupSpacing * highlightedIndex > 0 ? 1 : 0) +
         (groupSpacing * previousGroups);
       scrollPosition = new Vector2(scrollPosition.x, highlightOffset);
@@ -345,6 +370,7 @@ namespace Haste {
     void UpdateResults(IHasteResult[] updatedResults) {
       results = updatedResults;
       highlightedIndex = 0;
+      scrollPosition = Vector2.zero;
     }
 
     void ClearQuery() {
@@ -365,6 +391,8 @@ namespace Haste {
     }
 
     void OnGUI() {
+      UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
+
       OnEvent(Event.current);
 
       DrawQuery();
