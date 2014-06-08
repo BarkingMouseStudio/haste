@@ -23,9 +23,6 @@ namespace Haste {
     public static GUIStyle DisabledNameStyle;
     public static GUIStyle DisabledDescriptionStyle;
 
-    public static Texture GameObjectIcon;
-    public static Texture SpinnerTexture;
-
     static HasteWindow instance;
 
     IHasteResult[] results = new IHasteResult[0];
@@ -86,9 +83,6 @@ namespace Haste {
     }
 
     static void Init() {
-      HasteWindow.SpinnerTexture = Resources.LoadAssetAtPath<Texture>("Assets/Editor/Spinner.png");
-      HasteWindow.GameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
-
       // Styles
       HasteWindow.QueryStyle = new GUIStyle(EditorStyles.textField);
       HasteWindow.QueryStyle.fixedHeight = 64;

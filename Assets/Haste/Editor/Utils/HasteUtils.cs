@@ -11,20 +11,27 @@ namespace Haste {
 
   public static class HasteUtils {
 
+    public static Assembly EditorAssembly {
+      get {
+        return typeof(EditorWindow).Assembly;
+      }
+    }
+
+    public static Assembly EngineAssembly {
+      get {
+        return typeof(ScriptableObject).Assembly;
+      }
+    }
+
     public static System.Object Invoke(Assembly assembly, string className, string methodName, System.Object obj = null, params System.Object[] parameters) {
       var T = assembly.GetType(className);
       var method = T.GetMethod(methodName, BindingFlags.NonPublic|BindingFlags.Static);
       return method.Invoke(obj, parameters);
     }
 
-    public static System.Object UnityEngineInvoke(string className, string method, System.Object obj = null, params System.Object[] parameters) {
-      var assembly = Assembly.GetAssembly(typeof(ScriptableObject));
-      return Invoke(assembly, className, method, obj, parameters);
-    }
-
-    public static System.Object UnityEditorInvoke(string className, string method, System.Object obj = null, params System.Object[] parameters) {
-      var assembly = Assembly.GetAssembly(typeof(EditorWindow));
-      return Invoke(assembly, className, method, obj, parameters);
+    public static System.Object Instantiate(Assembly assembly, string typeName) {
+      Type type = assembly.GetType(typeName);
+      return Activator.CreateInstance(type);
     }
 
     public static IEnumerable<System.Object> GetAttributesInAssembly(Assembly assembly, string attributeTypeName) {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace Haste {
 
   public delegate void SceneChangedHandler(string currentScene, string previousScene);
+  public delegate void SelectionChangedHandler();
 
   [InitializeOnLoad]
   public static class Haste {
@@ -44,9 +45,11 @@ namespace Haste {
     }
 
     public static event SceneChangedHandler SceneChanged;
+    // public static event SelectionChangedHandler SelectionChanged;
 
     static string currentScene;
     static bool isCompiling = false;
+    static int activeInstanceId;
 
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
@@ -87,6 +90,7 @@ namespace Haste {
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
 
       Haste.SceneChanged += HandleSceneChanged;
+      // Haste.SelectionChanged += HandleSelectionChanged;
 
       EditorApplication.update += Update;
     }
@@ -102,6 +106,13 @@ namespace Haste {
     static void HandleSceneChanged(string currentScene, string previousScene) {
       Watchers.RestartSource(HasteHierarchySource.NAME);
     }
+
+    // static void HandleSelectionChanged() {
+    //   if (Selection.activeObject) {
+    //     var obj = Selection.activeObject;
+    //     HasteLogger.Info(obj, obj.GetType());
+    //   }
+    // }
 
     public static void Rebuild() {
       Index.Clear();
@@ -120,6 +131,12 @@ namespace Haste {
       #endif
     }
 
+    // static void OnSelectionChanged() {
+    //   if (SelectionChanged != null) {
+    //     SelectionChanged();
+    //   }
+    // }
+
     static void Update() {
       // Compiling state changed
       if (isCompiling != EditorApplication.isCompiling) {
@@ -136,6 +153,11 @@ namespace Haste {
         currentScene = EditorApplication.currentScene;
         OnSceneChanged(currentScene, previousScene);
       }
+
+      // if (activeInstanceId != Selection.activeInstanceID) {
+      //   activeInstanceId = Selection.activeInstanceID;
+      //   OnSelectionChanged();
+      // }
 
       if (!IsApplicationBusy) {
         Scheduler.Tick();

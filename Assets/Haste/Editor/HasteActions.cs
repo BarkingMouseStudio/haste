@@ -177,7 +177,7 @@ namespace Haste {
       } },
 
       { "Unity/Preferences...", () => {
-        HasteUtils.UnityEditorInvoke("UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
+        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
       } },
 
       { "File/New Scene", () => {
@@ -216,11 +216,11 @@ namespace Haste {
       } },
 
       { "File/Build Settings...", () => {
-        HasteUtils.UnityEditorInvoke("UnityEditor.BuildPlayerWindow", "ShowBuildPlayerWindow");
+        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.BuildPlayerWindow", "ShowBuildPlayerWindow");
       } },
 
       { "File/Build & Run", () => {
-        HasteUtils.UnityEditorInvoke("UnityEditor.BuildPlayerWindow", "BuildPlayerAndRun");
+        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.BuildPlayerWindow", "BuildPlayerAndRun");
       } },
 
       { "Edit/Undo", () => {
@@ -261,59 +261,63 @@ namespace Haste {
 
       { "Edit/Select All", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("SelectAll"));
-      } }
+      } },
 
       // { "Edit/Project Settings/Input", () => {
-      //   throw new NotImplementedException();
+      //   TODO: throw new NotImplementedException();
       // } },
 
-      // { "Edit/Project Settings/Tags and Layers", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Tags and Layers", () => {
+        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.TagManager");
+        Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+      } },
 
       // { "Edit/Project Settings/Audio", () => {
-      //   throw new NotImplementedException();
+      //   TODO: throw new NotImplementedException();
       // } },
 
       // { "Edit/Project Settings/Time", () => {
-      //   throw new NotImplementedException();
+      //   TODO: throw new NotImplementedException();
       // } },
 
-      // { "Edit/Project Settings/Player", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Player", () => {
+        Selection.activeObject = Resources.FindObjectsOfTypeAll<PlayerSettings>().First();
+      } },
 
-      // { "Edit/Project Settings/Physics", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Physics", () => {
+        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.PhysicsManager");
+        Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+      } },
 
-      // { "Edit/Project Settings/Physics 2D", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Physics 2D", () => {
+        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.Physics2DSettings");
+        Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+      } },
 
-      // { "Edit/Project Settings/Quality", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Quality", () => {
+        Selection.activeObject = Resources.FindObjectsOfTypeAll<QualitySettings>().First();
+      } },
 
       // { "Edit/Project Settings/Graphics", () => {
-      //   throw new NotImplementedException();
+      //   TODO: throw new NotImplementedException();
       // } },
 
       // { "Edit/Project Settings/Network", () => {
-      //   throw new NotImplementedException();
+      //   TODO: throw new NotImplementedException();
       // } },
 
-      // { "Edit/Project Settings/Editor", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Editor", () => {
+        Selection.activeObject = Resources.FindObjectsOfTypeAll<EditorSettings>().First();
+      } },
 
-      // { "Edit/Project Settings/Script Execution Order", () => {
-      //   throw new NotImplementedException();
-      // } },
+      { "Edit/Project Settings/Script Execution Order", () => {
+        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.MonoManager");
+        Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+      } },
 
-      // { "Edit/Render Settings", () => {
-      //   throw new NotImplementedException();
-      // } }
+      { "Edit/Render Settings", () => {
+        Selection.activeObject = UnityEngine.Object.FindObjectOfType<RenderSettings>();
+      } }
     };
   }
   #endif
