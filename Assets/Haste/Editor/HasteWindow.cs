@@ -86,28 +86,6 @@ namespace Haste {
       }
     }
 
-    static Texture GrabScreenSwatch(Rect rect) {
-      int width = (int)rect.width;
-      int height = (int)rect.height;
-      int x = (int)rect.x;
-      int y = (int)rect.y;
-      Vector2 position = new Vector2(x, y);
-
-      Color[] pixels = UnityEditorInternal.InternalEditorUtility.ReadScreenPixel(position, width, height);
-      Color pixel;
-      for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-          pixel = pixels[i * height + j];
-          pixels[i * height + j] = pixel;
-        }
-      }
-
-      Texture2D texture = new Texture2D(width, height);
-      texture.SetPixels(pixels);
-      texture.Apply();
-      return texture;
-    }
-
     static void Init() {
       // Styles
       HasteWindow.QueryStyle = new GUIStyle(EditorStyles.textField);
@@ -178,6 +156,41 @@ namespace Haste {
       instance.position = new Rect(x, y, width, height);
     }
 
+    // TODO: Move all to class
+    static Material blurMaterial;
+    static RenderTexture blurredBackgroundTexture;
+    static readonly int BLUR_PASSES = 40;
+
+    Texture BlurTexture(Texture backgroundTexture) {
+      if (blurMaterial == null) {
+        // TODO: This isn't reliable
+        blurMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets/Haste/Editor/Blur/Blur.mat", typeof(Material));
+
+        blurredBackgroundTexture = new RenderTexture(backgroundTexture.width, backgroundTexture.height, 0);
+        blurredBackgroundTexture.Create();
+      }
+
+      // TODO: Use real camera to avoid mess
+      RenderTexture active = RenderTexture.active;
+
+      RenderTexture tempA = RenderTexture.GetTemporary(backgroundTexture.width, backgroundTexture.height);
+      RenderTexture tempB = RenderTexture.GetTemporary(backgroundTexture.width, backgroundTexture.height);
+
+      for (int i = 0; i < BLUR_PASSES; i++) {
+        Graphics.Blit(i == 0 ? backgroundTexture : tempB, tempA, blurMaterial, 0);
+        Graphics.Blit(tempA, tempB, blurMaterial, 1);
+      }
+
+      Graphics.Blit(tempB, blurredBackgroundTexture, blurMaterial, 2);
+
+      RenderTexture.ReleaseTemporary(tempA);
+      RenderTexture.ReleaseTemporary(tempB);
+
+      RenderTexture.active = active; // Restore
+
+      return blurredBackgroundTexture;
+    }
+
     [MenuItem("Window/Haste %k")]
     public static void Open() {
       if (instance == null) {
@@ -186,7 +199,9 @@ namespace Haste {
 
       Haste.UsageCount++;
 
-      instance.backgroundTexture = GrabScreenSwatch(instance.position);
+      // Must grab texture before Haste is visible
+      instance.backgroundTexture = instance.BlurTexture(HasteUtils.GrabScreenSwatch(instance.position));
+
       instance.ShowPopup();
       instance.Focus();
     }
