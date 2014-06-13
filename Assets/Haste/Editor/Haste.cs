@@ -23,7 +23,7 @@ namespace Haste {
 
     public static event SceneChangedHandler SceneChanged;
     public static event VersionChangedHandler VersionChanged;
-    // public static event SelectionChangedHandler SelectionChanged;
+    public static event SelectionChangedHandler SelectionChanged;
 
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
@@ -32,7 +32,7 @@ namespace Haste {
 
     static string currentScene;
     static bool isCompiling = false;
-    static int activeInstanceId;
+    static int activeInstanceID;
 
     public static bool IsApplicationBusy {
       get {
@@ -102,7 +102,7 @@ namespace Haste {
 
       SceneChanged += HandleSceneChanged;
       VersionChanged += HandleVersionChanged;
-      // SelectionChanged += HandleSelectionChanged;
+      SelectionChanged += HandleSelectionChanged;
 
       EditorApplication.update += Update;
 
@@ -130,12 +130,12 @@ namespace Haste {
       Rebuild();
     }
 
-    // static void HandleSelectionChanged() {
-    //   if (Selection.activeObject) {
-    //     var obj = Selection.activeObject;
-    //     HasteLogger.Info(obj, obj.GetType());
-    //   }
-    // }
+    static void HandleSelectionChanged() {
+      if (Selection.activeObject) {
+        var obj = Selection.activeObject;
+        HasteLogger.Info(obj, obj.GetType());
+      }
+    }
 
     public static void Rebuild() {
       Index.Clear();
@@ -160,11 +160,11 @@ namespace Haste {
       #endif
     }
 
-    // static void OnSelectionChanged() {
-    //   if (SelectionChanged != null) {
-    //     SelectionChanged();
-    //   }
-    // }
+    static void OnSelectionChanged() {
+      if (SelectionChanged != null) {
+        SelectionChanged();
+      }
+    }
 
     static void Update() {
       // Compiling state changed
@@ -183,10 +183,10 @@ namespace Haste {
         OnSceneChanged(currentScene, previousScene);
       }
 
-      // if (activeInstanceId != Selection.activeInstanceID) {
-      //   activeInstanceId = Selection.activeInstanceID;
-      //   OnSelectionChanged();
-      // }
+      if (activeInstanceID != Selection.activeInstanceID) {
+        activeInstanceID = Selection.activeInstanceID;
+        OnSelectionChanged();
+      }
 
       if (!IsApplicationBusy) {
         Scheduler.Tick();

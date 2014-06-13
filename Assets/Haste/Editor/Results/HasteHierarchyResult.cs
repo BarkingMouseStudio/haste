@@ -28,7 +28,25 @@ namespace Haste {
 
     public override void Action() {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-      Selection.activeObject = GameObject.Find(Item.Path);
+      Selection.activeObject = Find(Item.Id);
+    }
+
+    // TODO: Move to source and reference from there
+    public static GameObject Find(int instanceID) {
+      foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>()) {
+        if (go.hideFlags == HideFlags.HideInInspector ||
+            go.hideFlags == HideFlags.HideInHierarchy ||
+            go.hideFlags == HideFlags.DontSave ||
+            go.hideFlags == HideFlags.HideAndDontSave) {
+          continue;
+        }
+
+        if (instanceID == go.GetInstanceID()) {
+          return go;
+        }
+      }
+
+      return null;
     }
   }
 }
