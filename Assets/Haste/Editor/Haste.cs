@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
+[assembly:AssemblyVersion("0.1.0.0")]
 namespace Haste {
 
   public delegate void SceneChangedHandler(string currentScene, string previousScene);
@@ -16,7 +17,7 @@ namespace Haste {
 
     public static string VERSION {
       get {
-        return new Version(0, 5, 0, 0).ToString();
+        return typeof(Haste).Assembly.GetName().Version.ToString();
       }
     }
 
