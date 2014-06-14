@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly:AssemblyVersion("0.1.0.0")]
 namespace Haste {
 
   public delegate void SceneChangedHandler(string currentScene, string previousScene);
@@ -32,7 +31,7 @@ namespace Haste {
 
     static string currentScene;
     static bool isCompiling = false;
-    static int activeInstanceId;
+    // static int activeInstanceId;
 
     public static bool IsApplicationBusy {
       get {
