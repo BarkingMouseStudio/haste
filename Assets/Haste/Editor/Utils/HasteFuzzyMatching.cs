@@ -96,6 +96,12 @@ namespace Haste {
           queryIndex++;
 
           if (queryIndex > queryLower.Length - 1) {
+            // If we have an exact match
+            if (strLower == queryLower) {
+              // Bump the score by an extra point for each char
+              score += queryLower.Length;
+            }
+
             // We've reached the end of our query with successful matches
             return true;
           }
