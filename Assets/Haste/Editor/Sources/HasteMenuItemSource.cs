@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections;
@@ -29,10 +30,19 @@ namespace Haste {
       "GameObject/Reconnect to Prefab"
     };
 
-    public static string[] BuiltinMenuItems = new string[]{
+    public static string[] MacBuiltinMenuItems = new string[]{
       "Unity/About Unity...",
       "Unity/Preferences...",
+      "Assets/Reveal in Finder"
+    };
 
+    public static string[] WindowsBuiltinMenuItems = new string[]{
+      "Help/About Unity...",
+      "File/Preferences...",
+      "Assets/Show in Explorer"
+    };
+
+    public static string[] BuiltinMenuItems = new string[]{
       "File/New Scene",
       "File/Open Scene...",
       "File/Save Scene",
@@ -88,7 +98,6 @@ namespace Haste {
       "Assets/Create/Render Texture",
       "Assets/Create/Animation Controller",
       // ---
-      "Assets/Reveal in Finder",
       "Assets/Open",
       "Assets/Delete",
       // ---
@@ -106,6 +115,7 @@ namespace Haste {
       "Assets/Sync MonoDevelop Project",
 
       "GameObject/Create Empty",
+      "GameObject/Create Empty Child",
       "GameObject/Create Other/Particle System",
       "GameObject/Create Other/Camera",
       "GameObject/Create Other/GUI Text",
@@ -142,16 +152,15 @@ namespace Haste {
       "GameObject/Apply Changes To Prefab",
       "GameObject/Break Prefab Instance",
       // ---
+      "GameObject/Set as first sibling",
+      "GameObject/Set as last sibling",
       "GameObject/Move To View",
       "GameObject/Align With View",
       "GameObject/Align View to Selected",
+      "GameObject/Toggle Active State",
 
       "Component/Add...",
 
-      "Window/Minimize",
-      "Window/Zoom",
-      // ---
-      "Window/Bring All to Front",
       "Window/Layouts/2 by 3",
       "Window/Layouts/4 Split",
       "Window/Layouts/Default",
@@ -172,7 +181,7 @@ namespace Haste {
       "Window/Version Control",
       "Window/Animator",
       "Window/Sprite Editor",
-      "Window/Sprite Packer (Developer Preview)",
+      "Window/Sprite Packer",
       // ---
       "Window/Lightmapping",
       "Window/Occlusion Culling",
@@ -214,6 +223,16 @@ namespace Haste {
 
       foreach (string path in BuiltinMenuItems) {
         yield return new HasteItem(path, 0, NAME);
+      }
+
+      if (Application.platform == RuntimePlatform.OSXEditor) {
+        foreach (string path in MacBuiltinMenuItems) {
+          yield return new HasteItem(path, 0, NAME);
+        }
+      } else if (Application.platform == RuntimePlatform.WindowsEditor) {
+        foreach (string path in WindowsBuiltinMenuItems) {
+          yield return new HasteItem(path, 0, NAME);
+        }
       }
 
       foreach (string path in CustomMenuItems) {

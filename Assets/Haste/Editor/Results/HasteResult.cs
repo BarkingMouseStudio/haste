@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  // TODO: Description should be in a lookup by path: we don't want to bloat the index
-
   public interface IHasteResult {
     HasteItem Item { get; }
     List<int> Indices { get; }

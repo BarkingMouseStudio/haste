@@ -351,6 +351,13 @@ namespace Haste {
       }
     }
 
+    void DrawPlaying() {
+      using (new HasteSpace()) {
+        EditorGUILayout.LabelField("Haste currently only works when not in play mode.", HasteWindow.EmptyStyle,
+          GUILayout.Height(HasteWindow.EmptyStyle.fixedHeight));
+      }
+    }
+
     void DrawIntro() {
       using (new HasteSpace()) {
         EditorGUILayout.LabelField("Just Type.", IntroStyle,
@@ -411,6 +418,11 @@ namespace Haste {
       OnEvent(Event.current);
 
       DrawQuery();
+
+      if (Application.isPlaying) {
+        DrawPlaying();
+        return;
+      }
 
       if (GUI.changed) {
         OnGUIChanged();

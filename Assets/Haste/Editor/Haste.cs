@@ -1,15 +1,37 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Haste {
 
   public delegate void SceneChangedHandler(string currentScene, string previousScene);
+  public delegate void VersionChangedHandler(string currentVersion, string previousVersion);
   public delegate void SelectionChangedHandler();
 
   [InitializeOnLoad]
   public static class Haste {
+
+    public static string VERSION {
+      get {
+        return typeof(Haste).Assembly.GetName().Version.ToString();
+      }
+    }
+
+    public static event SceneChangedHandler SceneChanged;
+    public static event VersionChangedHandler VersionChanged;
+    // public static event SelectionChangedHandler SelectionChanged;
+
+    public static HasteScheduler Scheduler;
+    public static HasteIndex Index;
+    public static HasteWatcherManager Watchers;
+    public static HasteTypeManager Types;
+
+    static string currentScene;
+    static bool isCompiling = false;
+    // static int activeInstanceId;
 
     public static bool IsApplicationBusy {
       get {
@@ -44,18 +66,6 @@ namespace Haste {
       get { return Watchers.IsIndexing; }
     }
 
-    public static event SceneChangedHandler SceneChanged;
-    // public static event SelectionChangedHandler SelectionChanged;
-
-    static string currentScene;
-    static bool isCompiling = false;
-    static int activeInstanceId;
-
-    public static HasteScheduler Scheduler;
-    public static HasteIndex Index;
-    public static HasteWatcherManager Watchers;
-    public static HasteTypeManager Types;
-
     static Haste() {
       currentScene = EditorApplication.currentScene;
       isCompiling = EditorApplication.isCompiling;
@@ -89,10 +99,17 @@ namespace Haste {
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
 
-      Haste.SceneChanged += HandleSceneChanged;
-      // Haste.SelectionChanged += HandleSelectionChanged;
+      SceneChanged += HandleSceneChanged;
+      VersionChanged += HandleVersionChanged;
+      // SelectionChanged += HandleSelectionChanged;
 
       EditorApplication.update += Update;
+
+      var previousVersion = EditorPrefs.GetString("HasteVersion");
+      var currentVersion = VERSION;
+      if (previousVersion != currentVersion) {
+        OnVersionChanged(currentVersion, previousVersion);
+      }
     }
 
     static void ProjectWindowChanged() {
@@ -105,6 +122,11 @@ namespace Haste {
 
     static void HandleSceneChanged(string currentScene, string previousScene) {
       Watchers.RestartSource(HasteHierarchySource.NAME);
+    }
+
+    static void HandleVersionChanged(string currentVersion, string previousVersion) {
+      EditorPrefs.SetString("HasteVersion", currentVersion);
+      Rebuild();
     }
 
     // static void HandleSelectionChanged() {
@@ -122,6 +144,12 @@ namespace Haste {
     static void OnSceneChanged(string currentScene, string previousScene) {
       if (SceneChanged != null) {
         SceneChanged(currentScene, previousScene);
+      }
+    }
+
+    static void OnVersionChanged(string currentVersion, string previousVersion) {
+      if (VersionChanged != null) {
+        VersionChanged(currentVersion, previousVersion);
       }
     }
 

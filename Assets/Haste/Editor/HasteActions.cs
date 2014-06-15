@@ -171,12 +171,21 @@ namespace Haste {
       } },
       #endregion
 
-      { "Unity/About Unity...", () => {
+      { "Unity/About Unity...", () => { // OS X
         var AboutWindow = typeof(EditorWindow).Assembly.GetType("UnityEditor.AboutWindow");
         EditorWindow.GetWindow(AboutWindow, true, "About Unity");
       } },
 
-      { "Unity/Preferences...", () => {
+      { "Help/About Unity...", () => { // Windows
+        var AboutWindow = typeof(EditorWindow).Assembly.GetType("UnityEditor.AboutWindow");
+        EditorWindow.GetWindow(AboutWindow, true, "About Unity");
+      } },
+
+      { "Unity/Preferences...", () => { // OS X
+        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
+      } },
+
+      { "File/Preferences...", () => { // Windows
         HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
       } },
 
