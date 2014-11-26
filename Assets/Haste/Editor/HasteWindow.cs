@@ -30,6 +30,8 @@ namespace Haste {
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
 
+    HasteBlur blur;
+
     Vector2 scrollPosition = Vector2.zero;
 
     string query = "";
@@ -42,7 +44,7 @@ namespace Haste {
     const int prefixWidth = 96;
     const int groupSpacing = 10;
 
-    const int resultCount = 10;
+    const int resultCount = 25;
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
@@ -151,48 +153,22 @@ namespace Haste {
       instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
       instance.title = "Haste";
 
+      // Blurring
+      instance.blur = new HasteBlur(width, height);
+
+      // Positioning
       int x = (Screen.currentResolution.width - width) / 2;
       int y = (Screen.currentResolution.height - height) / 2;
       instance.position = new Rect(x, y, width, height);
     }
 
-    // TODO: Move all to class
-    static Material blurMaterial;
-    static RenderTexture blurredBackgroundTexture;
-    static readonly int BLUR_PASSES = 40;
-
-    Texture BlurTexture(Texture backgroundTexture) {
-      if (blurMaterial == null) {
-        // TODO: This isn't reliable
-        blurMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets/Haste/Editor/Blur/Blur.mat", typeof(Material));
-
-        blurredBackgroundTexture = new RenderTexture(backgroundTexture.width, backgroundTexture.height, 0);
-        blurredBackgroundTexture.Create();
-      }
-
-      // TODO: Use real camera to avoid mess
-      RenderTexture active = RenderTexture.active;
-
-      RenderTexture tempA = RenderTexture.GetTemporary(backgroundTexture.width, backgroundTexture.height);
-      RenderTexture tempB = RenderTexture.GetTemporary(backgroundTexture.width, backgroundTexture.height);
-
-      for (int i = 0; i < BLUR_PASSES; i++) {
-        Graphics.Blit(i == 0 ? backgroundTexture : tempB, tempA, blurMaterial, 0);
-        Graphics.Blit(tempA, tempB, blurMaterial, 1);
-      }
-
-      Graphics.Blit(tempB, blurredBackgroundTexture, blurMaterial, 2);
-
-      RenderTexture.ReleaseTemporary(tempA);
-      RenderTexture.ReleaseTemporary(tempB);
-
-      RenderTexture.active = active; // Restore
-
-      return blurredBackgroundTexture;
-    }
-
     [MenuItem("Window/Haste %k")]
     public static void Open() {
+      if (instance == EditorWindow.focusedWindow) {
+        // Window is already open
+        return;
+      }
+
       if (instance == null) {
         Init();
       }
@@ -200,7 +176,9 @@ namespace Haste {
       Haste.UsageCount++;
 
       // Must grab texture before Haste is visible
-      instance.backgroundTexture = instance.BlurTexture(HasteUtils.GrabScreenSwatch(instance.position));
+      instance.backgroundTexture = instance.blur.BlurTexture(
+        HasteUtils.GrabScreenSwatch(instance.position)
+      );
 
       instance.ShowPopup();
       instance.Focus();

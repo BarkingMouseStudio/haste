@@ -1,4 +1,4 @@
-Shader "Haste/Blur" {
+Shader "Hidden/Haste/Blur" {
   Properties {
     _MainTex ("", 2D) = "white" {}
     _BlurSize ("", Range(0.0, 1.0)) = 1.0
