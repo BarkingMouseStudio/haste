@@ -37,7 +37,10 @@ namespace Haste {
     string query = "";
 
     int highlightedIndex = 0;
+
+    #if IS_HASTE_PRO
     Texture backgroundTexture;
+    #endif
 
     const int itemHeight = 46;
     const int itemStepHeightOffset = 6;
@@ -153,8 +156,10 @@ namespace Haste {
       instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
       instance.title = "Haste";
 
+      #if IS_HASTE_PRO
       // Blurring
       instance.blur = new HasteBlur(width, height);
+      #endif
 
       // Positioning
       int x = (Screen.currentResolution.width - width) / 2;
@@ -175,10 +180,12 @@ namespace Haste {
 
       Haste.UsageCount++;
 
+      #if IS_HASTE_PRO
       // Must grab texture before Haste is visible
       instance.backgroundTexture = instance.blur.BlurTexture(
         HasteUtils.GrabScreenSwatch(instance.position)
       );
+      #endif
 
       instance.ShowPopup();
       instance.Focus();
@@ -391,7 +398,9 @@ namespace Haste {
     }
 
     void OnGUI() {
+      #if IS_HASTE_PRO
       UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
+      #endif
 
       OnEvent(Event.current);
 

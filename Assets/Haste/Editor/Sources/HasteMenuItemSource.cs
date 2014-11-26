@@ -96,7 +96,7 @@ namespace Haste {
       "Assets/Create/Cubemap",
       "Assets/Create/Lens Flare",
       "Assets/Create/Render Texture",
-      "Assets/Create/Animation Controller",
+      "Assets/Create/Animator Controller",
       // ---
       "Assets/Open",
       "Assets/Delete",
