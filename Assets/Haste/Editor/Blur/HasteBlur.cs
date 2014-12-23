@@ -12,9 +12,9 @@ namespace Haste {
   public class HasteBlur {
 
     Color tint = Color.black;
-    float tinting = 0.2f;
+    float tinting = 0.4f;
     float blurSize = 2.0f;
-    int passes = 40;
+    int passes = 10;
 
     Material blurMaterial;
     RenderTexture destTexture;

@@ -112,14 +112,14 @@ namespace Haste {
         Application.dataPath.Split(Path.DirectorySeparatorChar).Slice(0, 3));
     }
 
-    public static string BoldLabel(string str, int[] indices) {
+    public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
       string bolded = "";
 
       // TODO: This could iterate indices and use substring instead
       int index = 0;
       for (int i = 0; i < str.Length; i++) {
         if (index < indices.Length && i == indices[index]) {
-          bolded += "<color=\"white\">" + str[i] + "</color>";
+          bolded += boldStart + str[i] + boldEnd;
           index++;
         } else {
           bolded += str[i];

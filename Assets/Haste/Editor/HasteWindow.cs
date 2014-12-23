@@ -29,8 +29,7 @@ namespace Haste {
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
-
-    HasteBlur blur;
+    IHasteResult highlightedResult;
 
     Vector2 scrollPosition = Vector2.zero;
 
@@ -39,6 +38,7 @@ namespace Haste {
     int highlightedIndex = 0;
 
     #if IS_HASTE_PRO
+    HasteBlur blur;
     Texture backgroundTexture;
     #endif
 
@@ -153,23 +153,43 @@ namespace Haste {
 
       // Window
       instance = EditorWindow.CreateInstance<HasteWindow>();
-      instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
       instance.title = "Haste";
 
       #if IS_HASTE_PRO
-      // Blurring
-      instance.blur = new HasteBlur(width, height);
+      if (Application.HasProLicense()) {
+        // Blurring
+        instance.blur = new HasteBlur(width, height);
+      }
       #endif
+    }
 
-      // Positioning
-      int x = (Screen.currentResolution.width - width) / 2;
-      int y = (Screen.currentResolution.height - height) / 2;
-      instance.position = new Rect(x, y, width, height);
+    public static bool IsOpen {
+      get { return instance == EditorWindow.focusedWindow; }
+    }
+
+    static Rect OffsetPosition {
+      get {
+        return new Rect(
+          ((Screen.currentResolution.width - width) / 2) + width,
+          ((Screen.currentResolution.height - height) / 2) + height,
+          width, height
+        );
+      }
+    }
+
+    static Rect CanonicalPosition {
+      get {
+        return new Rect(
+          (Screen.currentResolution.width - width) / 2,
+          (Screen.currentResolution.height - height) / 2,
+          width, height
+        );
+      }
     }
 
     [MenuItem("Window/Haste %k")]
     public static void Open() {
-      if (instance == EditorWindow.focusedWindow) {
+      if (IsOpen) {
         // Window is already open
         return;
       }
@@ -180,15 +200,21 @@ namespace Haste {
 
       Haste.UsageCount++;
 
-      #if IS_HASTE_PRO
-      // Must grab texture before Haste is visible
-      instance.backgroundTexture = instance.blur.BlurTexture(
-        HasteUtils.GrabScreenSwatch(instance.position)
-      );
-      #endif
-
+      instance.position = CanonicalPosition;
+      instance.UpdateBlur();
       instance.ShowPopup();
       instance.Focus();
+    }
+
+    void UpdateBlur() {
+      #if IS_HASTE_PRO
+      if (Application.HasProLicense()) {
+        // Must grab texture before Haste is visible
+        instance.backgroundTexture = instance.blur.BlurTexture(
+          HasteUtils.GrabScreenSwatch(CanonicalPosition)
+        );
+      }
+      #endif
     }
 
     void OnEscape() {
@@ -201,7 +227,7 @@ namespace Haste {
     }
 
     void OnReturn() {
-      if (results.Length > 0) {
+      if (results.Length > 0 && highlightedIndex >= 0) {
         Close();
 
         selectedResult = results[highlightedIndex];
@@ -209,14 +235,28 @@ namespace Haste {
       }
     }
 
-    void OnUpArrow() {
-      highlightedIndex = Math.Max(highlightedIndex - 1, 0);
+    void UpdateHighlightedIndex(int index) {
+      highlightedIndex = index;
+
+      if (highlightedIndex < 0 || highlightedIndex > results.Length - 1) {
+        scrollPosition = Vector2.zero;
+        return;
+      }
+
+      highlightedResult = results[highlightedIndex];
+      highlightedResult.Select();
+
       UpdateScroll();
     }
 
+    void OnUpArrow() {
+      int index = Math.Max(highlightedIndex - 1, 0);
+      UpdateHighlightedIndex(index);
+    }
+
     void OnDownArrow() {
-      highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
-      UpdateScroll();
+      int index = Math.Min(highlightedIndex + 1, results.Length - 1);
+      UpdateHighlightedIndex(index);
     }
 
     void UpdateScroll() {
@@ -376,8 +416,7 @@ namespace Haste {
 
     void UpdateResults(IHasteResult[] updatedResults) {
       results = updatedResults;
-      highlightedIndex = 0;
-      scrollPosition = Vector2.zero;
+      UpdateHighlightedIndex(0);
     }
 
     void ClearQuery() {
@@ -399,7 +438,9 @@ namespace Haste {
 
     void OnGUI() {
       #if IS_HASTE_PRO
-      UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
+      if (Application.HasProLicense()) {
+        UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
+      }
       #endif
 
       OnEvent(Event.current);

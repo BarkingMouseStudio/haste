@@ -22,7 +22,7 @@ namespace Haste {
 
     public static event SceneChangedHandler SceneChanged;
     public static event VersionChangedHandler VersionChanged;
-    // public static event SelectionChangedHandler SelectionChanged;
+    public static event SelectionChangedHandler SelectionChanged;
 
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
@@ -31,7 +31,7 @@ namespace Haste {
 
     static string currentScene;
     static bool isCompiling = false;
-    // static int activeInstanceId;
+    static int activeInstanceId;
 
     public static bool IsApplicationBusy {
       get {
@@ -55,7 +55,7 @@ namespace Haste {
     }
 
     public static int IndexSize {
-      get { return Index.Count; }
+      get { return Watchers.IndexedCount; }
     }
 
     public static int IndexingCount {
@@ -91,9 +91,7 @@ namespace Haste {
           return new HasteMenuItemResult(item, score, indices);
         });
 
-        Watchers.AddSource(HasteMenuItemSource.NAME, () => {
-          return new HasteMenuItemSource();
-        });
+        Watchers.AddSource(HasteMenuItemSource.NAME, () => new HasteMenuItemSource());
       #endif
 
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
@@ -129,12 +127,11 @@ namespace Haste {
       Rebuild();
     }
 
-    // static void HandleSelectionChanged() {
-    //   if (Selection.activeObject) {
-    //     var obj = Selection.activeObject;
-    //     HasteLogger.Info(obj, obj.GetType());
-    //   }
-    // }
+    static void HandleSelectionChanged() {
+      if (Selection.activeObject) {
+        // var obj = Selection.activeObject;
+      }
+    }
 
     public static void Rebuild() {
       Index.Clear();
@@ -159,11 +156,11 @@ namespace Haste {
       #endif
     }
 
-    // static void OnSelectionChanged() {
-    //   if (SelectionChanged != null) {
-    //     SelectionChanged();
-    //   }
-    // }
+    static void OnSelectionChanged() {
+      if (SelectionChanged != null) {
+        SelectionChanged();
+      }
+    }
 
     static void Update() {
       // Compiling state changed
@@ -182,10 +179,10 @@ namespace Haste {
         OnSceneChanged(currentScene, previousScene);
       }
 
-      // if (activeInstanceId != Selection.activeInstanceID) {
-      //   activeInstanceId = Selection.activeInstanceID;
-      //   OnSelectionChanged();
-      // }
+      if (activeInstanceId != Selection.activeInstanceID) {
+        activeInstanceId = Selection.activeInstanceID;
+        OnSelectionChanged();
+      }
 
       if (!IsApplicationBusy) {
         Scheduler.Tick();

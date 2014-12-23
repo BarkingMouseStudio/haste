@@ -55,7 +55,6 @@ namespace Haste {
       string strLower = str.ToLower();
 
       indices = new List<int>();
-
       score = 0;
 
       if (strLower.Length < queryLower.Length) {

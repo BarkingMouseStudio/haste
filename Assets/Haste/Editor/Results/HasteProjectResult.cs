@@ -22,5 +22,9 @@ namespace Haste {
     public override void Action() {
       HasteUtils.SelectByProjectPath(Item.Path);
     }
+
+    public override void Select() {
+      Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(Item.Path);
+    }
   }
 }

@@ -30,5 +30,9 @@ namespace Haste {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
       Selection.activeObject = GameObject.Find(Item.Path);
     }
+
+    public override void Select() {
+      Selection.activeObject = GameObject.Find(Item.Path);
+    }
   }
 }

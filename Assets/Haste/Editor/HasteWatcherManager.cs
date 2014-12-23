@@ -19,6 +19,10 @@ namespace Haste {
       get { return watchers.Sum(w => w.Value.IndexingCount); }
     }
 
+    public int IndexedCount {
+      get { return watchers.Sum(w => w.Value.IndexedCount); }
+    }
+
     public ICollection<string> Keys {
       get { return watchers.Keys; }
     }
