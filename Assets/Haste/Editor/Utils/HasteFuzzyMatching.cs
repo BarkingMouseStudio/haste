@@ -83,6 +83,7 @@ namespace Haste {
 
           // Try to match this query char on a boundary in the future,
           // otherwise we fall back to a sequential character match.
+          // XXX: This lookahead isn't necessary if we traverse backwards.
           } else if (!BoundaryMatch(str.Substring(strIndex + 1), query.Substring(queryIndex))) {
             score += (1 / (gap + 1));
             matchedChar = true;
