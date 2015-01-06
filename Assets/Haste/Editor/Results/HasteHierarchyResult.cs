@@ -28,11 +28,11 @@ namespace Haste {
 
     public override void Action() {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-      Selection.activeObject = GameObject.Find(Item.Path);
+      Selection.activeObject = EditorUtility.InstanceIDToObject(Item.Id);
     }
 
     public override void Select() {
-      Selection.activeObject = GameObject.Find(Item.Path);
+      Selection.activeObject = EditorUtility.InstanceIDToObject(Item.Id);
     }
   }
 }
