@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  // Stoppable co-routine scheduler node.
   public class HasteSchedulerNode {
 
     public IEnumerator Fiber;
@@ -24,10 +25,11 @@ namespace Haste {
     }
   }
 
+  // Custom co-routine scheduler to support starting and stopping coroutines individually.
   public class HasteScheduler {
 
     private LinkedList<HasteSchedulerNode> coroutines;
-   
+
     public bool IsRunning {
       get {
         return coroutines.Count > 0;
@@ -53,7 +55,7 @@ namespace Haste {
     public void Stop() {
       coroutines.Clear();
     }
-   
+
     public void Tick() {
       LinkedListNode<HasteSchedulerNode> coroutine = coroutines.First;
 
