@@ -17,11 +17,14 @@ namespace Haste {
     public static GUIStyle PrefixStyle;
     public static GUIStyle IntroStyle;
     public static GUIStyle IndexingStyle;
-    public static GUIStyle NonHighlightStyle;
     public static GUIStyle HighlightStyle;
     public static GUIStyle EmptyStyle;
+    public static GUIStyle UpgradeStyle;
     public static GUIStyle DisabledNameStyle;
     public static GUIStyle DisabledDescriptionStyle;
+
+    public static string BoldStart;
+    public static string BoldEnd;
 
     static HasteWindow instance;
     static int width = 500;
@@ -29,7 +32,7 @@ namespace Haste {
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
-    IHasteResult highlightedResult;
+    // IHasteResult highlightedResult;
 
     Vector2 scrollPosition = Vector2.zero;
 
@@ -52,10 +55,21 @@ namespace Haste {
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
       EditorGUILayout.Space();
+
+      #if !IS_HASTE_PRO
+      EditorGUILayout.HelpBox("Upgrade to Haste Pro to enable more features (like actions).", MessageType.Warning);
+      EditorGUILayout.Space();
+      if (GUILayout.Button("Upgrade to Haste Pro", GUILayout.Width(128))) {
+        UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
+      }
+
+      EditorGUILayout.Space();
+      EditorGUILayout.Space();
+      #endif
+
       if (GUILayout.Button("Rebuild Index", GUILayout.Width(128))) {
         Haste.Rebuild();
       }
-
       EditorGUILayout.Space();
       EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
 
@@ -63,7 +77,6 @@ namespace Haste {
       EditorGUILayout.Space();
 
       EditorGUILayout.LabelField("Times Opened", Haste.UsageCount.ToString());
-      EditorGUILayout.Space();
 
       EditorGUILayout.Space();
       EditorGUILayout.Space();
@@ -78,6 +91,7 @@ namespace Haste {
         foreach (var watcher in Haste.Watchers) {
           string label = String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
           bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
+          EditorPrefs.SetBool(Haste.GetPrefKey("Source", watcher.Key), enabled);
           Haste.Watchers.ToggleSource(watcher.Key, enabled);
         }
       }
@@ -107,7 +121,7 @@ namespace Haste {
       HasteWindow.IndexingStyle.fixedHeight = 24;
       HasteWindow.IndexingStyle.alignment = TextAnchor.MiddleCenter;
       HasteWindow.IndexingStyle.fontSize = 16;
-      HasteWindow.IndexingStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+      HasteWindow.IndexingStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
 
       HasteWindow.NameStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.NameStyle.alignment = TextAnchor.MiddleLeft;
@@ -119,17 +133,24 @@ namespace Haste {
       HasteWindow.EmptyStyle.fixedHeight = 24;
       HasteWindow.EmptyStyle.fontSize = 16;
 
+      HasteWindow.UpgradeStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.UpgradeStyle.alignment = TextAnchor.MiddleCenter;
+      HasteWindow.UpgradeStyle.fixedHeight = 24;
+      HasteWindow.UpgradeStyle.fontSize = 16;
+      HasteWindow.UpgradeStyle.normal.textColor = new Color(0.2f, 0.30f, 0.82f);
+
       HasteWindow.DisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.DisabledNameStyle.alignment = TextAnchor.MiddleLeft;
       HasteWindow.DisabledNameStyle.fixedHeight = 24;
       HasteWindow.DisabledNameStyle.fontSize = 16;
-      HasteWindow.DisabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+      HasteWindow.DisabledNameStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
 
       HasteWindow.DisabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.DisabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
       HasteWindow.DisabledDescriptionStyle.fixedHeight = 24;
       HasteWindow.DisabledDescriptionStyle.fontSize = 12;
-      HasteWindow.DisabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
+      HasteWindow.DisabledDescriptionStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
+      HasteWindow.DisabledDescriptionStyle.richText = true;
 
       HasteWindow.DescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.DescriptionStyle.alignment = TextAnchor.MiddleLeft;
@@ -142,13 +163,18 @@ namespace Haste {
       HasteWindow.PrefixStyle.fixedHeight = 18;
       HasteWindow.PrefixStyle.fontSize = 12;
 
-      HasteWindow.NonHighlightStyle = new GUIStyle();
-      HasteWindow.HighlightStyle = new GUIStyle();
-
       if (EditorGUIUtility.isProSkin) {
-        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.275f, 0.475f, 0.95f, 0.3f));
+        HasteWindow.BoldStart = "<color=\"#ddd\"><b>";
       } else {
-        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.045f, 0.22f, 0.895f, 0.3f));
+        HasteWindow.BoldStart = "<color=\"#ddd\"><b>";
+      }
+      HasteWindow.BoldEnd = "</b></color>";
+
+      HasteWindow.HighlightStyle = new GUIStyle();
+      if (EditorGUIUtility.isProSkin) {
+        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateColorSwatch(new Color(0.275f, 0.475f, 0.95f, 0.2f));
+      } else {
+        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateColorSwatch(new Color(0.045f, 0.22f, 0.895f, 0.2f));
       }
 
       // Window
@@ -156,7 +182,7 @@ namespace Haste {
       instance.title = "Haste";
 
       #if IS_HASTE_PRO
-      if (Application.HasProLicense()) {
+      if (Application.HasProLicense() && EditorGUIUtility.isProSkin) {
         // Blurring
         instance.blur = new HasteBlur(width, height);
       }
@@ -165,26 +191,6 @@ namespace Haste {
 
     public static bool IsOpen {
       get { return instance == EditorWindow.focusedWindow; }
-    }
-
-    static Rect OffsetPosition {
-      get {
-        return new Rect(
-          ((Screen.currentResolution.width - width) / 2) + width,
-          ((Screen.currentResolution.height - height) / 2) + height,
-          width, height
-        );
-      }
-    }
-
-    static Rect CanonicalPosition {
-      get {
-        return new Rect(
-          (Screen.currentResolution.width - width) / 2,
-          (Screen.currentResolution.height - height) / 2,
-          width, height
-        );
-      }
     }
 
     [MenuItem("Window/Haste %k")]
@@ -200,7 +206,11 @@ namespace Haste {
 
       Haste.UsageCount++;
 
-      instance.position = CanonicalPosition;
+      instance.position = new Rect(
+        (Screen.currentResolution.width - width) / 2,
+        (Screen.currentResolution.height - height) / 2,
+        width, height
+      );
       instance.UpdateBlur();
       instance.ShowPopup();
       instance.Focus();
@@ -208,22 +218,23 @@ namespace Haste {
 
     void UpdateBlur() {
       #if IS_HASTE_PRO
-      if (Application.HasProLicense()) {
+      if (instance.blur != null) {
         // Must grab texture before Haste is visible
         instance.backgroundTexture = instance.blur.BlurTexture(
-          HasteUtils.GrabScreenSwatch(CanonicalPosition)
+          HasteUtils.GrabScreenSwatch(instance.position)
         );
       }
       #endif
     }
 
-    void OnEscape() {
-      // On escape, clear context, clear the query or close the window
+    void OnBackspace() {
       if (query != "") {
         ClearQuery();
-      } else {
-        Close();
       }
+    }
+
+    void OnEscape() {
+      Close();
     }
 
     void OnReturn() {
@@ -243,8 +254,8 @@ namespace Haste {
         return;
       }
 
-      highlightedResult = results[highlightedIndex];
-      highlightedResult.Select();
+      // highlightedResult = results[highlightedIndex];
+      // highlightedResult.Select();
 
       UpdateScroll();
     }
@@ -276,6 +287,10 @@ namespace Haste {
 
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
+        case KeyCode.Backspace:
+          e.Use();
+          OnBackspace();
+          break;
         case KeyCode.Escape:
           e.Use();
           OnEscape();
@@ -304,7 +319,7 @@ namespace Haste {
     }
 
     void DrawResult(IHasteResult result, int index) {
-      var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
+      var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : GUIStyle.none;
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
           result.Action();
@@ -376,16 +391,25 @@ namespace Haste {
       }
     }
 
+    void DrawUpsell() {
+      #if !IS_HASTE_PRO
+      int bottomOffset = 8;
+      if (GUI.Button(new Rect(0, height - UpgradeStyle.fixedHeight - bottomOffset, width, UpgradeStyle.fixedHeight), "Click here to upgrade to Haste Pro", UpgradeStyle)) {
+        UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
+      }
+      #endif
+    }
+
     void DrawPlaying() {
       using (new HasteSpace()) {
-        EditorGUILayout.LabelField("Haste currently only works when not in play mode.", HasteWindow.EmptyStyle,
-          GUILayout.Height(HasteWindow.EmptyStyle.fixedHeight));
+        EditorGUILayout.LabelField("Haste currently only works when not in play mode.", EmptyStyle,
+          GUILayout.Height(EmptyStyle.fixedHeight));
       }
     }
 
     void DrawIntro() {
       using (new HasteSpace()) {
-        EditorGUILayout.LabelField("Just Type.", IntroStyle,
+        EditorGUILayout.LabelField("Just type.", IntroStyle,
           GUILayout.Height(HasteWindow.IntroStyle.fixedHeight));
 
         if (Haste.IsIndexing) {
@@ -438,7 +462,7 @@ namespace Haste {
 
     void OnGUI() {
       #if IS_HASTE_PRO
-      if (Application.HasProLicense()) {
+      if (backgroundTexture != null) {
         UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
       }
       #endif
@@ -447,10 +471,10 @@ namespace Haste {
 
       DrawQuery();
 
-      if (Application.isPlaying) {
-        DrawPlaying();
-        return;
-      }
+      // if (Application.isPlaying) {
+      //   DrawPlaying();
+      //   return;
+      // }
 
       if (GUI.changed) {
         OnGUIChanged();
@@ -458,8 +482,10 @@ namespace Haste {
 
       if (query == "") {
         DrawIntro();
+        DrawUpsell();
       } else if (results.Length == 0) {
         DrawEmptyResults();
+        DrawUpsell();
       } else {
         DrawResults();
       }

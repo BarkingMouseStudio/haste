@@ -8,7 +8,6 @@ using System.Reflection;
 
 namespace Haste {
 
-  #if IS_HASTE_PRO
   public class HasteMenuItemSource : IEnumerable<HasteItem> {
 
     public static readonly string NAME = "Menu Item";
@@ -207,7 +206,7 @@ namespace Haste {
         foreach (var attribute in HasteUtils.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
           MenuItem menuItem = (MenuItem)attribute;
 
-          if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
+          // if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
           if (menuItem.menuItem.StartsWith("internal:")) continue;
           if (menuItem.validate) continue;
 
@@ -244,5 +243,4 @@ namespace Haste {
       return GetEnumerator();
     }
   }
-  #endif
 }

@@ -98,7 +98,9 @@ namespace Haste {
       EditorApplication.ExecuteMenuItem("Window/Project");
       EditorUtility.FocusProjectWindow();
 
-      // Traverse project downwards, pinging each level
+      // Traverse project downwards, pinging each level.
+      // HACK: This is to fix an issue with Unity where pinging
+      // a lower-level object does not make it visible.
       string[] pieces = path.Split(Path.DirectorySeparatorChar);
       string fullPath = "";
       for (int i = 0; i < pieces.Length; i++) {
@@ -129,33 +131,11 @@ namespace Haste {
       return bolded;
     }
 
-    public static Texture2D CreateTexture(Color color) {
+    public static Texture2D CreateColorSwatch(Color color) {
       Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
       texture.SetPixel(0, 0, color);
       texture.Apply();
       return texture;
-    }
-
-    // public static HasteResult GetResultFromObject(UnityEngine.Object obj) {
-    //   if (AssetDatabase.Contains(obj)) {
-    //     return new HasteResult(AssetDatabase.GetAssetPath(obj), obj.GetInstanceID(), HasteSource.Project);
-    //   } else if (obj.GetType() == typeof(Transform)) {
-    //     Transform transform = (Transform)obj;
-    //     return new HasteResult(HasteUtils.GetHierarchyPath(transform), obj.GetInstanceID(), HasteSource.Hierarchy);
-    //   } else if (obj.GetType() == typeof(GameObject)) {
-    //     GameObject go = (GameObject)obj;
-    //     return new HasteResult(HasteUtils.GetHierarchyPath(go.transform), obj.GetInstanceID(), HasteSource.Hierarchy);
-    //   } else {
-    //     return new HasteResult(obj.name, obj.GetInstanceID(), HasteSource.Unknown);
-    //   }
-    // }
-
-    // public static HasteResult[] GetResultsFromObjects(UnityEngine.Object[] objects) {
-    //   return objects.Select(obj => GetResultFromObject(obj)).ToArray();
-    // }
-
-    public static Regex GetFuzzyFilterRegex(string query) {
-      return new Regex(String.Join(".*", query.ToLower().ToCharArray().Select(c => c.ToString()).ToArray()));
     }
 
     public static string GetRelativeAssetPath(string assetPath) {
@@ -168,7 +148,7 @@ namespace Haste {
       if (transform.parent == null) {
         path = transform.gameObject.name;
       } else {
-        path = HasteUtils.GetHierarchyPath(transform.parent) +
+        path = GetHierarchyPath(transform.parent) +
           Path.DirectorySeparatorChar + transform.gameObject.name;
       }
 

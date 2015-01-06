@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  // Unique object to exist in Haste's index.
   public struct HasteItem {
     public string Path;
     public int Id;

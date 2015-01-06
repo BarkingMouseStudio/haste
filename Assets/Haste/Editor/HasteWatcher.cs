@@ -29,7 +29,7 @@ namespace Haste {
 
     // The maximum time an iteration can spend indexing
     // before a yield so we don't stall the editor.
-    const float maxIterTime = 4.0f / 1000.0f;
+    const float MAX_ITER_TIME = 4.0f / 1000.0f; // 4ms
 
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
@@ -114,7 +114,7 @@ namespace Haste {
 
         nextCollection.Add(item);
 
-        if (iterTime > maxIterTime) {
+        if (iterTime > MAX_ITER_TIME) {
           iterTime = 0.0f;
           yield return null;
         }
@@ -130,7 +130,7 @@ namespace Haste {
           OnDeleted(item);
         }
 
-        if (iterTime > maxIterTime) {
+        if (iterTime > MAX_ITER_TIME) {
           iterTime = 0.0f;
           yield return null;
         }

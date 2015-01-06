@@ -30,10 +30,6 @@ namespace Haste {
     static IDictionary<string, IHasteWatcher> watchers =
       new Dictionary<string, IHasteWatcher>();
 
-    string GetPrefKey(string name) {
-      return String.Format("Haste:{0}", name);
-    }
-
     void StartSource(IHasteWatcher watcher) {
       watcher.Created += AddToIndex;
       watcher.Deleted += RemoveFromIndex;
@@ -59,7 +55,6 @@ namespace Haste {
         // State changed
         if (enabled != watcher.Enabled) {
           watcher.Enabled = enabled;
-          EditorPrefs.SetBool(GetPrefKey(name), enabled);
 
           if (enabled) {
             StartSource(watcher);
@@ -70,10 +65,10 @@ namespace Haste {
       }
     }
 
-    public void AddSource(string name, HasteSourceFactory factory) {
+    public void AddSource(string name, bool enabled, HasteSourceFactory factory) {
       if (!watchers.ContainsKey(name)) {
         IHasteWatcher watcher = new HasteWatcher(factory);
-        watcher.Enabled = EditorPrefs.GetBool(GetPrefKey(name), true);
+        watcher.Enabled = enabled;
 
         if (watcher.Enabled) {
           StartSource(watcher);

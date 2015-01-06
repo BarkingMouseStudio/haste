@@ -37,7 +37,7 @@ namespace Haste {
     public virtual void Draw() {
       using (new HasteVertical()) {
         EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteWindow.NameStyle);
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray()), HasteWindow.DescriptionStyle);
+        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteWindow.BoldStart, HasteWindow.BoldEnd), HasteWindow.DescriptionStyle);
       }
     }
 
