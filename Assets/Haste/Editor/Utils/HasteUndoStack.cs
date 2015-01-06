@@ -5,6 +5,7 @@ using System.Collections;
 
 namespace Haste {
 
+  // Hack to name multiple collapsed undo operations
   public class HasteUndoStack : IDisposable {
 
     private static GameObject _TempGO;
