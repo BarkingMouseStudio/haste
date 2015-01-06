@@ -5,6 +5,10 @@ using System.Collections;
 
 namespace Haste {
 
+  // Utility for wrapping a GUI section in spacers:
+  //
+  // using (new HasteSpace()) {
+  // }
   public class HasteSpace : IDisposable {
 
     public HasteSpace() {

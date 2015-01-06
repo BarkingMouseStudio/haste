@@ -5,6 +5,11 @@ using System.Collections;
 
 namespace Haste {
 
+  // Utility for creating vertical groups:
+  //
+  // using (var vertical = new HasteVertical()) {
+  //   Debug.Log(vertical.Rect);
+  // }
   public class HasteVertical : IDisposable {
 
     public Rect Rect { get; protected set; }
