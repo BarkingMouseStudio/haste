@@ -24,7 +24,7 @@ namespace Haste {
     }
 
     public override void Select() {
-      Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(Item.Path);
+      Selection.activeInstanceID = Item.Id;
     }
   }
 }
