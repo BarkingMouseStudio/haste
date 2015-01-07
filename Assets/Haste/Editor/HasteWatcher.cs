@@ -84,11 +84,7 @@ namespace Haste {
     }
 
     public void Restart() {
-      if (IsIndexing) {
-        node.Stop();
-      }
-
-      nextCollection.Clear(); // Clear next to begin traversal again
+      Stop();
       node = Haste.Scheduler.Start(this);
     }
 
