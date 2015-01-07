@@ -9,6 +9,7 @@ namespace Haste {
 
   public delegate IEnumerable<HasteItem> HasteSourceFactory();
 
+  // Manager for various source watchers.
   public class HasteWatcherManager : IEnumerable<KeyValuePair<string, IHasteWatcher>> {
 
     public bool IsIndexing {
