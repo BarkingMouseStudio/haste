@@ -7,6 +7,7 @@ namespace Haste {
 
   public delegate IHasteResult HasteTypeFactory(HasteItem item, float score, List<int> indices);
 
+  // Factory manager for converting between sources and results.
   public class HasteTypeManager {
 
     static IDictionary<string, HasteTypeFactory> types =
