@@ -101,7 +101,7 @@ namespace Haste {
         EditorPrefs.GetBool(GetPrefKey("Source", HasteHierarchySource.NAME), true),
         () => new HasteHierarchySource());
       Watchers.AddSource(HasteMenuItemSource.NAME,
-        EditorPrefs.GetBool(GetPrefKey("Source", HasteHierarchySource.NAME), true),
+        EditorPrefs.GetBool(GetPrefKey("Source", HasteMenuItemSource.NAME), true),
         () => new HasteMenuItemSource());
 
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
