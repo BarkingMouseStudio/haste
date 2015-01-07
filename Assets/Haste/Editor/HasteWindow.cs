@@ -15,9 +15,11 @@ namespace Haste {
     public static GUIStyle NameStyle;
     public static GUIStyle DescriptionStyle;
     public static GUIStyle PrefixStyle;
+    public static GUIStyle DisabledPrefixStyle;
     public static GUIStyle IntroStyle;
     public static GUIStyle IndexingStyle;
     public static GUIStyle HighlightStyle;
+    public static GUIStyle NonHighlightStyle;
     public static GUIStyle EmptyStyle;
     public static GUIStyle UpgradeStyle;
     public static GUIStyle DisabledNameStyle;
@@ -143,13 +145,13 @@ namespace Haste {
       HasteWindow.DisabledNameStyle.alignment = TextAnchor.MiddleLeft;
       HasteWindow.DisabledNameStyle.fixedHeight = 24;
       HasteWindow.DisabledNameStyle.fontSize = 16;
-      HasteWindow.DisabledNameStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
+      HasteWindow.DisabledNameStyle.normal.textColor = new Color(0.4f, 0.4f, 0.4f);
 
       HasteWindow.DisabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
       HasteWindow.DisabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
       HasteWindow.DisabledDescriptionStyle.fixedHeight = 24;
       HasteWindow.DisabledDescriptionStyle.fontSize = 12;
-      HasteWindow.DisabledDescriptionStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
+      HasteWindow.DisabledDescriptionStyle.normal.textColor = new Color(0.4f, 0.4f, 0.4f);
       HasteWindow.DisabledDescriptionStyle.richText = true;
 
       HasteWindow.DescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
@@ -163,6 +165,12 @@ namespace Haste {
       HasteWindow.PrefixStyle.fixedHeight = 18;
       HasteWindow.PrefixStyle.fontSize = 12;
 
+      HasteWindow.DisabledPrefixStyle = new GUIStyle(EditorStyles.largeLabel);
+      HasteWindow.DisabledPrefixStyle.alignment = TextAnchor.MiddleRight;
+      HasteWindow.DisabledPrefixStyle.fixedHeight = 18;
+      HasteWindow.DisabledPrefixStyle.fontSize = 12;
+      HasteWindow.DisabledPrefixStyle.normal.textColor = new Color(0.4f, 0.4f, 0.4f);
+
       if (EditorGUIUtility.isProSkin) {
         HasteWindow.BoldStart = "<color=\"#ddd\"><b>";
       } else {
@@ -170,6 +178,7 @@ namespace Haste {
       }
       HasteWindow.BoldEnd = "</b></color>";
 
+      HasteWindow.NonHighlightStyle = new GUIStyle();
       HasteWindow.HighlightStyle = new GUIStyle();
       if (EditorGUIUtility.isProSkin) {
         HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateColorSwatch(new Color(0.275f, 0.475f, 0.95f, 0.2f));
@@ -319,7 +328,7 @@ namespace Haste {
     }
 
     void DrawResult(IHasteResult result, int index) {
-      var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : GUIStyle.none;
+      var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
           result.Action();
@@ -352,12 +361,20 @@ namespace Haste {
           }
 
           if (isBeginGroup) {
+            var style = PrefixStyle;
+
+            #if !IS_HASTE_PRO
+            if (result.Item.Source == HasteMenuItemSource.NAME) {
+              style = DisabledPrefixStyle;
+            }
+            #endif
+
             // Begin group
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(
               result.Item.Source,
-              PrefixStyle,
+              style,
               GUILayout.Width(prefixWidth));
             EditorGUILayout.BeginVertical();
           }
