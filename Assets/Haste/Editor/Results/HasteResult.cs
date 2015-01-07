@@ -46,7 +46,8 @@ namespace Haste {
     }
 
     public virtual void Select() {
-      // NO-OP
+      // By default, re-select the initial instance id
+      HasteWindow.RestoreInitialSelection();
     }
   }
 

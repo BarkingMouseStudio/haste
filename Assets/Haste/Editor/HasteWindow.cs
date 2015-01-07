@@ -29,12 +29,20 @@ namespace Haste {
     public static string BoldEnd;
 
     static HasteWindow instance;
-    static int width = 500;
-    static int height = 300;
+    static int initialActiveInstanceId;
+
+    const int itemHeight = 46;
+    const int itemStepHeightOffset = 6;
+    const int prefixWidth = 96;
+    const int groupSpacing = 10;
+    const int width = 500;
+    const int height = 300;
+
+    const int resultCount = 25;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
-    // IHasteResult highlightedResult;
+    IHasteResult highlightedResult;
 
     Vector2 scrollPosition = Vector2.zero;
 
@@ -46,13 +54,6 @@ namespace Haste {
     HasteBlur blur;
     Texture backgroundTexture;
     #endif
-
-    const int itemHeight = 46;
-    const int itemStepHeightOffset = 6;
-    const int prefixWidth = 96;
-    const int groupSpacing = 10;
-
-    const int resultCount = 25;
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
@@ -105,6 +106,11 @@ namespace Haste {
       } else {
         EditorGUILayout.LabelField("Index Size", Haste.IndexSize.ToString());
       }
+    }
+
+    public static void RestoreInitialSelection() {
+      // Restore initial selection
+      Selection.activeInstanceID = initialActiveInstanceId;
     }
 
     static void Init() {
@@ -178,7 +184,9 @@ namespace Haste {
       }
       HasteWindow.BoldEnd = "</b></color>";
 
+      // We use a separate non-highlight style since GUIStyle.none has some extra padding...
       HasteWindow.NonHighlightStyle = new GUIStyle();
+
       HasteWindow.HighlightStyle = new GUIStyle();
       if (EditorGUIUtility.isProSkin) {
         HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateColorSwatch(new Color(0.275f, 0.475f, 0.95f, 0.2f));
@@ -215,25 +223,36 @@ namespace Haste {
 
       Haste.UsageCount++;
 
+      initialActiveInstanceId = Selection.activeInstanceID;
+
       instance.position = new Rect(
         (Screen.currentResolution.width - width) / 2,
         (Screen.currentResolution.height - height) / 2,
         width, height
       );
-      instance.UpdateBlur();
+
+      #if IS_HASTE_PRO
+        instance.UpdateBlur();
+      #endif
+
       instance.ShowPopup();
       instance.Focus();
     }
 
+    #if IS_HASTE_PRO
     void UpdateBlur() {
-      #if IS_HASTE_PRO
       if (instance.blur != null) {
         // Must grab texture before Haste is visible
         instance.backgroundTexture = instance.blur.BlurTexture(
           HasteUtils.GrabScreenSwatch(instance.position)
         );
       }
-      #endif
+    }
+    #endif
+
+    new void Close() {
+      RestoreInitialSelection();
+      base.Close();
     }
 
     void OnBackspace() {
@@ -263,8 +282,8 @@ namespace Haste {
         return;
       }
 
-      // highlightedResult = results[highlightedIndex];
-      // highlightedResult.Select();
+      highlightedResult = results[highlightedIndex];
+      highlightedResult.Select();
 
       UpdateScroll();
     }
@@ -331,8 +350,8 @@ namespace Haste {
       var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
-          result.Action();
           Close();
+          result.Action();
           return;
         }
 
