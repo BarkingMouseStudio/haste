@@ -251,7 +251,6 @@ namespace Haste {
 
     void OnEscape() {
       Close();
-      EditorApplication.ExecuteMenuItem("Window/Layouts/Default");
     }
 
     void OnReturn() {
