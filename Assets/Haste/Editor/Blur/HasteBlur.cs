@@ -11,19 +11,16 @@ namespace Haste {
 
   public class HasteBlur {
 
-    Color tint = Color.black;
-    float tinting = 0.4f;
-    float blurSize = 2.0f;
-    int passes = 10;
+    const int passes = 10;
 
     Material blurMaterial;
     RenderTexture destTexture;
 
-    public HasteBlur(int width, int height) {
+    public HasteBlur(int width, int height, Color tint) {
       blurMaterial = new Material(Shader.Find("Hidden/Haste/Blur"));
       blurMaterial.SetColor("_Tint", tint);
-      blurMaterial.SetFloat("_Tinting", tinting);
-      blurMaterial.SetFloat("_BlurSize", blurSize);
+      blurMaterial.SetFloat("_Tinting", 0.4f);
+      blurMaterial.SetFloat("_BlurSize", 2.0f);
 
       destTexture = new RenderTexture(width, height, 0);
       destTexture.Create();
