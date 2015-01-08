@@ -25,8 +25,8 @@ namespace Haste {
     public static GUIStyle DisabledNameStyle;
     public static GUIStyle DisabledDescriptionStyle;
 
-    public static string BoldStart;
-    public static string BoldEnd;
+    public static readonly string BoldStart = "<color=\"#ddd\"><b>";
+    public static readonly string BoldEnd = "</b></color>";
 
     static HasteWindow instance;
     static int initialActiveInstanceId;
@@ -47,13 +47,10 @@ namespace Haste {
     Vector2 scrollPosition = Vector2.zero;
 
     string query = "";
-
     int highlightedIndex = 0;
 
-    #if IS_HASTE_PRO
     HasteBlur blur;
     Texture backgroundTexture;
-    #endif
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
@@ -84,7 +81,7 @@ namespace Haste {
       EditorGUILayout.Space();
       EditorGUILayout.Space();
 
-      EditorGUILayout.LabelField("Available Sources", EditorStyles.whiteLargeLabel);
+      EditorGUILayout.LabelField("Available Sources");
       EditorGUILayout.Space();
 
       using (var toggleGroup = new HasteToggleGroup("Haste Enabled", Haste.Enabled)) {
@@ -177,13 +174,6 @@ namespace Haste {
       HasteWindow.DisabledPrefixStyle.fontSize = 12;
       HasteWindow.DisabledPrefixStyle.normal.textColor = new Color(0.4f, 0.4f, 0.4f);
 
-      if (EditorGUIUtility.isProSkin) {
-        HasteWindow.BoldStart = "<color=\"#ddd\"><b>";
-      } else {
-        HasteWindow.BoldStart = "<color=\"#ddd\"><b>";
-      }
-      HasteWindow.BoldEnd = "</b></color>";
-
       // We use a separate non-highlight style since GUIStyle.none has some extra padding...
       HasteWindow.NonHighlightStyle = new GUIStyle();
 
@@ -198,16 +188,19 @@ namespace Haste {
       instance = EditorWindow.CreateInstance<HasteWindow>();
       instance.title = "Haste";
 
-      #if IS_HASTE_PRO
-      if (Application.HasProLicense() && EditorGUIUtility.isProSkin) {
+      if (Application.HasProLicense()) {
         // Blurring
-        instance.blur = new HasteBlur(width, height);
+        instance.blur = new HasteBlur(width, height, EditorGUIUtility.isProSkin ? Color.black : Color.white);
       }
-      #endif
     }
 
     public static bool IsOpen {
       get { return instance == EditorWindow.focusedWindow; }
+    }
+
+    [MenuItem("Window/Haste %k", true)]
+    public static bool IsHasteEnabled() {
+      return Haste.Enabled;
     }
 
     [MenuItem("Window/Haste %k")]
@@ -231,15 +224,11 @@ namespace Haste {
         width, height
       );
 
-      #if IS_HASTE_PRO
-        instance.UpdateBlur();
-      #endif
-
+      instance.UpdateBlur();
       instance.ShowPopup();
       instance.Focus();
     }
 
-    #if IS_HASTE_PRO
     void UpdateBlur() {
       if (instance.blur != null) {
         // Must grab texture before Haste is visible
@@ -248,7 +237,6 @@ namespace Haste {
         );
       }
     }
-    #endif
 
     new void Close() {
       RestoreInitialSelection();
@@ -263,6 +251,7 @@ namespace Haste {
 
     void OnEscape() {
       Close();
+      EditorApplication.ExecuteMenuItem("Window/Layouts/Default");
     }
 
     void OnReturn() {
@@ -497,11 +486,9 @@ namespace Haste {
     }
 
     void OnGUI() {
-      #if IS_HASTE_PRO
       if (backgroundTexture != null) {
         UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
       }
-      #endif
 
       OnEvent(Event.current);
 

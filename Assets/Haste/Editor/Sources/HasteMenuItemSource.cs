@@ -160,11 +160,6 @@ namespace Haste {
 
       "Component/Add...",
 
-      "Window/Layouts/2 by 3",
-      "Window/Layouts/4 Split",
-      "Window/Layouts/Default",
-      "Window/Layouts/Tall",
-      "Window/Layouts/Wide",
       "Window/Layouts/Save Layout...",
       "Window/Layouts/Delete Layout...",
       "Window/Layouts/Revert Factory Settings...",
@@ -203,7 +198,7 @@ namespace Haste {
         if (assembly.FullName.StartsWith("UnityEditor")) continue;
         if (assembly.FullName.StartsWith("mscorlib")) continue;
 
-        foreach (var attribute in HasteUtils.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
+        foreach (var attribute in HasteReflection.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
           MenuItem menuItem = (MenuItem)attribute;
 
           // if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
@@ -235,6 +230,14 @@ namespace Haste {
       }
 
       foreach (string path in CustomMenuItems) {
+        yield return new HasteItem(path, 0, NAME);
+      }
+
+      var layouts = HasteReflection.Layouts.Select((layout) => {
+        return String.Format("Window/Layouts/{0}", layout);
+      });
+
+      foreach (string path in layouts) {
         yield return new HasteItem(path, 0, NAME);
       }
     }

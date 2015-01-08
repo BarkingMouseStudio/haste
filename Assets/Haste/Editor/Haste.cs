@@ -53,7 +53,14 @@ namespace Haste {
 
     public static bool Enabled {
       get { return EditorPrefs.GetBool(GetPrefKey("Enabled"), true); }
-      set { EditorPrefs.SetBool(GetPrefKey("Enabled"), value); }
+      set {
+        var original = EditorPrefs.GetBool(GetPrefKey("Enabled"), true);
+        EditorPrefs.SetBool(GetPrefKey("Enabled"), value);
+
+        if (value != original) {
+          Rebuild();
+        }
+      }
     }
 
     public static int UsageCount {

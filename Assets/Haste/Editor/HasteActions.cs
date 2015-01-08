@@ -182,11 +182,11 @@ namespace Haste {
       } },
 
       { "Unity/Preferences...", () => { // OS X
-        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
+        HasteReflection.Invoke(HasteReflection.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
       } },
 
       { "File/Preferences...", () => { // Windows
-        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
+        HasteReflection.Invoke(HasteReflection.EditorAssembly, "UnityEditor.PreferencesWindow", "ShowPreferencesWindow");
       } },
 
       { "File/New Scene", () => {
@@ -225,11 +225,11 @@ namespace Haste {
       } },
 
       { "File/Build Settings...", () => {
-        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.BuildPlayerWindow", "ShowBuildPlayerWindow");
+        HasteReflection.Invoke(HasteReflection.EditorAssembly, "UnityEditor.BuildPlayerWindow", "ShowBuildPlayerWindow");
       } },
 
       { "File/Build & Run", () => {
-        HasteUtils.Invoke(HasteUtils.EditorAssembly, "UnityEditor.BuildPlayerWindow", "BuildPlayerAndRun");
+        HasteReflection.Invoke(HasteReflection.EditorAssembly, "UnityEditor.BuildPlayerWindow", "BuildPlayerAndRun");
       } },
 
       { "Edit/Undo", () => {
@@ -277,7 +277,7 @@ namespace Haste {
       // } },
 
       { "Edit/Project Settings/Tags and Layers", () => {
-        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.TagManager");
+        Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.TagManager");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
       } },
 
@@ -294,12 +294,12 @@ namespace Haste {
       } },
 
       { "Edit/Project Settings/Physics", () => {
-        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.PhysicsManager");
+        Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.PhysicsManager");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
       } },
 
       { "Edit/Project Settings/Physics 2D", () => {
-        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.Physics2DSettings");
+        Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.Physics2DSettings");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
       } },
 
@@ -320,7 +320,7 @@ namespace Haste {
       } },
 
       { "Edit/Project Settings/Script Execution Order", () => {
-        Type type = HasteUtils.EditorAssembly.GetType("UnityEditor.MonoManager");
+        Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.MonoManager");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
       } },
 
