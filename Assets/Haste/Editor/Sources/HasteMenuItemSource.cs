@@ -115,8 +115,6 @@ namespace Haste {
 
       "GameObject/Create Empty",
       "GameObject/Create Empty Child",
-      "GameObject/Create Other/Particle System",
-      "GameObject/Create Other/Camera",
       "GameObject/Create Other/GUI Text",
       "GameObject/Create Other/GUI Texture",
       "GameObject/Create Other/3D Text",
@@ -143,6 +141,8 @@ namespace Haste {
       "GameObject/Create Other/Ragdoll...",
       "GameObject/Create Other/Tree",
       "GameObject/Create Other/Wind Zone",
+      "GameObject/Particle System",
+      "GameObject/Camera",
       // ---
       "GameObject/Center On Children",
       // ---
