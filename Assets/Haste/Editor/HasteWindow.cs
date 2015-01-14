@@ -11,6 +11,11 @@ namespace Haste {
 
   public class HasteWindow : EditorWindow {
 
+    public static readonly string BoldStart = "<color=\"#ddd\"><b>";
+    public static readonly string BoldEnd = "</b></color>";
+
+    public static HasteWindow Instance { get; protected set; }
+
     public static GUIStyle QueryStyle;
     public static GUIStyle NameStyle;
     public static GUIStyle DescriptionStyle;
@@ -25,12 +30,6 @@ namespace Haste {
     public static GUIStyle DisabledNameStyle;
     public static GUIStyle DisabledDescriptionStyle;
 
-    public static readonly string BoldStart = "<color=\"#ddd\"><b>";
-    public static readonly string BoldEnd = "</b></color>";
-
-    static HasteWindow instance;
-    static int initialActiveInstanceId;
-
     const int itemHeight = 46;
     const int itemStepHeightOffset = 6;
     const int prefixWidth = 96;
@@ -39,6 +38,8 @@ namespace Haste {
     const int height = 300;
 
     const int resultCount = 25;
+
+    int initialActiveInstanceId;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
@@ -105,13 +106,21 @@ namespace Haste {
       }
     }
 
-    public static void RestoreInitialSelection() {
+    public void RestoreInitialSelection() {
       // Restore initial selection
       Selection.activeInstanceID = initialActiveInstanceId;
     }
 
-    static void Init() {
-      // Styles
+    public static bool IsOpen {
+      get { return Instance == EditorWindow.focusedWindow; }
+    }
+
+    [MenuItem("Window/Haste %k", true)]
+    public static bool IsHasteEnabled() {
+      return Haste.Enabled;
+    }
+
+    static void InitStyles() {
       HasteWindow.QueryStyle = new GUIStyle(EditorStyles.textField);
       HasteWindow.QueryStyle.fixedHeight = 64;
       HasteWindow.QueryStyle.alignment = TextAnchor.MiddleLeft;
@@ -183,24 +192,6 @@ namespace Haste {
       } else {
         HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateColorSwatch(new Color(0.045f, 0.22f, 0.895f, 0.2f));
       }
-
-      // Window
-      instance = EditorWindow.CreateInstance<HasteWindow>();
-      instance.title = "Haste";
-
-      if (Application.HasProLicense()) {
-        // Blurring
-        instance.blur = new HasteBlur(width, height, EditorGUIUtility.isProSkin ? Color.black : Color.white);
-      }
-    }
-
-    public static bool IsOpen {
-      get { return instance == EditorWindow.focusedWindow; }
-    }
-
-    [MenuItem("Window/Haste %k", true)]
-    public static bool IsHasteEnabled() {
-      return Haste.Enabled;
     }
 
     [MenuItem("Window/Haste %k")]
@@ -210,32 +201,56 @@ namespace Haste {
         return;
       }
 
-      if (instance == null) {
-        Init();
+      if (Instance == null) {
+        InitStyles();
+
+        // Window
+        Instance = EditorWindow.CreateInstance<HasteWindow>();
+        Instance.title = "Haste";
       }
 
       Haste.UsageCount++;
 
-      initialActiveInstanceId = Selection.activeInstanceID;
+      Instance.initialActiveInstanceId = Selection.activeInstanceID;
 
-      instance.position = new Rect(
+      Instance.position = new Rect(
         (Screen.currentResolution.width - width) / 2,
         (Screen.currentResolution.height - height) / 2,
         width, height
       );
 
-      instance.UpdateBlur();
-      instance.ShowPopup();
-      instance.Focus();
+      Instance.DestroyBlur();
+      Instance.UpdateBlur();
+      Instance.ShowPopup();
+      Instance.Focus();
+    }
+
+    void DestroyBlur() {
+      if (blur != null) {
+        blur.Dispose();
+        blur = null;
+      }
+
+      if (backgroundTexture != null) {
+        Texture.DestroyImmediate(backgroundTexture);
+        backgroundTexture = null;
+      }
     }
 
     void UpdateBlur() {
-      if (instance.blur != null) {
+      if (Application.HasProLicense()) {
+        blur = new HasteBlur(width, height, EditorGUIUtility.isProSkin ? Color.black : Color.white);
+
         // Must grab texture before Haste is visible
-        instance.backgroundTexture = instance.blur.BlurTexture(
-          HasteUtils.GrabScreenSwatch(instance.position)
+        backgroundTexture = blur.BlurTexture(
+          HasteUtils.GrabScreenSwatch(position)
         );
       }
+    }
+
+    void OnDestroy() {
+      Texture.DestroyImmediate(HasteWindow.HighlightStyle.normal.background);
+      DestroyBlur();
     }
 
     new void Close() {
@@ -254,9 +269,9 @@ namespace Haste {
     }
 
     void OnReturn() {
-      if (results.Length > 0 && highlightedIndex >= 0) {
-        Close();
+      Close();
 
+      if (results.Length > 0 && highlightedIndex >= 0) {
         selectedResult = results[highlightedIndex];
         selectedResult.Action();
       }
@@ -492,11 +507,6 @@ namespace Haste {
       OnEvent(Event.current);
 
       DrawQuery();
-
-      // if (Application.isPlaying) {
-      //   DrawPlaying();
-      //   return;
-      // }
 
       if (GUI.changed) {
         OnGUIChanged();

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  public class HasteBlur {
+  public class HasteBlur : IDisposable {
 
     const int passes = 10;
 
@@ -44,6 +44,8 @@ namespace Haste {
 
         Graphics.Blit(tempB, destTexture, blurMaterial, 2);
 
+        Texture.DestroyImmediate(sourceTexture);
+
         RenderTexture.ReleaseTemporary(tempA);
         RenderTexture.ReleaseTemporary(tempB);
       } catch (Exception e) {
@@ -53,6 +55,14 @@ namespace Haste {
       }
 
       return destTexture;
+    }
+
+    public void Dispose() {
+      Material.DestroyImmediate(blurMaterial);
+      RenderTexture.DestroyImmediate(destTexture);
+
+      blurMaterial = null;
+      destTexture = null;
     }
   }
 }

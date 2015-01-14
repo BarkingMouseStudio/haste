@@ -97,10 +97,10 @@ namespace Haste {
       }
     }
 
-    public void RestartAll() {
+    public void Rebuild() {
       foreach (IHasteWatcher watcher in watchers.Values) {
         if (watcher.Enabled) {
-          watcher.Restart();
+          watcher.Rebuild();
         }
       }
     }

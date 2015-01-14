@@ -145,7 +145,7 @@ namespace Haste {
 
     public static void Rebuild() {
       Index.Clear();
-      Watchers.RestartAll();
+      Watchers.Rebuild();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {

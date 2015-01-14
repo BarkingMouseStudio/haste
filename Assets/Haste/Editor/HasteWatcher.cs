@@ -16,6 +16,7 @@ namespace Haste {
     void Start();
     void Stop();
     void Restart();
+    void Rebuild();
     void Purge();
 
     bool Enabled { get; set; }
@@ -84,6 +85,19 @@ namespace Haste {
     }
 
     public void Restart() {
+      if (IsIndexing) {
+        node.Stop();
+      }
+
+      // Don't clear current so we can collect change events
+      nextCollection.Clear();
+      node = Haste.Scheduler.Start(this);
+    }
+
+    public void Rebuild() {
+      // Clear both on rebuild, this won't trigger the appropriate
+      // change events which is fine since the index should be
+      // cleared first.
       Stop();
       node = Haste.Scheduler.Start(this);
     }
