@@ -5,10 +5,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Haste {
 
   public class HasteMenuItemSource : IEnumerable<HasteItem> {
+
+    static readonly Regex modifiers = new Regex(@"\s+[\%\#\&\_]+\w$", RegexOptions.IgnoreCase);
 
     public static readonly string NAME = "Menu Item";
 
@@ -188,28 +191,26 @@ namespace Haste {
       foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies()) {
         // Exclude built-in assemblies for performance reasons
         if (assembly.FullName.StartsWith("Mono")) continue;
-        if (assembly.FullName.StartsWith("UnityScript")) continue;
         if (assembly.FullName.StartsWith("ICSharpCode")) continue;
-        if (assembly.FullName.StartsWith("nunit")) continue;
-        if (assembly.FullName.StartsWith("Assembly-CSharp-Editor")) continue;
         if (assembly.FullName.StartsWith("System")) continue;
+        if (assembly.FullName.StartsWith("nunit")) continue;
+        if (assembly.FullName.StartsWith("mscorlib")) continue;
         if (assembly.FullName.StartsWith("Unity.")) continue;
+        if (assembly.FullName.StartsWith("UnityScript")) continue;
         if (assembly.FullName.StartsWith("UnityEngine")) continue;
         if (assembly.FullName.StartsWith("UnityEditor")) continue;
-        if (assembly.FullName.StartsWith("mscorlib")) continue;
+
+        // User assemblies in here:
+        // if (assembly.FullName.StartsWith("Assembly-CSharp-Editor")) continue;
 
         foreach (var attribute in HasteReflection.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
           MenuItem menuItem = (MenuItem)attribute;
 
-          // if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
+          if (menuItem.menuItem.Contains("Haste")) continue;
           if (menuItem.menuItem.StartsWith("internal:")) continue;
           if (menuItem.validate) continue;
 
-          string path = menuItem.menuItem;
-          int keyIndex = path.LastIndexOf('%');
-          if (keyIndex != -1) {
-            path = path.Remove(keyIndex);
-          }
+          string path = modifiers.Replace(menuItem.menuItem, ""); // Remove keyboard modifiers
 
           yield return new HasteItem(path, menuItem.priority, NAME);
         }
@@ -233,13 +234,13 @@ namespace Haste {
         yield return new HasteItem(path, 0, NAME);
       }
 
-      var layouts = HasteReflection.Layouts.Select((layout) => {
-        return String.Format("Window/Layouts/{0}", layout);
-      });
+      // var layouts = HasteReflection.Layouts.Select((layout) => {
+      //   return String.Format("Window/Layouts/{0}", layout);
+      // });
 
-      foreach (string path in layouts) {
-        yield return new HasteItem(path, 0, NAME);
-      }
+      // foreach (string path in layouts) {
+      //   yield return new HasteItem(path, 0, NAME);
+      // }
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
