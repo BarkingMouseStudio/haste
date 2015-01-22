@@ -106,7 +106,6 @@ namespace Haste {
     }
 
     void OnDestroy() {
-      Texture.DestroyImmediate(HasteStyles.HighlightStyle.normal.background);
       DestroyBlur();
     }
 
@@ -208,7 +207,6 @@ namespace Haste {
 
     void DrawResult(IHasteResult result, int index) {
       var resultStyle = index == highlightedIndex ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
-      Debug.Log(index);
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
