@@ -30,5 +30,9 @@ namespace Haste {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
       Selection.activeInstanceID = Item.Id;
     }
+
+    public override void Select() {
+      Selection.activeInstanceID = Item.Id;
+    }
   }
 }
