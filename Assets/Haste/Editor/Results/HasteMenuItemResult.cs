@@ -16,8 +16,8 @@ namespace Haste {
         base.Draw();
       #else
         using (new HasteVertical()) {
-          EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteWindow.DisabledNameStyle);
-          EditorGUILayout.LabelField("Upgrade to Haste Pro to enable", HasteWindow.DisabledDescriptionStyle);
+          EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteStyles.DisabledNameStyle);
+          EditorGUILayout.LabelField("Upgrade to Haste Pro to enable", HasteStyles.DisabledDescriptionStyle);
         }
       #endif
     }

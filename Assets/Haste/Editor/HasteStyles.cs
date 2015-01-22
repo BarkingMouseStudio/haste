@@ -41,12 +41,10 @@ namespace Haste {
       IndexingStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
 
       TipStyle = new GUIStyle(EditorStyles.largeLabel);
-      TipStyle.fixedHeight = 0;
-      TipStyle.alignment = TextAnchor.LowerCenter;
+      TipStyle.alignment = TextAnchor.MiddleCenter;
       TipStyle.fontSize = 14;
       TipStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
       TipStyle.wordWrap = true;
-      TipStyle.stretchHeight = true;
 
       NameStyle = new GUIStyle(EditorStyles.largeLabel);
       NameStyle.alignment = TextAnchor.MiddleLeft;
@@ -60,8 +58,7 @@ namespace Haste {
 
       UpgradeStyle = new GUIStyle(EditorStyles.largeLabel);
       UpgradeStyle.alignment = TextAnchor.MiddleCenter;
-      UpgradeStyle.fixedHeight = 24;
-      UpgradeStyle.fontSize = 16;
+      UpgradeStyle.fontSize = 14;
       UpgradeStyle.normal.textColor = new Color(0.2f, 0.30f, 0.82f);
 
       DisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);

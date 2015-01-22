@@ -77,6 +77,9 @@ namespace Haste {
         width, height
       );
 
+      // Disable the resize handle on the window
+      Instance.minSize = Instance.maxSize = new Vector2(width, height);
+
       Instance.UpdateBlur();
       Instance.ShowPopup();
       Instance.Focus();
@@ -244,7 +247,7 @@ namespace Haste {
 
             #if !IS_HASTE_PRO
             if (result.Item.Source == HasteMenuItemSource.NAME) {
-              style = DisabledPrefixStyle;
+              style = HasteStyles.DisabledPrefixStyle;
             }
             #endif
 
@@ -284,13 +287,17 @@ namespace Haste {
     void DrawEmptyResults() {
       using (new HasteSpace()) {
         EditorGUILayout.LabelField("No results found.", HasteStyles.EmptyStyle);
+
+        HasteGUILayout.Expander();
+
+        EditorGUILayout.LabelField(currentTip, HasteStyles.TipStyle);
+        DrawUpsell();
       }
     }
 
     void DrawUpsell() {
       #if !IS_HASTE_PRO
-      int bottomOffset = 8;
-      if (GUI.Button(new Rect(0, height - UpgradeStyle.fixedHeight - bottomOffset, width, UpgradeStyle.fixedHeight), "Click here to upgrade to Haste Pro", UpgradeStyle)) {
+      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.UpgradeStyle)) {
         UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
       }
       #endif
@@ -308,14 +315,16 @@ namespace Haste {
         EditorGUILayout.LabelField("Just type.", HasteStyles.IntroStyle,
           GUILayout.Height(HasteStyles.IntroStyle.fixedHeight));
 
+        HasteGUILayout.Expander();
+
         if (Haste.IsIndexing) {
           EditorGUILayout.LabelField(String.Format("(Indexing {0}...)", Haste.IndexingCount), HasteStyles.IndexingStyle);
         } else {
-          #if IS_HASTE_PRO
           EditorGUILayout.LabelField(currentTip, HasteStyles.TipStyle);
-          #endif
         }
-     }
+
+        DrawUpsell();
+      }
     }
 
     void DrawQuery() {
@@ -375,10 +384,8 @@ namespace Haste {
 
       if (query == "") {
         DrawIntro();
-        DrawUpsell();
       } else if (results.Length == 0) {
         DrawEmptyResults();
-        DrawUpsell();
       } else {
         DrawResults();
       }
