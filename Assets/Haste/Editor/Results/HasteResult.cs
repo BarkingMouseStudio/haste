@@ -36,8 +36,8 @@ namespace Haste {
 
     public virtual void Draw() {
       using (new HasteVertical()) {
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteWindow.NameStyle);
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteWindow.BoldStart, HasteWindow.BoldEnd), HasteWindow.DescriptionStyle);
+        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteStyles.NameStyle);
+        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteStyles.BoldStart, HasteStyles.BoldEnd), HasteStyles.DescriptionStyle);
       }
     }
 
@@ -46,8 +46,7 @@ namespace Haste {
     }
 
     public virtual void Select() {
-      // By default, re-select the initial instance id
-      HasteWindow.Instance.RestoreInitialSelection();
+      // NO-OP
     }
   }
 
