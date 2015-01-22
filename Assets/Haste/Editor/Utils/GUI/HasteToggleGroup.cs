@@ -5,6 +5,11 @@ using System.Collections;
 
 namespace Haste {
 
+  // Utility for creating a toggle group:
+  //
+  // using (var group = new HasteToggleGroup("Checkbox?", false)) {
+  //   Debug.Log(group.Enabled);
+  // }
   public class HasteToggleGroup : IDisposable {
 
     public bool Enabled { get; protected set; }

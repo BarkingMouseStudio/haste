@@ -11,187 +11,153 @@ namespace Haste {
 
   public class HasteWindow : EditorWindow {
 
-    public static GUIStyle QueryStyle;
-    public static GUIStyle NameStyle;
-    public static GUIStyle DescriptionStyle;
-    public static GUIStyle PrefixStyle;
-    public static GUIStyle IntroStyle;
-    public static GUIStyle IndexingStyle;
-    public static GUIStyle NonHighlightStyle;
-    public static GUIStyle HighlightStyle;
-    public static GUIStyle EmptyStyle;
-    public static GUIStyle DisabledNameStyle;
-    public static GUIStyle DisabledDescriptionStyle;
+    public static HasteWindow Instance { get; protected set; }
 
-    static HasteWindow instance;
+    const int itemHeight = 46;
+    const int itemStepHeightOffset = 6;
+    const int prefixWidth = 96;
+    const int groupSpacing = 10;
+    const int width = 500;
+    const int height = 300;
+
+    const int resultCount = 25;
+
+    int initialActiveInstanceId;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
+    IHasteResult highlightedResult;
 
     Vector2 scrollPosition = Vector2.zero;
 
     string query = "";
-
     int highlightedIndex = 0;
 
-    const int itemHeight = 46;
-    const int prefixWidth = 96;
-    const int groupSpacing = 10;
+    HasteBlur blur;
+    Texture backgroundTexture;
 
-    const int resultCount = 5;
+    string currentTip;
 
-    [PreferenceItem("Haste")]
-    public static void PreferencesGUI() {
-      EditorGUILayout.Space();
-      if (GUILayout.Button("Rebuild Index", GUILayout.Width(128))) {
-        Haste.Rebuild();
-      }
-
-      EditorGUILayout.Space();
-      EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
-
-      EditorGUILayout.Space();
-      EditorGUILayout.Space();
-
-      EditorGUILayout.LabelField("Times Opened", Haste.UsageCount.ToString());
-      EditorGUILayout.Space();
-
-      EditorGUILayout.Space();
-      EditorGUILayout.Space();
-
-      EditorGUILayout.LabelField("Available Sources", EditorStyles.whiteLargeLabel);
-      EditorGUILayout.Space();
-
-      using (var toggleGroup = new HasteToggleGroup("Haste Enabled", Haste.Enabled)) {
-        Haste.Enabled = toggleGroup.Enabled;
-        EditorGUILayout.Space();
-
-        foreach (var watcher in Haste.Watchers) {
-          string label = String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
-          bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
-          Haste.Watchers.ToggleSource(watcher.Key, enabled);
-        }
-      }
-
-      EditorGUILayout.Space();
-
-      if (Haste.IsIndexing) {
-        EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
-      } else {
-        EditorGUILayout.LabelField("Index Size", Haste.IndexSize.ToString());
-      }
+    public void RestoreInitialSelection() {
+      // Restore initial selection
+      Selection.activeInstanceID = initialActiveInstanceId;
     }
 
-    static void Init() {
-      // Styles
-      HasteWindow.QueryStyle = new GUIStyle(EditorStyles.textField);
-      HasteWindow.QueryStyle.fixedHeight = 64;
-      HasteWindow.QueryStyle.alignment = TextAnchor.MiddleLeft;
-      HasteWindow.QueryStyle.fontSize = 32;
+    public static bool IsOpen {
+      get { return Instance == EditorWindow.focusedWindow; }
+    }
 
-      HasteWindow.IntroStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.IntroStyle.fixedHeight = 64;
-      HasteWindow.IntroStyle.alignment = TextAnchor.MiddleCenter;
-      HasteWindow.IntroStyle.fontSize = 32;
-
-      HasteWindow.IndexingStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.IndexingStyle.fixedHeight = 24;
-      HasteWindow.IndexingStyle.alignment = TextAnchor.MiddleCenter;
-      HasteWindow.IndexingStyle.fontSize = 16;
-      HasteWindow.IndexingStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
-
-      HasteWindow.NameStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.NameStyle.alignment = TextAnchor.MiddleLeft;
-      HasteWindow.NameStyle.fixedHeight = 24;
-      HasteWindow.NameStyle.fontSize = 16;
-
-      HasteWindow.EmptyStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.EmptyStyle.alignment = TextAnchor.MiddleCenter;
-      HasteWindow.EmptyStyle.fixedHeight = 24;
-      HasteWindow.EmptyStyle.fontSize = 16;
-
-      HasteWindow.DisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.DisabledNameStyle.alignment = TextAnchor.MiddleLeft;
-      HasteWindow.DisabledNameStyle.fixedHeight = 24;
-      HasteWindow.DisabledNameStyle.fontSize = 16;
-      HasteWindow.DisabledNameStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
-
-      HasteWindow.DisabledDescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.DisabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
-      HasteWindow.DisabledDescriptionStyle.fixedHeight = 24;
-      HasteWindow.DisabledDescriptionStyle.fontSize = 12;
-      HasteWindow.DisabledDescriptionStyle.normal.textColor = new Color(0.45f, 0.45f, 0.45f);
-
-      HasteWindow.DescriptionStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.DescriptionStyle.alignment = TextAnchor.MiddleLeft;
-      HasteWindow.DescriptionStyle.fixedHeight = 24;
-      HasteWindow.DescriptionStyle.fontSize = 12;
-      HasteWindow.DescriptionStyle.richText = true;
-
-      HasteWindow.PrefixStyle = new GUIStyle(EditorStyles.largeLabel);
-      HasteWindow.PrefixStyle.alignment = TextAnchor.MiddleRight;
-      HasteWindow.PrefixStyle.fixedHeight = 18;
-      HasteWindow.PrefixStyle.fontSize = 12;
-
-      HasteWindow.NonHighlightStyle = new GUIStyle();
-      HasteWindow.HighlightStyle = new GUIStyle();
-
-      if (EditorGUIUtility.isProSkin) {
-        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.275f, 0.475f, 0.95f, 0.2f));
-      } else {
-        HasteWindow.HighlightStyle.normal.background = HasteUtils.CreateTexture(new Color(0.045f, 0.22f, 0.895f, 0.2f));
-      }
-
-      // Window
-      instance = EditorWindow.CreateInstance<HasteWindow>();
-
-      int width = 500;
-      int height = 300;
-      int x = (Screen.currentResolution.width - width) / 2;
-      int y = (Screen.currentResolution.height - height) / 2;
-      instance.position = new Rect(x, y, width, height);
-      instance.minSize = instance.maxSize = new Vector2(instance.position.width, instance.position.height);
-      instance.title = "Haste";
+    [MenuItem("Window/Haste %k", true)]
+    public static bool IsHasteEnabled() {
+      return Haste.Enabled;
     }
 
     [MenuItem("Window/Haste %k")]
     public static void Open() {
-      if (instance == null) {
-        Init();
+      if (IsOpen) {
+        // Window is already open
+        return;
+      }
+
+      if (Instance == null) {
+        // Window
+        Instance = EditorWindow.CreateInstance<HasteWindow>();
+        Instance.title = "Haste";
       }
 
       Haste.UsageCount++;
 
-      instance.ShowPopup();
-      instance.Focus();
+      Instance.initialActiveInstanceId = Selection.activeInstanceID;
+
+      Instance.currentTip = HasteTips.Random;
+
+      Instance.position = new Rect(
+        (Screen.currentResolution.width - width) / 2,
+        (Screen.currentResolution.height - height) / 2,
+        width, height
+      );
+
+      // Disable the resize handle on the window
+      Instance.minSize = Instance.maxSize = new Vector2(width, height);
+
+      Instance.UpdateBlur();
+      Instance.ShowPopup();
+      Instance.Focus();
     }
 
-    void OnEscape() {
-      // On escape, clear context, clear the query or close the window
-      if (query != "") {
-        ClearQuery();
-      } else {
-        Close();
+    void DestroyBlur() {
+      if (blur != null) {
+        blur.Dispose();
+        blur = null;
+      }
+
+      if (backgroundTexture != null) {
+        Texture.DestroyImmediate(backgroundTexture);
+        backgroundTexture = null;
       }
     }
 
-    void OnReturn() {
-      if (results.Length > 0) {
-        Close();
+    void UpdateBlur() {
+      if (Application.HasProLicense()) {
+        blur = new HasteBlur(width, height, EditorGUIUtility.isProSkin ? Color.black : Color.white);
 
+        // Must grab texture before Haste is visible
+        backgroundTexture = blur.BlurTexture(
+          HasteUtils.GrabScreenSwatch(position)
+        );
+      }
+    }
+
+    void OnDestroy() {
+      DestroyBlur();
+    }
+
+    new void Close() {
+      RestoreInitialSelection();
+      base.Close();
+    }
+
+    void OnBackspace() {
+      if (query != "") {
+        ClearQuery();
+      }
+    }
+
+    void OnEscape() {
+      Close();
+    }
+
+    void OnReturn() {
+      Close();
+
+      if (results.Length > 0 && highlightedIndex >= 0) {
         selectedResult = results[highlightedIndex];
         selectedResult.Action();
       }
     }
 
-    void OnUpArrow() {
-      highlightedIndex = Math.Max(highlightedIndex - 1, 0);
+    void UpdateHighlightedIndex(int index) {
+      highlightedIndex = index;
+
+      if (highlightedIndex < 0 || highlightedIndex > results.Length - 1) {
+        scrollPosition = Vector2.zero;
+        return;
+      }
+
+      highlightedResult = results[highlightedIndex];
+      highlightedResult.Select();
+
       UpdateScroll();
     }
 
+    void OnUpArrow() {
+      int index = Math.Max(highlightedIndex - 1, 0);
+      UpdateHighlightedIndex(index);
+    }
+
     void OnDownArrow() {
-      highlightedIndex = Math.Min(highlightedIndex + 1, results.Length - 1);
-      UpdateScroll();
+      int index = Math.Min(highlightedIndex + 1, results.Length - 1);
+      UpdateHighlightedIndex(index);
     }
 
     void UpdateScroll() {
@@ -203,7 +169,7 @@ namespace Haste {
       }
 
       // Account for leading and between group spacing
-      int highlightOffset = highlightedIndex * itemHeight +
+      int highlightOffset = highlightedIndex * (itemHeight + itemStepHeightOffset) +
         (groupSpacing * highlightedIndex > 0 ? 1 : 0) +
         (groupSpacing * previousGroups);
       scrollPosition = new Vector2(scrollPosition.x, highlightOffset);
@@ -211,6 +177,10 @@ namespace Haste {
 
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
+        case KeyCode.Backspace:
+          e.Use();
+          OnBackspace();
+          break;
         case KeyCode.Escape:
           e.Use();
           OnEscape();
@@ -239,11 +209,12 @@ namespace Haste {
     }
 
     void DrawResult(IHasteResult result, int index) {
-      var resultStyle = index == highlightedIndex ? HasteWindow.HighlightStyle : HasteWindow.NonHighlightStyle;
+      var resultStyle = index == highlightedIndex ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
+
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
-          result.Action();
           Close();
+          result.Action();
           return;
         }
 
@@ -272,12 +243,20 @@ namespace Haste {
           }
 
           if (isBeginGroup) {
+            var style = HasteStyles.PrefixStyle;
+
+            #if !IS_HASTE_PRO
+            if (result.Item.Source == HasteMenuItemSource.NAME) {
+              style = HasteStyles.DisabledPrefixStyle;
+            }
+            #endif
+
             // Begin group
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(
               result.Item.Source,
-              PrefixStyle,
+              style,
               GUILayout.Width(prefixWidth));
             EditorGUILayout.BeginVertical();
           }
@@ -307,25 +286,51 @@ namespace Haste {
 
     void DrawEmptyResults() {
       using (new HasteSpace()) {
-        EditorGUILayout.LabelField("No results found.", EmptyStyle);
+        EditorGUILayout.LabelField("No results found.", HasteStyles.EmptyStyle);
+
+        HasteGUILayout.Expander();
+
+        EditorGUILayout.LabelField(currentTip, HasteStyles.TipStyle);
+        DrawUpsell();
+      }
+    }
+
+    void DrawUpsell() {
+      #if !IS_HASTE_PRO
+      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.UpgradeStyle)) {
+        UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
+      }
+      #endif
+    }
+
+    void DrawPlaying() {
+      using (new HasteSpace()) {
+        EditorGUILayout.LabelField("Haste currently only works when not in play mode.", HasteStyles.EmptyStyle,
+          GUILayout.Height(HasteStyles.EmptyStyle.fixedHeight));
       }
     }
 
     void DrawIntro() {
       using (new HasteSpace()) {
-        EditorGUILayout.LabelField("Just Type.", IntroStyle,
-          GUILayout.Height(HasteWindow.IntroStyle.fixedHeight));
+        EditorGUILayout.LabelField("Just type.", HasteStyles.IntroStyle,
+          GUILayout.Height(HasteStyles.IntroStyle.fixedHeight));
+
+        HasteGUILayout.Expander();
 
         if (Haste.IsIndexing) {
-          EditorGUILayout.LabelField(String.Format("(Indexing {0}...)", Haste.IndexingCount), IndexingStyle);
+          EditorGUILayout.LabelField(String.Format("(Indexing {0}...)", Haste.IndexingCount), HasteStyles.IndexingStyle);
+        } else {
+          EditorGUILayout.LabelField(currentTip, HasteStyles.TipStyle);
         }
+
+        DrawUpsell();
       }
     }
 
     void DrawQuery() {
       using (new HasteFocus("query")) {
-        query = EditorGUILayout.TextField(query, QueryStyle,
-          GUILayout.Height(HasteWindow.QueryStyle.fixedHeight));
+        query = EditorGUILayout.TextField(query, HasteStyles.QueryStyle,
+          GUILayout.Height(HasteStyles.QueryStyle.fixedHeight));
         query = query.Trim();
       }
     }
@@ -344,7 +349,7 @@ namespace Haste {
 
     void UpdateResults(IHasteResult[] updatedResults) {
       results = updatedResults;
-      highlightedIndex = 0;
+      UpdateHighlightedIndex(0);
     }
 
     void ClearQuery() {
@@ -365,6 +370,10 @@ namespace Haste {
     }
 
     void OnGUI() {
+      if (backgroundTexture != null) {
+        UnityEngine.GUI.DrawTexture(new Rect(0, 0, width, height), backgroundTexture);
+      }
+
       OnEvent(Event.current);
 
       DrawQuery();

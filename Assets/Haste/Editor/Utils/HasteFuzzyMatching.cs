@@ -55,7 +55,6 @@ namespace Haste {
       string strLower = str.ToLower();
 
       indices = new List<int>();
-
       score = 0;
 
       if (strLower.Length < queryLower.Length) {
@@ -84,6 +83,7 @@ namespace Haste {
 
           // Try to match this query char on a boundary in the future,
           // otherwise we fall back to a sequential character match.
+          // XXX: This lookahead isn't necessary if we traverse backwards.
           } else if (!BoundaryMatch(str.Substring(strIndex + 1), query.Substring(queryIndex))) {
             score += (1 / (gap + 1));
             matchedChar = true;
@@ -96,6 +96,12 @@ namespace Haste {
           queryIndex++;
 
           if (queryIndex > queryLower.Length - 1) {
+            // If we have an exact match
+            if (strLower == queryLower) {
+              // Bump the score by an extra point for each char
+              score += queryLower.Length;
+            }
+
             // We've reached the end of our query with successful matches
             return true;
           }

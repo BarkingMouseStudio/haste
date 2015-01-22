@@ -11,14 +11,20 @@ namespace Haste {
     public HasteProjectResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
     public override void Draw() {
-      UnityEngine.GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
-        AssetDatabase.GetCachedIcon(Item.Path));
+      var icon = AssetDatabase.GetCachedIcon(Item.Path);
+      if (icon != null) {
+        UnityEngine.GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)), icon);
+      }
 
       base.Draw();
     }
 
     public override void Action() {
       HasteUtils.SelectByProjectPath(Item.Path);
+    }
+
+    public override void Select() {
+      Selection.activeInstanceID = Item.Id;
     }
   }
 }

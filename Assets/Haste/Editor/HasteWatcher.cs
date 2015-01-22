@@ -16,6 +16,7 @@ namespace Haste {
     void Start();
     void Stop();
     void Restart();
+    void Rebuild();
     void Purge();
 
     bool Enabled { get; set; }
@@ -26,6 +27,10 @@ namespace Haste {
   }
 
   public class HasteWatcher : IHasteWatcher, IEnumerable {
+
+    // The maximum time an iteration can spend indexing
+    // before a yield so we don't stall the editor.
+    const float MAX_ITER_TIME = 4.0f / 1000.0f; // 4ms
 
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
@@ -46,12 +51,12 @@ namespace Haste {
       get { return node != null ? node.IsRunning : false; }
     }
 
-    public int IndexedCount {
-      get { return currentCollection.Count; }
-    }
-
     public int IndexingCount {
       get { return nextCollection.Count; }
+    }
+
+    public int IndexedCount {
+      get { return currentCollection.Count; }
     }
 
     public void Start() {
@@ -84,7 +89,16 @@ namespace Haste {
         node.Stop();
       }
 
-      nextCollection.Clear(); // Clear next to begin traversal again
+      // Don't clear current so we can collect change events
+      nextCollection.Clear();
+      node = Haste.Scheduler.Start(this);
+    }
+
+    public void Rebuild() {
+      // Clear both on rebuild, this won't trigger the appropriate
+      // change events which is fine since the index should be
+      // cleared first.
+      Stop();
       node = Haste.Scheduler.Start(this);
     }
 
@@ -101,6 +115,8 @@ namespace Haste {
     }
 
     public IEnumerator GetEnumerator() {
+      float iterTime = 0.0f;
+
       foreach (HasteItem item in factory()) {
         if (!currentCollection.Contains(item)) {
           OnCreated(item);
@@ -108,7 +124,12 @@ namespace Haste {
 
         nextCollection.Add(item);
 
-        yield return null;
+        if (iterTime > MAX_ITER_TIME) {
+          iterTime = 0.0f;
+          yield return null;
+        }
+
+        iterTime += Time.deltaTime;
       }
 
       // Check for deleted paths
@@ -119,7 +140,12 @@ namespace Haste {
           OnDeleted(item);
         }
 
-        yield return null;
+        if (iterTime > MAX_ITER_TIME) {
+          iterTime = 0.0f;
+          yield return null;
+        }
+
+        iterTime += Time.deltaTime;
       }
 
       var temp = currentCollection;

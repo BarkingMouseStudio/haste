@@ -1,14 +1,17 @@
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  #if IS_HASTE_PRO
   public class HasteMenuItemSource : IEnumerable<HasteItem> {
+
+    static readonly Regex modifiers = new Regex(@"\s+[\%\#\&\_]+\w$", RegexOptions.IgnoreCase);
 
     public static readonly string NAME = "Menu Item";
 
@@ -29,10 +32,19 @@ namespace Haste {
       "GameObject/Reconnect to Prefab"
     };
 
-    public static string[] BuiltinMenuItems = new string[]{
+    public static string[] MacBuiltinMenuItems = new string[]{
       "Unity/About Unity...",
       "Unity/Preferences...",
+      "Assets/Reveal in Finder"
+    };
 
+    public static string[] WindowsBuiltinMenuItems = new string[]{
+      "Help/About Unity...",
+      "File/Preferences...",
+      "Assets/Show in Explorer"
+    };
+
+    public static string[] BuiltinMenuItems = new string[]{
       "File/New Scene",
       "File/Open Scene...",
       "File/Save Scene",
@@ -86,9 +98,8 @@ namespace Haste {
       "Assets/Create/Cubemap",
       "Assets/Create/Lens Flare",
       "Assets/Create/Render Texture",
-      "Assets/Create/Animation Controller",
+      "Assets/Create/Animator Controller",
       // ---
-      "Assets/Reveal in Finder",
       "Assets/Open",
       "Assets/Delete",
       // ---
@@ -106,8 +117,7 @@ namespace Haste {
       "Assets/Sync MonoDevelop Project",
 
       "GameObject/Create Empty",
-      "GameObject/Create Other/Particle System",
-      "GameObject/Create Other/Camera",
+      "GameObject/Create Empty Child",
       "GameObject/Create Other/GUI Text",
       "GameObject/Create Other/GUI Texture",
       "GameObject/Create Other/3D Text",
@@ -134,6 +144,8 @@ namespace Haste {
       "GameObject/Create Other/Ragdoll...",
       "GameObject/Create Other/Tree",
       "GameObject/Create Other/Wind Zone",
+      "GameObject/Particle System",
+      "GameObject/Camera",
       // ---
       "GameObject/Center On Children",
       // ---
@@ -142,21 +154,15 @@ namespace Haste {
       "GameObject/Apply Changes To Prefab",
       "GameObject/Break Prefab Instance",
       // ---
+      "GameObject/Set as first sibling",
+      "GameObject/Set as last sibling",
       "GameObject/Move To View",
       "GameObject/Align With View",
       "GameObject/Align View to Selected",
+      "GameObject/Toggle Active State",
 
       "Component/Add...",
 
-      "Window/Minimize",
-      "Window/Zoom",
-      // ---
-      "Window/Bring All to Front",
-      "Window/Layouts/2 by 3",
-      "Window/Layouts/4 Split",
-      "Window/Layouts/Default",
-      "Window/Layouts/Tall",
-      "Window/Layouts/Wide",
       "Window/Layouts/Save Layout...",
       "Window/Layouts/Delete Layout...",
       "Window/Layouts/Revert Factory Settings...",
@@ -172,7 +178,7 @@ namespace Haste {
       "Window/Version Control",
       "Window/Animator",
       "Window/Sprite Editor",
-      "Window/Sprite Packer (Developer Preview)",
+      "Window/Sprite Packer",
       // ---
       "Window/Lightmapping",
       "Window/Occlusion Culling",
@@ -185,28 +191,26 @@ namespace Haste {
       foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies()) {
         // Exclude built-in assemblies for performance reasons
         if (assembly.FullName.StartsWith("Mono")) continue;
-        if (assembly.FullName.StartsWith("UnityScript")) continue;
         if (assembly.FullName.StartsWith("ICSharpCode")) continue;
-        if (assembly.FullName.StartsWith("nunit")) continue;
-        if (assembly.FullName.StartsWith("Assembly-CSharp-Editor")) continue;
         if (assembly.FullName.StartsWith("System")) continue;
+        if (assembly.FullName.StartsWith("nunit")) continue;
+        if (assembly.FullName.StartsWith("mscorlib")) continue;
         if (assembly.FullName.StartsWith("Unity.")) continue;
+        if (assembly.FullName.StartsWith("UnityScript")) continue;
         if (assembly.FullName.StartsWith("UnityEngine")) continue;
         if (assembly.FullName.StartsWith("UnityEditor")) continue;
-        if (assembly.FullName.StartsWith("mscorlib")) continue;
 
-        foreach (var attribute in HasteUtils.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
+        // User assemblies in here:
+        // if (assembly.FullName.StartsWith("Assembly-CSharp-Editor")) continue;
+
+        foreach (var attribute in HasteReflection.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
           MenuItem menuItem = (MenuItem)attribute;
 
-          if (menuItem.menuItem.StartsWith("CONTEXT")) continue;
+          if (menuItem.menuItem.Contains("Haste")) continue;
           if (menuItem.menuItem.StartsWith("internal:")) continue;
           if (menuItem.validate) continue;
 
-          string path = menuItem.menuItem;
-          int keyIndex = path.LastIndexOf('%');
-          if (keyIndex != -1) {
-            path = path.Remove(keyIndex);
-          }
+          string path = modifiers.Replace(menuItem.menuItem, ""); // Remove keyboard modifiers
 
           yield return new HasteItem(path, menuItem.priority, NAME);
         }
@@ -216,14 +220,31 @@ namespace Haste {
         yield return new HasteItem(path, 0, NAME);
       }
 
+      if (Application.platform == RuntimePlatform.OSXEditor) {
+        foreach (string path in MacBuiltinMenuItems) {
+          yield return new HasteItem(path, 0, NAME);
+        }
+      } else if (Application.platform == RuntimePlatform.WindowsEditor) {
+        foreach (string path in WindowsBuiltinMenuItems) {
+          yield return new HasteItem(path, 0, NAME);
+        }
+      }
+
       foreach (string path in CustomMenuItems) {
         yield return new HasteItem(path, 0, NAME);
       }
+
+      // var layouts = HasteReflection.Layouts.Select((layout) => {
+      //   return String.Format("Window/Layouts/{0}", layout);
+      // });
+
+      // foreach (string path in layouts) {
+      //   yield return new HasteItem(path, 0, NAME);
+      // }
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
       return GetEnumerator();
     }
   }
-  #endif
 }

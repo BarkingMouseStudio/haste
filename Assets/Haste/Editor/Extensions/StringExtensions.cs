@@ -47,5 +47,5 @@ namespace Haste {
 
       return parts.ToArray();
     }
-  }   
+  }
 }

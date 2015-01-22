@@ -16,5 +16,5 @@ namespace Haste {
       Array.Copy(arr, index, result, 0, length);
       return result;
     }
-  }   
+  }
 }

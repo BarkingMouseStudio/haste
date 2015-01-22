@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  // TODO: Description should be in a lookup by path: we don't want to bloat the index
-
   public interface IHasteResult {
     HasteItem Item { get; }
     List<int> Indices { get; }
@@ -17,6 +15,7 @@ namespace Haste {
     void Draw();
     bool Validate();
     void Action();
+    void Select();
   }
 
   public abstract class AbstractHasteResult : IHasteResult {
@@ -37,12 +36,16 @@ namespace Haste {
 
     public virtual void Draw() {
       using (new HasteVertical()) {
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteWindow.NameStyle);
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray()), HasteWindow.DescriptionStyle);
+        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteStyles.NameStyle);
+        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteStyles.BoldStart, HasteStyles.BoldEnd), HasteStyles.DescriptionStyle);
       }
     }
 
     public virtual void Action() {
+      // NO-OP
+    }
+
+    public virtual void Select() {
       // NO-OP
     }
   }

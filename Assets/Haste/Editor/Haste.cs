@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly:AssemblyVersion("0.1.0.0")]
 namespace Haste {
 
   public delegate void SceneChangedHandler(string currentScene, string previousScene);
@@ -20,6 +19,8 @@ namespace Haste {
         return typeof(Haste).Assembly.GetName().Version.ToString();
       }
     }
+
+    public static readonly string ASSET_STORE_PRO_URL = "content/18584";
 
     public static event SceneChangedHandler SceneChanged;
     public static event VersionChangedHandler VersionChanged;
@@ -36,27 +37,39 @@ namespace Haste {
 
     public static bool IsApplicationBusy {
       get {
+        var willPlay = EditorApplication.isPlayingOrWillChangePlaymode &&
+          !EditorApplication.isPlaying;
+
         return !Enabled ||
-               EditorApplication.isPlayingOrWillChangePlaymode ||
+               willPlay ||
                EditorApplication.isCompiling ||
-               EditorApplication.isUpdating ||
-               EditorApplication.isPlaying ||
-               EditorApplication.isPaused;
+               EditorApplication.isUpdating;
       }
     }
 
+    public static string GetPrefKey(params string[] values) {
+      return String.Format("Haste:{0}", String.Join(":", values));
+    }
+
     public static bool Enabled {
-      get { return EditorPrefs.GetBool("HasteEnabled", true); }
-      set { EditorPrefs.SetBool("HasteEnabled", value); }
+      get { return EditorPrefs.GetBool(GetPrefKey("Enabled"), true); }
+      set {
+        var original = EditorPrefs.GetBool(GetPrefKey("Enabled"), true);
+        EditorPrefs.SetBool(GetPrefKey("Enabled"), value);
+
+        if (value != original) {
+          Rebuild();
+        }
+      }
     }
 
     public static int UsageCount {
-      get { return EditorPrefs.GetInt("HasteUsageCount", 0); }
-      set { EditorPrefs.SetInt("HasteUsageCount", value); }
+      get { return EditorPrefs.GetInt(GetPrefKey("UsageCount"), 0); }
+      set { EditorPrefs.SetInt(GetPrefKey("UsageCount"), value); }
     }
 
     public static int IndexSize {
-      get { return Index.Count; }
+      get { return Watchers.IndexedCount; }
     }
 
     public static int IndexingCount {
@@ -84,29 +97,29 @@ namespace Haste {
         return new HasteHierarchyResult(item, score, indices);
       });
 
-      Watchers.AddSource(HasteProjectSource.NAME, () => new HasteProjectSource());
-      Watchers.AddSource(HasteHierarchySource.NAME, () => new HasteHierarchySource());
+      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, float score, List<int> indices) => {
+        return new HasteMenuItemResult(item, score, indices);
+      });
 
-      #if IS_HASTE_PRO
-        Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, float score, List<int> indices) => {
-          return new HasteMenuItemResult(item, score, indices);
-        });
-
-        Watchers.AddSource(HasteMenuItemSource.NAME, () => {
-          return new HasteMenuItemSource();
-        });
-      #endif
+      Watchers.AddSource(HasteProjectSource.NAME,
+        EditorPrefs.GetBool(GetPrefKey("Source", HasteProjectSource.NAME), true),
+        () => new HasteProjectSource());
+      Watchers.AddSource(HasteHierarchySource.NAME,
+        EditorPrefs.GetBool(GetPrefKey("Source", HasteHierarchySource.NAME), true),
+        () => new HasteHierarchySource());
+      Watchers.AddSource(HasteMenuItemSource.NAME,
+        EditorPrefs.GetBool(GetPrefKey("Source", HasteMenuItemSource.NAME), true),
+        () => new HasteMenuItemSource());
 
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
 
       SceneChanged += HandleSceneChanged;
       VersionChanged += HandleVersionChanged;
-      SelectionChanged += HandleSelectionChanged;
 
       EditorApplication.update += Update;
 
-      var previousVersion = EditorPrefs.GetString("HasteVersion");
+      var previousVersion = EditorPrefs.GetString(GetPrefKey("Version"));
       var currentVersion = VERSION;
       if (previousVersion != currentVersion) {
         OnVersionChanged(currentVersion, previousVersion);
@@ -126,20 +139,13 @@ namespace Haste {
     }
 
     static void HandleVersionChanged(string currentVersion, string previousVersion) {
-      EditorPrefs.SetString("HasteVersion", currentVersion);
+      EditorPrefs.SetString(GetPrefKey("Version"), currentVersion);
       Rebuild();
-    }
-
-    static void HandleSelectionChanged() {
-      if (Selection.activeObject) {
-        var obj = Selection.activeObject;
-        HasteLogger.Info(obj, obj.GetType());
-      }
     }
 
     public static void Rebuild() {
       Index.Clear();
-      Watchers.RestartAll();
+      Watchers.Rebuild();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {
@@ -154,18 +160,19 @@ namespace Haste {
       }
     }
 
-    static void OnScriptsCompiled() {
-      #if IS_HASTE_PRO
-        Watchers.RestartSource(HasteMenuItemSource.NAME);
-      #endif
-    }
-
     static void OnSelectionChanged() {
       if (SelectionChanged != null) {
         SelectionChanged();
       }
     }
 
+    static void OnScriptsCompiled() {
+      #if IS_HASTE_PRO
+        Watchers.RestartSource(HasteMenuItemSource.NAME);
+      #endif
+    }
+
+    // Main update loop in Haste—run's scheduler
     static void Update() {
       // Compiling state changed
       if (isCompiling != EditorApplication.isCompiling) {
