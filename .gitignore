@@ -9,3 +9,4 @@ Temp/
 *.userprefs
 *.sublime-project
 *.sublime-workspace
+*.dll
