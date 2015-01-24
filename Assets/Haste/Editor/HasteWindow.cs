@@ -80,6 +80,7 @@ namespace Haste {
       // Disable the resize handle on the window
       Instance.minSize = Instance.maxSize = new Vector2(width, height);
 
+      Instance.DestroyBlur(); // Must include since it leaks otherwise...
       Instance.UpdateBlur();
       Instance.ShowPopup();
       Instance.Focus();
@@ -136,18 +137,22 @@ namespace Haste {
       }
     }
 
-    void UpdateHighlightedIndex(int index) {
+    void UpdateHighlightedIndex(int index, bool updateScroll = true) {
       highlightedIndex = index;
 
       if (highlightedIndex < 0 || highlightedIndex > results.Length - 1) {
-        scrollPosition = Vector2.zero;
+        if (updateScroll) {
+          ResetScroll();
+        }
         return;
       }
 
       highlightedResult = results[highlightedIndex];
       highlightedResult.Select();
 
-      UpdateScroll();
+      if (updateScroll) {
+        UpdateScroll();
+      }
     }
 
     void OnUpArrow() {
@@ -158,6 +163,10 @@ namespace Haste {
     void OnDownArrow() {
       int index = Math.Min(highlightedIndex + 1, results.Length - 1);
       UpdateHighlightedIndex(index);
+    }
+
+    void ResetScroll() {
+      scrollPosition = Vector2.zero;
     }
 
     void UpdateScroll() {
@@ -208,17 +217,33 @@ namespace Haste {
       }
     }
 
+    bool isDoubleClick = false;
+
     void DrawResult(IHasteResult result, int index) {
-      var resultStyle = index == highlightedIndex ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
+      var isHighlighted = index == highlightedIndex;
+      var resultStyle = isHighlighted ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
+        var e = Event.current;
+        if (e.isMouse && e.type == EventType.MouseDown && e.clickCount == 2) {
+          isDoubleClick = true;
+        }
+
         if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
-          Close();
-          result.Action();
+          if (isDoubleClick) {
+            isDoubleClick = false; // Reset flag
+
+            // Double-click
+            Close();
+            result.Action();
+          } else {
+            // Single-click
+            UpdateHighlightedIndex(index, false);
+          }
           return;
         }
 
-        result.Draw();
+        result.Draw(isHighlighted);
       }
     }
 
