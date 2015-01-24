@@ -27,20 +27,20 @@ namespace Haste {
       return texture;
     }
 
-    public static void SelectByProjectPath(string path) {
-      EditorApplication.ExecuteMenuItem("Window/Project");
-      EditorUtility.FocusProjectWindow();
+    // public static void SelectByProjectPath(string path) {
+    //   EditorApplication.ExecuteMenuItem("Window/Project");
+    //   EditorUtility.FocusProjectWindow();
 
-      // Traverse project downwards, pinging each level.
-      // HACK: This is to fix an issue with Unity where pinging
-      // a lower-level object does not make it visible.
-      string[] pieces = path.Split(Path.DirectorySeparatorChar);
-      string fullPath = "";
-      for (int i = 0; i < pieces.Length; i++) {
-        fullPath = Path.Combine(fullPath, pieces[i]);
-        Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(fullPath);
-      }
-    }
+    //   // Traverse project downwards, pinging each level.
+    //   // HACK: This is to fix an issue with Unity where pinging
+    //   // a lower-level object does not make it visible.
+    //   string[] pieces = path.Split(Path.DirectorySeparatorChar);
+    //   string fullPath = "";
+    //   for (int i = 0; i < pieces.Length; i++) {
+    //     fullPath = Path.Combine(fullPath, pieces[i]);
+    //     Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(fullPath);
+    //   }
+    // }
 
     public static string GetHomeFolder() {
       return String.Join(Path.DirectorySeparatorChar.ToString(),
