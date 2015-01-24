@@ -1,5 +1,7 @@
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
+using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,11 +21,46 @@ namespace Haste {
 
     public HasteHierarchyResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
-    public override void Draw() {
+    UnityEngine.Object CurrentObject {
+      get {
+        return EditorUtility.InstanceIDToObject(Item.Id);
+      }
+    }
+
+    GameObject CurrentGameObject {
+      get {
+        return (GameObject)CurrentObject;
+      }
+    }
+
+    GUIStyle GetLabelStyle(GameObject go) {
+      var prefabType = PrefabUtility.GetPrefabType(go);
+      if (prefabType == PrefabType.PrefabInstance || prefabType == PrefabType.ModelPrefabInstance) {
+        return HasteStyles.PrefabStyle;
+      } else if (prefabType == PrefabType.MissingPrefabInstance) {
+        return HasteStyles.BrokenPrefabStyle;
+      } else if (!go.activeInHierarchy) {
+        return HasteStyles.DisabledNameStyle;
+      } else {
+        return HasteStyles.NameStyle;
+      }
+    }
+
+    public override void Draw(bool isHighlighted) {
+      var go = CurrentGameObject;
+
       GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
         GameObjectIcon);
 
-      base.Draw();
+      using (new HasteVertical()) {
+        var childCount = go.transform.childCount;
+        if (childCount > 0) {
+          EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+        } else {
+          EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+        }
+        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+      }
     }
 
     public override void Action() {

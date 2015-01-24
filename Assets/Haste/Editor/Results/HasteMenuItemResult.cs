@@ -11,9 +11,9 @@ namespace Haste {
 
     public HasteMenuItemResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
-    public override void Draw() {
+    public override void Draw(bool isHighlighted) {
       #if IS_HASTE_PRO
-        base.Draw();
+        base.Draw(isHighlighted);
       #else
         using (new HasteVertical()) {
           EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteStyles.DisabledNameStyle);

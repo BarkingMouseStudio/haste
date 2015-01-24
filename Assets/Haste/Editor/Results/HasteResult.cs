@@ -12,7 +12,7 @@ namespace Haste {
     List<int> Indices { get; }
     float Score { get; }
 
-    void Draw();
+    void Draw(bool isHighlighted);
     bool Validate();
     void Action();
     void Select();
@@ -34,9 +34,9 @@ namespace Haste {
       return true;
     }
 
-    public virtual void Draw() {
+    public virtual void Draw(bool isHighlighted) {
       using (new HasteVertical()) {
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), HasteStyles.NameStyle);
+        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : HasteStyles.NameStyle);
         EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteStyles.BoldStart, HasteStyles.BoldEnd), HasteStyles.DescriptionStyle);
       }
     }
