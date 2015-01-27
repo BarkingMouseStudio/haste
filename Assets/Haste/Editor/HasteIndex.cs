@@ -90,18 +90,23 @@ namespace Haste {
         }
       }
 
-      return matches
-        .GroupBy(r => r.Item.Source) // Group by source
-        .Select(g => {
-          // Order each group by score and take the top N
-          return g
-            .OrderByDescending(r => r.Score)
-            .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
-            .Take(countPerGroup);
-        })
-        .OrderByDescending(g => g.First().Score) // Sort each group by score
-        .SelectMany(g => g) // Flatten the groups
+      return matches.OrderByDescending(r => r.Score)
+        .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
+        .Take(countPerGroup)
         .ToArray();
+
+      // return matches
+      //   .GroupBy(r => r.Item.Source) // Group by source
+      //   .Select(g => {
+      //     // Order each group by score and take the top N
+      //     return g
+      //       .OrderByDescending(r => r.Score)
+      //       .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
+      //       .Take(countPerGroup);
+      //   })
+      //   .OrderByDescending(g => g.First().Score) // Sort each group by score
+      //   .SelectMany(g => g) // Flatten the groups
+      //   .ToArray();
     }
   }
 }
