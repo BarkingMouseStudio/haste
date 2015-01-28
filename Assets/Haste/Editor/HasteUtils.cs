@@ -11,6 +11,16 @@ namespace Haste {
 
   public static class HasteUtils {
 
+    public static string[] Layouts {
+      get {
+        var WindowLayout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");
+        var layoutsPreferencesPath = (string)WindowLayout.GetProperty("layoutsPreferencesPath", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(WindowLayout, null);
+        return Directory.GetFiles(layoutsPreferencesPath).Select((path) => {
+          return Path.GetFileNameWithoutExtension(path);
+        }).ToArray();
+      }
+    }
+
     public static Texture GrabScreenSwatch(Rect rect) {
       int width = (int)rect.width;
       int height = (int)rect.height;

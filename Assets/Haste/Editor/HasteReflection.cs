@@ -11,16 +11,6 @@ namespace Haste {
 
   public static class HasteReflection {
 
-    public static string[] Layouts {
-      get {
-        var WindowLayout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");
-        var layoutsPreferencesPath = (string)WindowLayout.GetProperty("layoutsPreferencesPath", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(WindowLayout, null);
-        return Directory.GetFiles(layoutsPreferencesPath).Select((path) => {
-          return Path.GetFileNameWithoutExtension(path);
-        }).ToArray();
-      }
-    }
-
     public static Assembly EditorAssembly {
       get {
         return typeof(EditorWindow).Assembly;
