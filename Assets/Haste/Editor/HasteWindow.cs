@@ -170,17 +170,18 @@ namespace Haste {
     }
 
     void UpdateScroll() {
-      int previousGroups = 0;
-      for (int i = 0; i <= highlightedIndex; i++) {
-        if (i > 0 && results[i].Item.Source != results[i - 1].Item.Source) {
-          previousGroups++;
-        }
-      }
+      // int previousGroups = 0;
+      // for (int i = 0; i <= highlightedIndex; i++) {
+      //   if (i > 0 && results[i].Item.Source != results[i - 1].Item.Source) {
+      //     previousGroups++;
+      //   }
+      // }
 
       // Account for leading and between group spacing
-      int highlightOffset = highlightedIndex * (itemHeight + itemStepHeightOffset) +
-        (groupSpacing * highlightedIndex > 0 ? 1 : 0) +
-        (groupSpacing * previousGroups);
+      // int highlightOffset = highlightedIndex * (itemHeight + itemStepHeightOffset) +
+      //   (groupSpacing * highlightedIndex > 0 ? 1 : 0) +
+      //   (groupSpacing * previousGroups);
+      int highlightOffset = highlightedIndex * itemHeight;
       scrollPosition = new Vector2(scrollPosition.x, highlightOffset);
     }
 
@@ -235,7 +236,9 @@ namespace Haste {
 
             // Double-click
             Close();
-            result.Action();
+
+            selectedResult = result;
+            selectedResult.Action();
           } else {
             // Single-click
             UpdateHighlightedIndex(index, false);
@@ -257,54 +260,54 @@ namespace Haste {
         for (int i = 0; i < results.Length; i++) {
           IHasteResult result = results[i];
 
-          bool isBeginGroup = false;
-          if (i == 0) {
-            isBeginGroup = true;
-          } else {
-            IHasteResult prevResult = results[i - 1];
-            if (result.Item.Source != prevResult.Item.Source) {
-              isBeginGroup = true;
-            }
-          }
+          // bool isBeginGroup = false;
+          // if (i == 0) {
+          //   isBeginGroup = true;
+          // } else {
+          //   IHasteResult prevResult = results[i - 1];
+          //   if (result.Item.Source != prevResult.Item.Source) {
+          //     isBeginGroup = true;
+          //   }
+          // }
 
-          if (isBeginGroup) {
-            var style = HasteStyles.PrefixStyle;
+          // if (isBeginGroup) {
+          //   var style = HasteStyles.PrefixStyle;
 
-            #if !IS_HASTE_PRO
-            if (result.Item.Source == HasteMenuItemSource.NAME) {
-              style = HasteStyles.DisabledPrefixStyle;
-            }
-            #endif
+          //   #if !IS_HASTE_PRO
+          //   if (result.Item.Source == HasteMenuItemSource.NAME) {
+          //     style = HasteStyles.DisabledPrefixStyle;
+          //   }
+          //   #endif
 
-            // Begin group
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(
-              result.Item.Source,
-              style,
-              GUILayout.Width(prefixWidth));
-            EditorGUILayout.BeginVertical();
-          }
+          //   // Begin group
+          //   EditorGUILayout.Space();
+          //   EditorGUILayout.BeginHorizontal();
+          //   EditorGUILayout.LabelField(
+          //     result.Item.Source,
+          //     style,
+          //     GUILayout.Width(prefixWidth));
+          //   EditorGUILayout.BeginVertical();
+          // }
 
           DrawResult(result, i);
-          EditorGUILayout.Space();
+          // EditorGUILayout.Space();
 
-          bool isEndGroup = false;
-          if (i == results.Length - 1) {
-            isEndGroup = true;
-          } else {
-            IHasteResult nextResult = results[i + 1];
-            if (result.Item.Source != nextResult.Item.Source) {
-              isEndGroup = true;
-            }
-          }
+          // bool isEndGroup = false;
+          // if (i == results.Length - 1) {
+          //   isEndGroup = true;
+          // } else {
+          //   IHasteResult nextResult = results[i + 1];
+          //   if (result.Item.Source != nextResult.Item.Source) {
+          //     isEndGroup = true;
+          //   }
+          // }
 
-          if (isEndGroup) {
-            // End group
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space();
-          }
+          // if (isEndGroup) {
+          //   // End group
+          //   EditorGUILayout.EndVertical();
+          //   EditorGUILayout.EndHorizontal();
+          //   EditorGUILayout.Space();
+          // }
         }
       }
     }
