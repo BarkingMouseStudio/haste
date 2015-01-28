@@ -5,10 +5,41 @@ namespace Haste {
 
   public static class HasteStyles {
 
-    public static readonly string BoldStart;
-    public static readonly string BoldEnd;
+    private static string boldStart = "";
+    public static string BoldStart {
+      get {
+        if (string.IsNullOrEmpty(boldStart)) {
+          boldStart = EditorGUIUtility.isProSkin ? "<color=\"#ccc\"><b>" : "<color=\"#ddd\"><b>";
+        }
+        return boldStart;
+      }
+    }
 
-    public static GUIStyle QueryStyle;
+    public static readonly string BoldEnd = "</b></color>";
+
+    private static Font queryStyleFont;
+    public static Font QueryStyleFont {
+      get {
+        if (queryStyleFont == null) {
+          queryStyleFont = HasteResources.Load<Font>("Fonts/FiraSans-Regular.ttf");
+        }
+        return queryStyleFont;
+      }
+    }
+
+    private static GUIStyle queryStyle;
+    public static GUIStyle QueryStyle {
+      get {
+        if (queryStyle == null) {
+          queryStyle = new GUIStyle(EditorStyles.textField);
+          queryStyle.font = QueryStyleFont;
+          queryStyle.fixedHeight = 64;
+          queryStyle.alignment = TextAnchor.MiddleLeft;
+        }
+        return queryStyle;
+      }
+    }
+
     public static GUIStyle IntroStyle;
     public static GUIStyle IndexingStyle;
     public static GUIStyle TipStyle;
@@ -25,21 +56,33 @@ namespace Haste {
     public static GUIStyle PrefixStyle;
     public static GUIStyle DisabledPrefixStyle;
 
-    public static GUIStyle HighlightStyle;
-    public static GUIStyle NonHighlightStyle;
-
     public static GUIStyle DescriptionStyle;
     public static GUIStyle DisabledDescriptionStyle;
     public static GUIStyle HighlightedDescriptionStyle;
 
-    static HasteStyles() {
-      BoldStart = EditorGUIUtility.isProSkin ? "<color=\"#ccc\"><b>" : "<color=\"#ddd\"><b>";
-      BoldEnd = "</b></color>";
+    private static GUIStyle highlightStyle;
+    public static GUIStyle HighlightStyle {
+      get {
+        if (highlightStyle == null) {
+          highlightStyle = new GUIStyle();
+          highlightStyle.normal.background = HasteUtils.CreateColorSwatch(HasteColors.HighlightColor);
+        }
+        return highlightStyle;
+      }
+    }
 
-      QueryStyle = new GUIStyle(EditorStyles.textField);
-      QueryStyle.fixedHeight = 64;
-      QueryStyle.alignment = TextAnchor.MiddleLeft;
-      QueryStyle.fontSize = 32;
+    // We use a separate non-highlight style since GUIStyle.none has some extra padding...
+    private static GUIStyle nonHighlightStyle;
+    public static GUIStyle NonHighlightStyle {
+      get {
+        if (nonHighlightStyle == null) {
+          nonHighlightStyle = new GUIStyle();
+        }
+        return nonHighlightStyle;
+      }
+    }
+
+    static HasteStyles() {
 
       IntroStyle = new GUIStyle(EditorStyles.largeLabel);
       IntroStyle.fixedHeight = 64;
@@ -114,24 +157,6 @@ namespace Haste {
       HighlightedDescriptionStyle.fixedHeight = 24;
       HighlightedDescriptionStyle.fontSize = 12;
       HighlightedDescriptionStyle.richText = true;
-      // HighlightedDescriptionStyle.normal.textColor = HasteColors.HighlightedColor;
-
-      PrefixStyle = new GUIStyle(EditorStyles.label);
-      PrefixStyle.alignment = TextAnchor.MiddleRight;
-      PrefixStyle.fixedHeight = 18;
-      PrefixStyle.fontSize = 12;
-
-      DisabledPrefixStyle = new GUIStyle(EditorStyles.label);
-      DisabledPrefixStyle.alignment = TextAnchor.MiddleRight;
-      DisabledPrefixStyle.fixedHeight = 18;
-      DisabledPrefixStyle.fontSize = 12;
-      DisabledPrefixStyle.normal.textColor = HasteColors.DisabledColor;
-
-      // We use a separate non-highlight style since GUIStyle.none has some extra padding...
-      NonHighlightStyle = new GUIStyle();
-
-      HighlightStyle = new GUIStyle();
-      HighlightStyle.normal.background = HasteUtils.CreateColorSwatch(HasteColors.HighlightColor);
     }
   }
 }
