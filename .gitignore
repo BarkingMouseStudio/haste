@@ -2,6 +2,8 @@
 packages/
 Library/
 Temp/
+Assets/ShaderForge/
+Assets/ShaderForge.meta
 *.csproj
 *.pidb
 *.unityproj
