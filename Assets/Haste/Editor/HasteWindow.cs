@@ -220,9 +220,7 @@ namespace Haste {
       var resultStyle = isHighlighted ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
-        var e = Event.current;
-
-        var button = HasteGUILayout.Button(horizontal.Rect);
+        var button = HasteGUI.Button(horizontal.Rect);
         switch (button) {
           case ButtonEvent.DoubleClick:
             Close();
@@ -230,6 +228,7 @@ namespace Haste {
             break;
           case ButtonEvent.SingleClick:
             SetHighlightedIndex(index, false);
+            Repaint();
             break;
         }
 
