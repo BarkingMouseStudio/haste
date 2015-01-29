@@ -9,9 +9,19 @@ namespace Haste {
     public static string BoldStart {
       get {
         if (string.IsNullOrEmpty(boldStart)) {
-          boldStart = EditorGUIUtility.isProSkin ? "<color=\"#ccc\"><b>" : "<color=\"#ddd\"><b>";
+          boldStart = EditorGUIUtility.isProSkin ? "<color=\"#aaa\"><b>" : "<color=\"#222\"><b>";
         }
         return boldStart;
+      }
+    }
+
+    private static string highlightedBoldStart = "";
+    public static string HighlightedBoldStart {
+      get {
+        if (string.IsNullOrEmpty(highlightedBoldStart)) {
+          highlightedBoldStart = EditorGUIUtility.isProSkin ? "<color=\"#ddd\"><b>" : "<color=\"#eee\"><b>";
+        }
+        return highlightedBoldStart;
       }
     }
 
@@ -22,6 +32,7 @@ namespace Haste {
       get {
         if (queryStyleFont == null) {
           queryStyleFont = HasteResources.Load<Font>("Fonts/FiraSans-Regular.ttf");
+          queryStyleFont.hideFlags = HideFlags.HideAndDontSave;
         }
         return queryStyleFont;
       }
@@ -66,6 +77,7 @@ namespace Haste {
         if (highlightStyle == null) {
           highlightStyle = new GUIStyle();
           highlightStyle.normal.background = HasteUtils.CreateColorSwatch(HasteColors.HighlightColor);
+          highlightStyle.normal.background.hideFlags = HideFlags.HideAndDontSave;
         }
         return highlightStyle;
       }
@@ -83,7 +95,6 @@ namespace Haste {
     }
 
     static HasteStyles() {
-
       IntroStyle = new GUIStyle(EditorStyles.largeLabel);
       IntroStyle.fixedHeight = 64;
       IntroStyle.alignment = TextAnchor.MiddleCenter;
@@ -99,17 +110,6 @@ namespace Haste {
       TipStyle.fontSize = 14;
       TipStyle.normal.textColor = HasteColors.SecondaryColor;
       TipStyle.wordWrap = true;
-
-      NameStyle = new GUIStyle(EditorStyles.largeLabel);
-      NameStyle.alignment = TextAnchor.MiddleLeft;
-      NameStyle.fixedHeight = 24;
-      NameStyle.fontSize = 16;
-
-      HighlightedNameStyle = new GUIStyle(EditorStyles.largeLabel);
-      HighlightedNameStyle.alignment = TextAnchor.MiddleLeft;
-      HighlightedNameStyle.fixedHeight = 24;
-      HighlightedNameStyle.fontSize = 16;
-      HighlightedNameStyle.normal.textColor = HasteColors.HighlightedColor;
 
       PrefabStyle = new GUIStyle(EditorStyles.largeLabel);
       PrefabStyle.alignment = TextAnchor.MiddleLeft;
@@ -133,6 +133,18 @@ namespace Haste {
       UpgradeStyle.fontSize = 14;
       UpgradeStyle.normal.textColor = HasteColors.LinkColor;
 
+      NameStyle = new GUIStyle(EditorStyles.largeLabel);
+      NameStyle.alignment = TextAnchor.MiddleLeft;
+      NameStyle.fixedHeight = 24;
+      NameStyle.fontSize = 16;
+      NameStyle.normal.textColor = HasteColors.PrimaryColor;
+
+      HighlightedNameStyle = new GUIStyle(EditorStyles.largeLabel);
+      HighlightedNameStyle.alignment = TextAnchor.MiddleLeft;
+      HighlightedNameStyle.fixedHeight = 24;
+      HighlightedNameStyle.fontSize = 16;
+      HighlightedNameStyle.normal.textColor = HasteColors.PrimaryHighlightedColor;
+
       DisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
       DisabledNameStyle.alignment = TextAnchor.MiddleLeft;
       DisabledNameStyle.fixedHeight = 24;
@@ -151,12 +163,14 @@ namespace Haste {
       DescriptionStyle.fixedHeight = 24;
       DescriptionStyle.fontSize = 12;
       DescriptionStyle.richText = true;
+      DescriptionStyle.normal.textColor = HasteColors.SecondaryColor;
 
       HighlightedDescriptionStyle = new GUIStyle(EditorStyles.label);
       HighlightedDescriptionStyle.alignment = TextAnchor.MiddleLeft;
       HighlightedDescriptionStyle.fixedHeight = 24;
       HighlightedDescriptionStyle.fontSize = 12;
       HighlightedDescriptionStyle.richText = true;
+      HighlightedDescriptionStyle.normal.textColor = HasteColors.SecondaryHighlightedColor;
     }
   }
 }
