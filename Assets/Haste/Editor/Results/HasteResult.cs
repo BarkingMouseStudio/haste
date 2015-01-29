@@ -61,7 +61,7 @@ namespace Haste {
     }
 
     public virtual void Select() {
-      // NO-OP
+      Selection.activeObject = null;
     }
   }
 
