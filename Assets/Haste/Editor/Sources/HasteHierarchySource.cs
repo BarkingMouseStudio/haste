@@ -13,16 +13,6 @@ namespace Haste {
 
     IDictionary<int, string> paths = new Dictionary<int, string>();
 
-    // HashSet<HasteItem> incoming = new HashSet<HasteItem>();
-
-    // public HasteHierarchySource() {
-    //   EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
-    // }
-
-    // void HierarchyWindowItemOnGUI(int instanceId, Rect selectionRect) {
-    //   AddGameObject((GameObject)EditorUtility.InstanceIDToObject(instanceId));
-    // }
-
     string GetTransformPath(Transform transform) {
       int id = transform.gameObject.GetInstanceID();
       string path;
@@ -40,27 +30,7 @@ namespace Haste {
       return path;
     }
 
-    // void AddGameObject(GameObject go) {
-    //   // We want to add children first since the rest of our search is bottom-up
-    //   // (and paths are built that way).
-    //   foreach (Transform child in go.transform) {
-    //     AddGameObject(child.gameObject);
-    //   }
-
-    //   string path = GetTransformPath(go.transform);
-    //   int id = go.GetInstanceID();
-    //   HasteItem item = new HasteItem(path, id, NAME);
-    //   incoming.Add(item);
-    // }
-
     public IEnumerator<HasteItem> GetEnumerator() {
-      // Empty incoming queue
-      // foreach (HasteItem item in incoming) {
-      //   yield return item;
-      // }
-
-      // incoming.Clear();
-
       var allFlags = HideFlags.NotEditable |
         HideFlags.DontSave |
         HideFlags.HideAndDontSave |
@@ -81,12 +51,6 @@ namespace Haste {
         int id = go.GetInstanceID();
         yield return new HasteItem(path, id, NAME);
       }
-
-      // foreach (GameObject go in Object.FindObjectsOfType<GameObject>()) {
-      //   string path = GetTransformPath(go.transform);
-      //   int id = go.GetInstanceID();
-      //   yield return new HasteItem(path, id, NAME);
-      // }
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
