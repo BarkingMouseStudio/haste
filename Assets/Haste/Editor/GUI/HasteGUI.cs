@@ -30,8 +30,6 @@ namespace Haste {
         return ButtonEvent.None;
       }
 
-      Debug.Log(Event.current.clickCount);
-
       if (Event.current.clickCount == 2) {
         return ButtonEvent.DoubleClick;
       } else {
