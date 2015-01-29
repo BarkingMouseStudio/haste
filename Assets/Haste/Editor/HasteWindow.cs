@@ -9,20 +9,16 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
+  [Serializable]
   public class HasteWindow : EditorWindow {
 
     public static HasteWindow Instance { get; protected set; }
 
     const int itemHeight = 46;
-    const int itemStepHeightOffset = 6;
-    const int prefixWidth = 96;
-    const int groupSpacing = 10;
     const int width = 500;
     const int height = 300;
 
     const int resultCount = 25;
-
-    int initialActiveInstanceId;
 
     IHasteResult[] results = new IHasteResult[0];
     IHasteResult selectedResult;
@@ -30,18 +26,17 @@ namespace Haste {
 
     Vector2 scrollPosition = Vector2.zero;
 
-    string query = "";
     int highlightedIndex = 0;
 
     HasteBlur blur;
+
+    [SerializeField]
     Texture backgroundTexture;
 
     string currentTip;
 
-    public void RestoreInitialSelection() {
-      // Restore initial selection
-      Selection.activeInstanceID = initialActiveInstanceId;
-    }
+    [SerializeField]
+    HasteGUIQuery queryInput;
 
     public static bool IsOpen {
       get { return Instance == EditorWindow.focusedWindow; }
@@ -49,41 +44,49 @@ namespace Haste {
 
     [MenuItem("Window/Haste %k", true)]
     public static bool IsHasteEnabled() {
-      return Haste.Enabled;
+      return HasteSettings.Enabled;
     }
 
     [MenuItem("Window/Haste %k")]
     public static void Open() {
-      if (IsOpen) {
-        // Window is already open
-        return;
+      if (HasteWindow.Instance == null) {
+        HasteWindow.Init();
+      } else {
+        // Return the existing window if it exists
+        EditorWindow.GetWindow<HasteWindow>();
       }
+    }
 
-      if (Instance == null) {
-        // Window
-        Instance = EditorWindow.CreateInstance<HasteWindow>();
-        Instance.title = "Haste";
-      }
+    // Creates a new window instance and initializes it
+    static void Init() {
+      HasteSettings.UsageCount = HasteSettings.UsageCount + 1;
+      HasteSelectionManager.Save();
 
-      Haste.UsageCount++;
+      HasteWindow.Instance = EditorWindow.CreateInstance<HasteWindow>();
+      HasteWindow.Instance.InitializeInstance();
+    }
 
-      Instance.initialActiveInstanceId = Selection.activeInstanceID;
+    void InitializeInstance() {
+      this.title = "Haste";
 
-      Instance.currentTip = HasteTips.Random;
+      this.currentTip = HasteTips.Random;
 
-      Instance.position = new Rect(
+      this.position = new Rect(
         (Screen.currentResolution.width - width) / 2,
         (Screen.currentResolution.height - height) / 2,
         width, height
       );
 
       // Disable the resize handle on the window
-      Instance.minSize = Instance.maxSize = new Vector2(width, height);
+      this.minSize = this.maxSize = new Vector2(width, height);
 
-      Instance.DestroyBlur(); // Must include since it leaks otherwise...
-      Instance.UpdateBlur();
-      Instance.ShowPopup();
-      Instance.Focus();
+      this.queryInput = ScriptableObject.CreateInstance<HasteGUIQuery>();
+      this.queryInput.Changed += QueryChanged;
+
+      this.DestroyBlur(); // Must include since it leaks otherwise...
+      this.UpdateBlur();
+      this.ShowPopup();
+      this.Focus();
     }
 
     void DestroyBlur() {
@@ -100,7 +103,7 @@ namespace Haste {
 
     void UpdateBlur() {
       if (Application.HasProLicense()) {
-        blur = new HasteBlur(width, height, EditorGUIUtility.isProSkin ? Color.black : Color.white);
+        blur = new HasteBlur(width, height, HasteColors.BlurColor);
 
         // Must grab texture before Haste is visible
         backgroundTexture = blur.BlurTexture(
@@ -114,14 +117,8 @@ namespace Haste {
     }
 
     new void Close() {
-      RestoreInitialSelection();
+      HasteSelectionManager.Restore();
       base.Close();
-    }
-
-    void OnBackspace() {
-      if (query != "") {
-        ClearQuery();
-      }
     }
 
     void OnEscape() {
@@ -132,12 +129,16 @@ namespace Haste {
       Close();
 
       if (results.Length > 0 && highlightedIndex >= 0) {
-        selectedResult = results[highlightedIndex];
-        selectedResult.Action();
+        SelectResult(results[highlightedIndex]);
       }
     }
 
-    void UpdateHighlightedIndex(int index, bool updateScroll = true) {
+    void SelectResult(IHasteResult result) {
+      selectedResult = result;
+      selectedResult.Action();
+    }
+
+    void SetHighlightedIndex(int index, bool updateScroll = true) {
       highlightedIndex = index;
 
       if (highlightedIndex < 0 || highlightedIndex > results.Length - 1) {
@@ -157,12 +158,12 @@ namespace Haste {
 
     void OnUpArrow() {
       int index = Math.Max(highlightedIndex - 1, 0);
-      UpdateHighlightedIndex(index);
+      SetHighlightedIndex(index);
     }
 
     void OnDownArrow() {
       int index = Math.Min(highlightedIndex + 1, results.Length - 1);
-      UpdateHighlightedIndex(index);
+      SetHighlightedIndex(index);
     }
 
     void ResetScroll() {
@@ -170,27 +171,12 @@ namespace Haste {
     }
 
     void UpdateScroll() {
-      // int previousGroups = 0;
-      // for (int i = 0; i <= highlightedIndex; i++) {
-      //   if (i > 0 && results[i].Item.Source != results[i - 1].Item.Source) {
-      //     previousGroups++;
-      //   }
-      // }
-
-      // Account for leading and between group spacing
-      // int highlightOffset = highlightedIndex * (itemHeight + itemStepHeightOffset) +
-      //   (groupSpacing * highlightedIndex > 0 ? 1 : 0) +
-      //   (groupSpacing * previousGroups);
       int highlightOffset = highlightedIndex * itemHeight;
       scrollPosition = new Vector2(scrollPosition.x, highlightOffset);
     }
 
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
-        case KeyCode.Backspace:
-          e.Use();
-          OnBackspace();
-          break;
         case KeyCode.Escape:
           e.Use();
           OnEscape();
@@ -210,15 +196,24 @@ namespace Haste {
       }
     }
 
+    void OnMouseDrag(Event e) {
+      // TODO: highlightedResult is wrong
+      DragAndDrop.PrepareStartDrag();
+      DragAndDrop.objectReferences = new UnityEngine.Object[]{highlightedResult.Object};
+      DragAndDrop.StartDrag(highlightedResult.DragLabel);
+      Event.current.Use();
+    }
+
     void OnEvent(Event e) {
       switch (e.type) {
+        case EventType.MouseDrag:
+          OnMouseDrag(e);
+          break;
         case EventType.KeyDown:
           OnKeyDown(e);
           break;
       }
     }
-
-    bool isDoubleClick = false;
 
     void DrawResult(IHasteResult result, int index) {
       var isHighlighted = index == highlightedIndex;
@@ -226,24 +221,16 @@ namespace Haste {
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(itemHeight))) {
         var e = Event.current;
-        if (e.isMouse && e.type == EventType.MouseDown && e.clickCount == 2) {
-          isDoubleClick = true;
-        }
 
-        if (GUI.Button(horizontal.Rect, "", GUIStyle.none)) {
-          if (isDoubleClick) {
-            isDoubleClick = false; // Reset flag
-
-            // Double-click
+        var button = HasteGUILayout.Button(horizontal.Rect);
+        switch (button) {
+          case ButtonEvent.DoubleClick:
             Close();
-
-            selectedResult = result;
-            selectedResult.Action();
-          } else {
-            // Single-click
-            UpdateHighlightedIndex(index, false);
-          }
-          return;
+            SelectResult(result);
+            break;
+          case ButtonEvent.SingleClick:
+            SetHighlightedIndex(index, false);
+            break;
         }
 
         result.Draw(isHighlighted);
@@ -259,55 +246,7 @@ namespace Haste {
 
         for (int i = 0; i < results.Length; i++) {
           IHasteResult result = results[i];
-
-          // bool isBeginGroup = false;
-          // if (i == 0) {
-          //   isBeginGroup = true;
-          // } else {
-          //   IHasteResult prevResult = results[i - 1];
-          //   if (result.Item.Source != prevResult.Item.Source) {
-          //     isBeginGroup = true;
-          //   }
-          // }
-
-          // if (isBeginGroup) {
-          //   var style = HasteStyles.PrefixStyle;
-
-          //   #if !IS_HASTE_PRO
-          //   if (result.Item.Source == HasteMenuItemSource.NAME) {
-          //     style = HasteStyles.DisabledPrefixStyle;
-          //   }
-          //   #endif
-
-          //   // Begin group
-          //   EditorGUILayout.Space();
-          //   EditorGUILayout.BeginHorizontal();
-          //   EditorGUILayout.LabelField(
-          //     result.Item.Source,
-          //     style,
-          //     GUILayout.Width(prefixWidth));
-          //   EditorGUILayout.BeginVertical();
-          // }
-
           DrawResult(result, i);
-          // EditorGUILayout.Space();
-
-          // bool isEndGroup = false;
-          // if (i == results.Length - 1) {
-          //   isEndGroup = true;
-          // } else {
-          //   IHasteResult nextResult = results[i + 1];
-          //   if (result.Item.Source != nextResult.Item.Source) {
-          //     isEndGroup = true;
-          //   }
-          // }
-
-          // if (isEndGroup) {
-          //   // End group
-          //   EditorGUILayout.EndVertical();
-          //   EditorGUILayout.EndHorizontal();
-          //   EditorGUILayout.Space();
-          // }
         }
       }
     }
@@ -331,13 +270,6 @@ namespace Haste {
       #endif
     }
 
-    void DrawPlaying() {
-      using (new HasteSpace()) {
-        EditorGUILayout.LabelField("Haste currently only works when not in play mode.", HasteStyles.EmptyStyle,
-          GUILayout.Height(HasteStyles.EmptyStyle.fixedHeight));
-      }
-    }
-
     void DrawIntro() {
       using (new HasteSpace()) {
         EditorGUILayout.LabelField("Just type.", HasteStyles.IntroStyle,
@@ -355,16 +287,9 @@ namespace Haste {
       }
     }
 
-    void DrawQuery() {
-      using (new HasteFocus("query")) {
-        query = EditorGUILayout.TextField(query, HasteStyles.QueryStyle,
-          GUILayout.Height(HasteStyles.QueryStyle.fixedHeight));
-        query = query.Trim();
-      }
-    }
-
     void Update() {
-      if (query == "") {
+      if (queryInput.Query == "") {
+        // XXX: This is only here to repaint the indexing count
         Repaint();
       }
 
@@ -377,24 +302,15 @@ namespace Haste {
 
     void UpdateResults(IHasteResult[] updatedResults) {
       results = updatedResults;
-      UpdateHighlightedIndex(0);
+      SetHighlightedIndex(0);
     }
 
-    void ClearQuery() {
-      UpdateResults(new IHasteResult[0]);
-      query = "";
-    }
-
-    void UpdateQuery() {
-      if (query != "") {
-        UpdateResults(Haste.Index.Filter(query, resultCount));
+    void QueryChanged(string query) {
+      if (query == "") {
+        UpdateResults(new IHasteResult[0]);
       } else {
-        ClearQuery();
+        UpdateResults(Haste.Index.Filter(query, resultCount));
       }
-    }
-
-    void OnGUIChanged() {
-      UpdateQuery();
     }
 
     void OnGUI() {
@@ -404,13 +320,9 @@ namespace Haste {
 
       OnEvent(Event.current);
 
-      DrawQuery();
+      this.queryInput.OnGUI();
 
-      if (GUI.changed) {
-        OnGUIChanged();
-      }
-
-      if (query == "") {
+      if (this.queryInput.Query == "") {
         DrawIntro();
       } else if (results.Length == 0) {
         DrawEmptyResults();

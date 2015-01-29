@@ -19,19 +19,25 @@ namespace Haste {
       }
     }
 
+    private UnityEngine.Object object_;
+    public override UnityEngine.Object Object {
+      get {
+        if (object_ == null) {
+          object_ = EditorUtility.InstanceIDToObject(Item.Id);
+        }
+        return object_;
+      }
+    }
+
+    public override bool IsDraggable {
+      get { return true; }
+    }
+
+    public override string DragLabel {
+      get { return Object.name; }
+    }
+
     public HasteHierarchyResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
-
-    UnityEngine.Object CurrentObject {
-      get {
-        return EditorUtility.InstanceIDToObject(Item.Id);
-      }
-    }
-
-    GameObject CurrentGameObject {
-      get {
-        return (GameObject)CurrentObject;
-      }
-    }
 
     GUIStyle GetLabelStyle(GameObject go) {
       var prefabType = PrefabUtility.GetPrefabType(go);
@@ -47,10 +53,11 @@ namespace Haste {
     }
 
     public override void Draw(bool isHighlighted) {
-      var go = CurrentGameObject;
+      var go = (GameObject)Object;
 
-      GUI.DrawTexture(EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32)),
-        GameObjectIcon);
+      var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
+      rect.y += 5; // center the icon vertically
+      GUI.DrawTexture(rect, GameObjectIcon);
 
       using (new HasteVertical()) {
         var childCount = go.transform.childCount;
@@ -59,7 +66,7 @@ namespace Haste {
         } else {
           EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
         }
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
       }
     }
 

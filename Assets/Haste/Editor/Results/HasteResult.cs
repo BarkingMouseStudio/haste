@@ -11,6 +11,9 @@ namespace Haste {
     HasteItem Item { get; }
     List<int> Indices { get; }
     float Score { get; }
+    bool IsDraggable { get; }
+    UnityEngine.Object Object { get; }
+    string DragLabel { get; }
 
     void Draw(bool isHighlighted);
     bool Validate();
@@ -23,6 +26,18 @@ namespace Haste {
     public HasteItem Item { get; protected set; }
     public List<int> Indices { get; protected set; }
     public float Score { get; protected set; }
+
+    public virtual bool IsDraggable {
+      get { return false; }
+    }
+
+    public virtual UnityEngine.Object Object {
+      get { return null; }
+    }
+
+    public virtual string DragLabel {
+      get { return ""; }
+    }
 
     public AbstractHasteResult(HasteItem item, float score, List<int> indices) {
       Item = item;
@@ -37,7 +52,7 @@ namespace Haste {
     public virtual void Draw(bool isHighlighted) {
       using (new HasteVertical()) {
         EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : HasteStyles.NameStyle);
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), HasteStyles.BoldStart, HasteStyles.BoldEnd), HasteStyles.DescriptionStyle);
+        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
       }
     }
 
