@@ -7,20 +7,20 @@ namespace Haste {
 
   // Utility for focusing a text field:
   //
-  // using (new HasteFocus("MyField")) {
+  // using (new HasteFocusText("MyField")) {
   //   myStr = EditorGUILayout.TextField(myStr);
   // }
-  public class HasteFocus : IDisposable {
+  public class HasteFocusText : IDisposable {
 
     public string Name { get; protected set; }
 
-    public HasteFocus(string name) {
+    public HasteFocusText(string name) {
       Name = name;
       UnityEngine.GUI.SetNextControlName(Name);
     }
 
     public void Dispose() {
-      GUI.FocusControl(Name);
+      EditorGUI.FocusTextInControl(Name);
     }
   }
 }
