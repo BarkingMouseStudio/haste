@@ -19,10 +19,10 @@ namespace Haste {
     public HasteBlur(int width, int height, Color tint) {
       blurMaterial = new Material(Shader.Find("Hidden/Haste/Blur"));
       blurMaterial.SetColor("_Tint", tint);
-      blurMaterial.SetFloat("_Tinting", 0.4f);
       blurMaterial.SetFloat("_BlurSize", 2.0f);
 
       destTexture = new RenderTexture(width, height, 0);
+      destTexture.hideFlags = HideFlags.HideAndDontSave;
       destTexture.Create();
     }
 
