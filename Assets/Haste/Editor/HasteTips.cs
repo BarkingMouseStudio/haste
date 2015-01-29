@@ -10,7 +10,7 @@ namespace Haste {
 
     public static string Random {
       get {
-        return Tips[Haste.UsageCount % Tips.Length];
+        return Tips[HasteSettings.UsageCount % Tips.Length];
       }
     }
   }
