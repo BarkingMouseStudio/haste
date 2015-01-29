@@ -40,32 +40,11 @@ namespace Haste {
         var willPlay = EditorApplication.isPlayingOrWillChangePlaymode &&
           !EditorApplication.isPlaying;
 
-        return !Enabled ||
+        return !HasteSettings.Enabled ||
                willPlay ||
                EditorApplication.isCompiling ||
                EditorApplication.isUpdating;
       }
-    }
-
-    public static string GetPrefKey(params string[] values) {
-      return String.Format("Haste:{0}", String.Join(":", values));
-    }
-
-    public static bool Enabled {
-      get { return EditorPrefs.GetBool(GetPrefKey("Enabled"), true); }
-      set {
-        var original = EditorPrefs.GetBool(GetPrefKey("Enabled"), true);
-        EditorPrefs.SetBool(GetPrefKey("Enabled"), value);
-
-        if (value != original) {
-          Rebuild();
-        }
-      }
-    }
-
-    public static int UsageCount {
-      get { return EditorPrefs.GetInt(GetPrefKey("UsageCount"), 0); }
-      set { EditorPrefs.SetInt(GetPrefKey("UsageCount"), value); }
     }
 
     public static int IndexSize {
@@ -102,15 +81,16 @@ namespace Haste {
       });
 
       Watchers.AddSource(HasteProjectSource.NAME,
-        EditorPrefs.GetBool(GetPrefKey("Source", HasteProjectSource.NAME), true),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME)),
         () => new HasteProjectSource());
       Watchers.AddSource(HasteHierarchySource.NAME,
-        EditorPrefs.GetBool(GetPrefKey("Source", HasteHierarchySource.NAME), true),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteHierarchySource.NAME)),
         () => new HasteHierarchySource());
       Watchers.AddSource(HasteMenuItemSource.NAME,
-        EditorPrefs.GetBool(GetPrefKey("Source", HasteMenuItemSource.NAME), true),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME)),
         () => new HasteMenuItemSource());
 
+      HasteSettings.ChangedBool += BoolSettingChanged;
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
 
@@ -119,10 +99,16 @@ namespace Haste {
 
       EditorApplication.update += Update;
 
-      var previousVersion = EditorPrefs.GetString(GetPrefKey("Version"));
+      var previousVersion = HasteSettings.Version;
       var currentVersion = VERSION;
       if (previousVersion != currentVersion) {
         OnVersionChanged(currentVersion, previousVersion);
+      }
+    }
+
+    static void BoolSettingChanged(HasteSetting setting, bool before, bool after) {
+      if (setting == HasteSetting.Enabled) {
+        Rebuild();
       }
     }
 
@@ -139,7 +125,7 @@ namespace Haste {
     }
 
     static void HandleVersionChanged(string currentVersion, string previousVersion) {
-      EditorPrefs.SetString(GetPrefKey("Version"), currentVersion);
+      HasteSettings.Version = currentVersion;
       Rebuild();
     }
 

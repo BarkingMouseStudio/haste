@@ -29,7 +29,7 @@ namespace Haste {
       EditorGUILayout.Space();
       EditorGUILayout.Space();
 
-      EditorGUILayout.LabelField("Times Opened", Haste.UsageCount.ToString());
+      EditorGUILayout.LabelField("Times Opened", HasteSettings.UsageCount.ToString());
 
       EditorGUILayout.Space();
       EditorGUILayout.Space();
@@ -37,14 +37,14 @@ namespace Haste {
       EditorGUILayout.LabelField("Available Sources");
       EditorGUILayout.Space();
 
-      using (var toggleGroup = new HasteToggleGroup("Haste Enabled", Haste.Enabled)) {
-        Haste.Enabled = toggleGroup.Enabled;
+      using (var toggleGroup = new HasteToggleGroup("Haste Enabled", HasteSettings.Enabled)) {
+        HasteSettings.Enabled = toggleGroup.Enabled;
         EditorGUILayout.Space();
 
         foreach (var watcher in Haste.Watchers) {
           string label = System.String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
           bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
-          EditorPrefs.SetBool(Haste.GetPrefKey("Source", watcher.Key), enabled);
+          EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), enabled);
           Haste.Watchers.ToggleSource(watcher.Key, enabled);
         }
       }
