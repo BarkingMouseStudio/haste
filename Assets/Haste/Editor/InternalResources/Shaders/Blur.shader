@@ -3,7 +3,6 @@ Shader "Hidden/Haste/Blur" {
     _MainTex ("", 2D) = "white" {}
     _BlurSize ("", Range(0.0, 1.0)) = 1.0
     _Tint ("", Color) = (0.0, 0.0, 0.0, 0.0)
-    _Tinting ("", Range(0.0, 1.0)) = 0.64
   }
 
   SubShader {
@@ -123,7 +122,7 @@ Shader "Hidden/Haste/Blur" {
       }
 
       half4 frag(v2f i) : COLOR {
-        return lerp(tex2D(_MainTex, i.uv), _Tint, _Tinting);
+        return lerp(tex2D(_MainTex, i.uv), _Tint, _Tint.a);
       }
       ENDCG
     }
