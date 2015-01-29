@@ -10,11 +10,14 @@ namespace Haste {
 
   public class HasteIndex {
 
-    readonly Regex boundaryRegex = new Regex(@"\b\w");
+    readonly Regex boundaryRegex = new Regex(@"(\b\w)|(\.\w)");
 
     IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
 
+    // The number of unique items in the index
     public int Count { get; protected set; }
+
+    // The total size of the indexing including each indexed reference
     public int Size { get; protected set; }
 
     public void Add(HasteItem item) {
@@ -53,7 +56,7 @@ namespace Haste {
       Size = 0;
     }
 
-    public IHasteResult[] Filter(string query, int countPerGroup) {
+    public IHasteResult[] Filter(string query, int resultCount) {
       if (query.Length == 0) {
         return new IHasteResult[0];
       }
@@ -66,17 +69,18 @@ namespace Haste {
 
       IList<IHasteResult> matches = new List<IHasteResult>();
       foreach (HasteItem item in index[c]) {
+        List<int> indices;
         float score;
 
-        string filename = Path.GetFileNameWithoutExtension(item.Path);
-        string directory = Path.GetDirectoryName(item.Path);
-        List<int> indices;
+        string name = Path.GetFileNameWithoutExtension(item.Path);
+        string path = Path.GetDirectoryName(item.Path); // Path excluding name
 
-        if (HasteFuzzyMatching.FuzzyMatch(filename, query, out indices, out score)) { // Filename
-          // Increment indices to account for being only the filename
-          if (directory.Length > 0) {
+        // Try to match just the name
+        if (HasteFuzzyMatching.FuzzyMatch(name, query, out indices, out score)) {
+          // Increment indices to account for being only the name
+          if (path.Length > 0) {
             for (int i = 0; i < indices.Count; i++) {
-              indices[i] += directory.Length + 1; // Add 1 to account for slash
+              indices[i] += path.Length + 1; // Add 1 to account for slash
             }
           }
 
@@ -84,29 +88,18 @@ namespace Haste {
           continue;
         }
 
-        if (HasteFuzzyMatching.FuzzyMatch(item.Path, query, out indices, out score)) { // Full path
+        // Then try to match the whole path
+        if (HasteFuzzyMatching.FuzzyMatch(item.Path, query, out indices, out score)) {
           matches.Add(Haste.Types.GetType(item, score, indices));
           continue;
         }
       }
 
+      // Sort then take, otherwise we loose good results
       return matches.OrderByDescending(r => r.Score)
         .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
-        .Take(countPerGroup)
+        .Take(resultCount)
         .ToArray();
-
-      // return matches
-      //   .GroupBy(r => r.Item.Source) // Group by source
-      //   .Select(g => {
-      //     // Order each group by score and take the top N
-      //     return g
-      //       .OrderByDescending(r => r.Score)
-      //       .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
-      //       .Take(countPerGroup);
-      //   })
-      //   .OrderByDescending(g => g.First().Score) // Sort each group by score
-      //   .SelectMany(g => g) // Flatten the groups
-      //   .ToArray();
     }
   }
 }
