@@ -9,24 +9,21 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
-  public class HasteBlur : IDisposable {
+  [Serializable]
+  public class HasteBlur : ScriptableObject {
 
     const int passes = 10;
 
+    [SerializeField]
     Material blurMaterial;
-    RenderTexture destTexture;
 
-    public HasteBlur(int width, int height, Color tint) {
+    public HasteBlur(Color tint) {
       blurMaterial = new Material(Shader.Find("Hidden/Haste/Blur"));
       blurMaterial.SetColor("_Tint", tint);
       blurMaterial.SetFloat("_BlurSize", 2.0f);
-
-      destTexture = new RenderTexture(width, height, 0);
-      destTexture.hideFlags = HideFlags.HideAndDontSave;
-      destTexture.Create();
     }
 
-    public Texture BlurTexture(Texture sourceTexture) {
+    public void Apply(Texture sourceTexture, RenderTexture destTexture) {
       RenderTexture active = RenderTexture.active; // Save original RenderTexture
 
       try {
@@ -44,8 +41,6 @@ namespace Haste {
 
         Graphics.Blit(tempB, destTexture, blurMaterial, 2);
 
-        Texture.DestroyImmediate(sourceTexture);
-
         RenderTexture.ReleaseTemporary(tempA);
         RenderTexture.ReleaseTemporary(tempB);
       } catch (Exception e) {
@@ -53,16 +48,6 @@ namespace Haste {
       } finally {
         RenderTexture.active = active; // Restore
       }
-
-      return destTexture;
-    }
-
-    public void Dispose() {
-      Material.DestroyImmediate(blurMaterial);
-      RenderTexture.DestroyImmediate(destTexture);
-
-      blurMaterial = null;
-      destTexture = null;
     }
   }
 }

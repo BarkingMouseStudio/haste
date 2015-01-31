@@ -31,6 +31,7 @@ namespace Haste {
       Color[] pixels = UnityEditorInternal.InternalEditorUtility.ReadScreenPixel(position, width, height);
 
       Texture2D texture = new Texture2D(width, height);
+      texture.hideFlags = HideFlags.HideAndDontSave;
       texture.SetPixels(pixels);
       texture.Apply();
 
