@@ -14,7 +14,9 @@ namespace Haste {
     }
 
     public static void Restore() {
-      Selection.instanceIDs = selections.Pop();
+      if (selections.Count > 0) {
+        Selection.instanceIDs = selections.Pop();
+      }
     }
   }
 }
