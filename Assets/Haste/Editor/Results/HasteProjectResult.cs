@@ -41,6 +41,7 @@ namespace Haste {
 
     public override void Action() {
       EditorApplication.ExecuteMenuItem("Window/Project");
+      EditorUtility.FocusProjectWindow();
       Selection.activeObject = Object;
     }
 
