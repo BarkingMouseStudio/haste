@@ -73,7 +73,7 @@ namespace Haste {
     // Creates a new window instance and initializes it
     static void Init() {
       // Increment open count
-      HasteSettings.UsageCount += 1;
+      HasteSettings.UsageCount++;
 
       // Save the current selection
       HasteSelectionManager.Save();
@@ -119,7 +119,7 @@ namespace Haste {
 
     void OnReturn() {
       if (this.resultList.HighlightedItem != null) {
-        this.resultList.HighlightedItem.Action();
+        Haste.WindowAction += this.resultList.HighlightedItem.Action;
       }
       Close();
     }

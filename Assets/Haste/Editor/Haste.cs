@@ -11,6 +11,8 @@ namespace Haste {
   public delegate void VersionChangedHandler(string currentVersion, string previousVersion);
   public delegate void SelectionChangedHandler();
 
+  public delegate void HasteWindowAction();
+
   [InitializeOnLoad]
   public static class Haste {
 
@@ -26,6 +28,8 @@ namespace Haste {
     public static HasteIndex Index;
     public static HasteWatcherManager Watchers;
     public static HasteTypeManager Types;
+
+    internal static event HasteWindowAction WindowAction;
 
     static string currentScene;
     static bool isCompiling = false;
@@ -183,6 +187,11 @@ namespace Haste {
 
     // Main update loop in Haste—run's scheduler
     static void Update() {
+      if (WindowAction != null && HasteWindow.Instance == null) {
+        WindowAction();
+        WindowAction = null;
+      }
+
       // Compiling state changed
       if (isCompiling != EditorApplication.isCompiling) {
         isCompiling = EditorApplication.isCompiling;
