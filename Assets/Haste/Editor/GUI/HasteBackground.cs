@@ -34,7 +34,7 @@ namespace Haste {
     public void Capture(Rect position) {
       // Must grab texture before Haste is visible
       using (var texture = new HasteTexture(HasteUtils.GrabScreenSwatch(position))) {
-        blur.Apply(texture.Tex, backgroundTexture);
+        blur.Apply(texture.Texture, backgroundTexture);
       }
     }
 
