@@ -12,14 +12,14 @@ namespace Haste {
   // }
   public class HasteTexture : IDisposable {
 
-    public Texture Tex { get; protected set; }
+    public Texture Texture { get; protected set; }
 
     public HasteTexture(Texture texture) {
-      Tex = texture;
+      Texture = texture;
     }
 
     public void Dispose() {
-      Texture.DestroyImmediate(Tex);
+      Texture.DestroyImmediate(Texture);
     }
   }
 }
