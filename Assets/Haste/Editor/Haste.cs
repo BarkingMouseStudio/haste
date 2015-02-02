@@ -14,13 +14,9 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    public static string VERSION {
-      get {
-        return typeof(Haste).Assembly.GetName().Version.ToString();
-      }
-    }
-
+    private static readonly string VERSION = "af14dc48d7c972a7ba5a01a3d6424da3ecc3127a";
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
+    public static readonly string DEFAULT_SHORTCUT = "%k";
 
     public static event SceneChangedHandler SceneChanged;
     public static event VersionChangedHandler VersionChanged;
@@ -34,6 +30,7 @@ namespace Haste {
     static string currentScene;
     static bool isCompiling = false;
     static int activeInstanceID;
+    // static object prefKey;
 
     public static bool IsApplicationBusy {
       get {
@@ -60,6 +57,8 @@ namespace Haste {
     }
 
     static Haste() {
+      // prefKey = HasteReflection.Instantiate(HasteReflection.EditorAssembly, "UnityEditor.PrefKey", "Window/Haste", DEFAULT_SHORTCUT);
+
       currentScene = EditorApplication.currentScene;
       isCompiling = EditorApplication.isCompiling;
 
@@ -99,12 +98,25 @@ namespace Haste {
 
       EditorApplication.update += Update;
 
+      // AddGlobalEventHandler();
+
       var previousVersion = HasteSettings.Version;
       var currentVersion = VERSION;
       if (previousVersion != currentVersion) {
         OnVersionChanged(currentVersion, previousVersion);
       }
     }
+
+    // static void AddGlobalEventHandler() {
+    //   var fieldInfo = typeof(EditorApplication).GetField("globalEventHandler", BindingFlags.NonPublic|BindingFlags.Static);
+
+    //   var origHandler = (EditorApplication.CallbackFunction)fieldInfo.GetValue(null);
+    //   var newHandler = new EditorApplication.CallbackFunction(GlobalEventHandler);
+    //   fieldInfo.SetValue(null, Delegate.Combine(
+    //     origHandler,
+    //     newHandler
+    //   ));
+    // }
 
     static void BoolSettingChanged(HasteSetting setting, bool before, bool after) {
       if (setting == HasteSetting.Enabled) {
@@ -157,6 +169,33 @@ namespace Haste {
         Watchers.RestartSource(HasteMenuItemSource.NAME);
       #endif
     }
+
+    // static void HasteShortcutHandler() {
+    //   if (HasteReflection.GetPropValue<bool>(prefKey, "activated")) {
+    //     Event.current.Use();
+    //     HasteWindow.Open();
+    //   }
+    // }
+
+    // internal static void CallDelayed (EditorApplication.CallbackFunction function, float timeFromNow)
+    // {
+    //   EditorApplication.delayedCallback = function;
+    //   EditorApplication.s_DelayedCallbackTime = Time.realtimeSinceStartup + timeFromNow;
+    //   EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Combine (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
+    // }
+
+    // private static void CheckCallDelayed ()
+    // {
+    //   if (Time.realtimeSinceStartup > EditorApplication.s_DelayedCallbackTime)
+    //   {
+    //     EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Remove (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
+    //     EditorApplication.delayedCallback ();
+    //   }
+    // }
+
+    // static void GlobalEventHandler() {
+    //   HasteShortcutHandler();
+    // }
 
     // Main update loop in Haste—run's scheduler
     static void Update() {

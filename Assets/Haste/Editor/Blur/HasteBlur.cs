@@ -17,10 +17,11 @@ namespace Haste {
     [SerializeField]
     Material blurMaterial;
 
-    public HasteBlur(Color tint) {
+    public HasteBlur Init(Color tint) {
       blurMaterial = new Material(Shader.Find("Hidden/Haste/Blur"));
       blurMaterial.SetColor("_Tint", tint);
       blurMaterial.SetFloat("_BlurSize", 2.0f);
+      return this;
     }
 
     public void Apply(Texture sourceTexture, RenderTexture destTexture) {

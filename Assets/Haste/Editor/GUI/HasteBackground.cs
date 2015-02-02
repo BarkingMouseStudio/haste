@@ -5,8 +5,10 @@ using System.Collections;
 
 namespace Haste {
 
-  public class HasteGUIBackground : ScriptableObject {
+  [Serializable]
+  public class HasteBackground : ScriptableObject {
 
+    [SerializeField]
     Rect position;
 
     [SerializeField]
@@ -15,29 +17,29 @@ namespace Haste {
     [SerializeField]
     RenderTexture backgroundTexture;
 
-    public HasteGUIBackground(Rect position) {
+    public HasteBackground Init(Rect position) {
       this.position = position;
 
       if (Application.HasProLicense()) {
-        blur = new HasteBlur(HasteColors.BlurColor);
+        blur = ScriptableObject.CreateInstance<HasteBlur>().Init(HasteColors.BlurColor);
 
         backgroundTexture = new RenderTexture((int)position.width, (int)position.height, 0);
         backgroundTexture.hideFlags = HideFlags.HideAndDontSave;
         backgroundTexture.Create();
-      }
-    }
 
-    public void Capture(Rect position) {
-      if (blur != null) {
         // Must grab texture before Haste is visible
         using (var texture = new HasteTexture(HasteUtils.GrabScreenSwatch(position))) {
           blur.Apply(texture.Tex, backgroundTexture);
         }
       }
+
+      return this;
     }
 
     public void OnGUI() {
       if (backgroundTexture != null) {
+        position.x = 0;
+        position.y = 0;
         UnityEngine.GUI.DrawTexture(position, backgroundTexture);
       }
     }

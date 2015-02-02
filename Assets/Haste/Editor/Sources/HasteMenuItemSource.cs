@@ -358,13 +358,13 @@ namespace Haste {
         yield return new HasteItem(path, 0, NAME);
       }
 
-      // var layouts = HasteReflection.Layouts.Select((layout) => {
-      //   return String.Format("Window/Layouts/{0}", layout);
-      // });
+      var layouts = HasteUtils.Layouts.Select((layout) => {
+        return String.Format("Window/Layouts/{0}", layout);
+      });
 
-      // foreach (string path in layouts) {
-      //   yield return new HasteItem(path, 0, NAME);
-      // }
+      foreach (string path in layouts) {
+        yield return new HasteItem(path, 0, NAME);
+      }
     }
 
     IEnumerator IEnumerable.GetEnumerator() {

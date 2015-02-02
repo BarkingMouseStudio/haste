@@ -16,6 +16,7 @@ namespace Haste {
     string DragLabel { get; }
 
     void Draw(bool isHighlighted);
+    float Height(bool isHighlighted);
     bool Validate();
     void Action();
     void Select();
@@ -29,6 +30,10 @@ namespace Haste {
 
     public virtual bool IsDraggable {
       get { return false; }
+    }
+
+    public virtual float Height(bool isHighlighted) {
+      return HasteStyles.ItemHeight;
     }
 
     public virtual UnityEngine.Object Object {

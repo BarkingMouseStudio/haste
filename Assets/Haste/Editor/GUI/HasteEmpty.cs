@@ -3,9 +3,14 @@ using UnityEngine;
 
 namespace Haste {
 
-  public class HasteGUIEmpty : ScriptableObject {
+  public class HasteEmpty : ScriptableObject {
 
-    public string tip;
+    string tip;
+
+    public HasteEmpty Init(string tip) {
+      this.tip = tip;
+      return this;
+    }
 
     public void OnGUI() {
       using (new HasteSpace()) {

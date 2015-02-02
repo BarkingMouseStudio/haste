@@ -18,19 +18,19 @@ namespace Haste {
     const int RESULT_COUNT = 25;
 
     [SerializeField]
-    HasteGUIBackground background;
+    HasteBackground background;
 
     [SerializeField]
-    HasteGUIQuery queryInput;
+    HasteQuery queryInput;
 
     [SerializeField]
-    HasteGUIEmpty empty;
+    HasteEmpty empty;
 
     [SerializeField]
-    HasteGUIIntro intro;
+    HasteIntro intro;
 
     [SerializeField]
-    HasteGUIList<IHasteResult> resultList;
+    HasteList resultList;
 
     public static HasteWindow Instance { get; protected set; }
 
@@ -73,15 +73,16 @@ namespace Haste {
       // Disable the resize handle on the window
       this.minSize = this.maxSize = new Vector2(HasteWindow.WINDOW_WIDTH, HasteWindow.WINDOW_HEIGHT);
 
-      this.queryInput = ScriptableObject.CreateInstance<HasteGUIQuery>();
+      this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
 
-      this.background = ScriptableObject.CreateInstance<HasteGUIBackground>();
-      this.resultList = ScriptableObject.CreateInstance<HasteGUIList<IHasteResult>>();
+      this.background = ScriptableObject.CreateInstance<HasteBackground>()
+        .Init(this.position);
+      this.resultList = ScriptableObject.CreateInstance<HasteList>();
 
-      this.intro = ScriptableObject.CreateInstance<HasteGUIIntro>();
-      this.empty = ScriptableObject.CreateInstance<HasteGUIEmpty>();
-      this.intro.tip = this.empty.tip = HasteTips.Random;
+      var tip = HasteTips.Random;
+      this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
+      this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
 
       ShowPopup();
       Focus();
@@ -93,7 +94,9 @@ namespace Haste {
     }
 
     void OnReturn() {
-      this.resultList.HighlightedItem.Action();
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Action();
+      }
       Close();
     }
 
@@ -106,6 +109,14 @@ namespace Haste {
         case KeyCode.Return:
           e.Use();
           OnReturn();
+          break;
+        case KeyCode.UpArrow:
+          e.Use();
+          this.resultList.OnUpArrow();
+          break;
+        case KeyCode.DownArrow:
+          e.Use();
+          this.resultList.OnDownArrow();
           break;
       }
     }

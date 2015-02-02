@@ -5,18 +5,16 @@ namespace Haste {
 
   public delegate void QueryChangedHandler(string query);
 
-  public class HasteGUIQuery : ScriptableObject {
+  public class HasteQuery : ScriptableObject {
+
+    static readonly string NAME = "query";
 
     public event QueryChangedHandler Changed;
 
     private string query = "";
     public string Query {
-      get {
-        return query;
-      }
-      protected set {
-        query = value;
-      }
+      get { return query; }
+      protected set { query = value; }
     }
 
     void OnBackspace() {
@@ -50,10 +48,22 @@ namespace Haste {
       base.hideFlags = HideFlags.HideAndDontSave;
     }
 
+    public void Focus() {
+      EditorGUI.FocusTextInControl(NAME);
+    }
+
+    public void Blur() {
+      EditorGUI.FocusTextInControl("");
+    }
+
     public void OnGUI() {
       OnEvent(Event.current);
 
-      using (new HasteFocusText("query")) {
+      // Dummy element for blurring
+      GUI.SetNextControlName("");
+      GUI.Button(new Rect(0, 0, 0, 0), "", GUIStyle.none);
+
+      using (new HasteFocusText(NAME)) {
         Query = EditorGUILayout.TextField(Query, HasteStyles.QueryStyle,
           GUILayout.Height(HasteStyles.QueryStyle.fixedHeight));
         Query = Query.Trim();

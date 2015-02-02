@@ -5,6 +5,8 @@ namespace Haste {
 
   public static class HasteStyles {
 
+    public static readonly int ItemHeight = 46;
+
     private static string boldStart = "";
     public static string BoldStart {
       get {
