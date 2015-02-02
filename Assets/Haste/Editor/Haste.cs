@@ -177,22 +177,6 @@ namespace Haste {
     //   }
     // }
 
-    // internal static void CallDelayed (EditorApplication.CallbackFunction function, float timeFromNow)
-    // {
-    //   EditorApplication.delayedCallback = function;
-    //   EditorApplication.s_DelayedCallbackTime = Time.realtimeSinceStartup + timeFromNow;
-    //   EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Combine (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
-    // }
-
-    // private static void CheckCallDelayed ()
-    // {
-    //   if (Time.realtimeSinceStartup > EditorApplication.s_DelayedCallbackTime)
-    //   {
-    //     EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Remove (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
-    //     EditorApplication.delayedCallback ();
-    //   }
-    // }
-
     // static void GlobalEventHandler() {
     //   HasteShortcutHandler();
     // }

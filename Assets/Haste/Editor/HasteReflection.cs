@@ -17,24 +17,18 @@ namespace Haste {
       }
     }
 
-    public static Assembly EngineAssembly {
-      get {
-        return typeof(ScriptableObject).Assembly;
-      }
-    }
+    // public static T GetPropValue<T>(object obj, string propName) {
+    //   return (T)obj.GetType().GetProperty(propName).GetValue(obj, null);
+    // }
+
+    // public static System.Object Instantiate(Assembly assembly, string typeName, params object[] args) {
+    //   return Activator.CreateInstance(assembly.GetType(typeName), args);
+    // }
 
     public static System.Object Invoke(Assembly assembly, string className, string methodName, System.Object obj = null, params System.Object[] parameters) {
       var T = assembly.GetType(className);
       var method = T.GetMethod(methodName, BindingFlags.NonPublic|BindingFlags.Static);
       return method.Invoke(obj, parameters);
-    }
-
-    public static T GetPropValue<T>(object obj, string propName) {
-      return (T)obj.GetType().GetProperty(propName).GetValue(obj, null);
-    }
-
-    public static System.Object Instantiate(Assembly assembly, string typeName, params object[] args) {
-      return Activator.CreateInstance(assembly.GetType(typeName), args);
     }
 
     public static IEnumerable<System.Object> GetAttributesInAssembly(Assembly assembly, Type attributeType) {

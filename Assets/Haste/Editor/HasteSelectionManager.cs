@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -5,14 +7,14 @@ namespace Haste {
 
   public static class HasteSelectionManager  {
 
-    private static int activeInstanceID;
+    private static Stack<int[]> selections = new Stack<int[]>(1);
 
     public static void Save() {
-      activeInstanceID = Selection.activeInstanceID;
+      selections.Push(Selection.instanceIDs);
     }
 
     public static void Restore() {
-      Selection.activeInstanceID = activeInstanceID;
+      Selection.instanceIDs = selections.Pop();
     }
   }
 }

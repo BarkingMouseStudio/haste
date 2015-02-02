@@ -12,8 +12,6 @@ namespace Haste {
   [Serializable]
   public class HasteBlur : ScriptableObject {
 
-    const int passes = 10;
-
     [SerializeField]
     Material blurMaterial;
 
@@ -24,7 +22,7 @@ namespace Haste {
       return this;
     }
 
-    public void Apply(Texture sourceTexture, RenderTexture destTexture) {
+    public void Apply(Texture sourceTexture, RenderTexture destTexture, int passes = 10) {
       RenderTexture active = RenderTexture.active; // Save original RenderTexture
 
       try {

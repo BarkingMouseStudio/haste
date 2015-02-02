@@ -26,20 +26,20 @@ namespace Haste {
         backgroundTexture = new RenderTexture((int)position.width, (int)position.height, 0);
         backgroundTexture.hideFlags = HideFlags.HideAndDontSave;
         backgroundTexture.Create();
-
-        // Must grab texture before Haste is visible
-        using (var texture = new HasteTexture(HasteUtils.GrabScreenSwatch(position))) {
-          blur.Apply(texture.Tex, backgroundTexture);
-        }
       }
 
       return this;
     }
 
+    public void Capture(Rect position) {
+      // Must grab texture before Haste is visible
+      using (var texture = new HasteTexture(HasteUtils.GrabScreenSwatch(position))) {
+        blur.Apply(texture.Tex, backgroundTexture);
+      }
+    }
+
     public void OnGUI() {
       if (backgroundTexture != null) {
-        position.x = 0;
-        position.y = 0;
         UnityEngine.GUI.DrawTexture(position, backgroundTexture);
       }
     }

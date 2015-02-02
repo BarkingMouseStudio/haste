@@ -38,6 +38,12 @@ namespace Haste {
         HideFlags.HideInHierarchy;
 
       foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>()) {
+        if (go == null) {
+          // Null-check required since we yield, meaning the
+          // results of the find could become invalid.
+          continue;
+        }
+
         if ((go.hideFlags & allFlags) != 0) {
           continue;
         }

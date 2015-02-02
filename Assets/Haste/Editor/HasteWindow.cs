@@ -9,13 +9,18 @@ using System.Text.RegularExpressions;
 
 namespace Haste {
 
+  public enum HasteWindowState {
+    Intro,
+    Empty,
+    Results
+  }
+
   [Serializable]
   public class HasteWindow : EditorWindow {
 
-    const int WINDOW_WIDTH = 500;
-    const int WINDOW_HEIGHT = 300;
-
     const int RESULT_COUNT = 25;
+
+    HasteWindowState windowState;
 
     [SerializeField]
     HasteBackground background;
@@ -33,6 +38,22 @@ namespace Haste {
     HasteList resultList;
 
     public static HasteWindow Instance { get; protected set; }
+
+    // internal static void CallDelayed (EditorApplication.CallbackFunction function, float timeFromNow)
+    // {
+    //   EditorApplication.delayedCallback = function;
+    //   EditorApplication.s_DelayedCallbackTime = Time.realtimeSinceStartup + timeFromNow;
+    //   EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Combine (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
+    // }
+
+    // private static void CheckCallDelayed ()
+    // {
+    //   if (Time.realtimeSinceStartup > EditorApplication.s_DelayedCallbackTime)
+    //   {
+    //     EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Remove (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
+    //     EditorApplication.delayedCallback ();
+    //   }
+    // }
 
     [MenuItem("Window/Haste %k", true)]
     public static bool IsHasteEnabled() {
@@ -65,19 +86,22 @@ namespace Haste {
       this.title = "Haste";
 
       this.position = new Rect(
-        (Screen.currentResolution.width - HasteWindow.WINDOW_WIDTH) / 2,
-        (Screen.currentResolution.height - HasteWindow.WINDOW_HEIGHT) / 2,
-        HasteWindow.WINDOW_WIDTH, HasteWindow.WINDOW_HEIGHT
+        (Screen.currentResolution.width - HasteStyles.WindowWidth) / 2,
+        (Screen.currentResolution.height - HasteStyles.WindowHeight) / 2,
+        HasteStyles.WindowWidth, HasteStyles.WindowHeight
       );
 
       // Disable the resize handle on the window
-      this.minSize = this.maxSize = new Vector2(HasteWindow.WINDOW_WIDTH, HasteWindow.WINDOW_HEIGHT);
+      this.minSize = this.maxSize =
+        new Vector2(this.position.width, this.position.height);
 
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
 
       this.background = ScriptableObject.CreateInstance<HasteBackground>()
-        .Init(this.position);
+        .Init(new Rect(0, 0, this.position.width, this.position.height));
+      this.background.Capture(this.position);
+
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
 
       var tip = HasteTips.Random;
@@ -130,7 +154,7 @@ namespace Haste {
     }
 
     void Update() {
-      if (Haste.IsIndexing && this.queryInput.Query == "") {
+      if (Haste.IsIndexing && this.windowState == HasteWindowState.Intro) {
         // This is here to repaint the indexing count
         Repaint();
       }
@@ -158,11 +182,23 @@ namespace Haste {
       this.queryInput.OnGUI();
 
       if (this.queryInput.Query == "") {
-        this.intro.OnGUI();
+        this.windowState = HasteWindowState.Intro;
       } else if (this.resultList.Size == 0) {
-        this.empty.OnGUI();
+        this.windowState = HasteWindowState.Empty;
       } else {
-        this.resultList.OnGUI();
+        this.windowState = HasteWindowState.Results;
+      }
+
+      switch (this.windowState) {
+        case HasteWindowState.Intro:
+          this.intro.OnGUI();
+          break;
+        case HasteWindowState.Empty:
+          this.empty.OnGUI();
+          break;
+        case HasteWindowState.Results:
+          this.resultList.OnGUI();
+          break;
       }
     }
   }
