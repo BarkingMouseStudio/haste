@@ -22,6 +22,8 @@ namespace Haste {
 
     public static GUIStyle PrefabStyle;
     public static GUIStyle BrokenPrefabStyle;
+    public static GUIStyle DisabledPrefabStyle;
+    public static GUIStyle DisabledBrokenPrefabStyle;
 
     public static GUIStyle PrefixStyle;
     public static GUIStyle DisabledPrefixStyle;
@@ -123,11 +125,23 @@ namespace Haste {
       PrefabStyle.fontSize = 16;
       PrefabStyle.normal.textColor = HasteColors.PrefabColor;
 
+      DisabledPrefabStyle = new GUIStyle(EditorStyles.largeLabel);
+      DisabledPrefabStyle.alignment = TextAnchor.MiddleLeft;
+      DisabledPrefabStyle.fixedHeight = 24;
+      DisabledPrefabStyle.fontSize = 16;
+      DisabledPrefabStyle.normal.textColor = HasteColors.DisabledPrefabColor;
+
       BrokenPrefabStyle = new GUIStyle(EditorStyles.largeLabel);
       BrokenPrefabStyle.alignment = TextAnchor.MiddleLeft;
       BrokenPrefabStyle.fixedHeight = 24;
       BrokenPrefabStyle.fontSize = 16;
       BrokenPrefabStyle.normal.textColor = HasteColors.BrokenPrefabColor;
+
+      DisabledBrokenPrefabStyle = new GUIStyle(EditorStyles.largeLabel);
+      DisabledBrokenPrefabStyle.alignment = TextAnchor.MiddleLeft;
+      DisabledBrokenPrefabStyle.fixedHeight = 24;
+      DisabledBrokenPrefabStyle.fontSize = 16;
+      DisabledBrokenPrefabStyle.normal.textColor = HasteColors.DisabledBrokenPrefabColor;
 
       EmptyStyle = new GUIStyle(EditorStyles.largeLabel);
       EmptyStyle.alignment = TextAnchor.MiddleCenter;

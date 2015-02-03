@@ -42,9 +42,17 @@ namespace Haste {
     GUIStyle GetLabelStyle(GameObject go) {
       var prefabType = PrefabUtility.GetPrefabType(go);
       if (prefabType == PrefabType.PrefabInstance || prefabType == PrefabType.ModelPrefabInstance) {
-        return HasteStyles.PrefabStyle;
+        if (go.activeInHierarchy) {
+          return HasteStyles.PrefabStyle;
+        } else {
+          return HasteStyles.DisabledPrefabStyle;
+        }
       } else if (prefabType == PrefabType.MissingPrefabInstance) {
-        return HasteStyles.BrokenPrefabStyle;
+        if (go.activeInHierarchy) {
+          return HasteStyles.BrokenPrefabStyle;
+        } else {
+          return HasteStyles.DisabledBrokenPrefabStyle;
+        }
       } else if (!go.activeInHierarchy) {
         return HasteStyles.DisabledNameStyle;
       } else {
