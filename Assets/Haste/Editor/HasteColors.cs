@@ -37,7 +37,7 @@ namespace Haste {
       DisabledColor = new Color(0.3f, 0.3f, 0.3f);
       PrefabColor = new Color(0.02f, 0.17f, 0.52f);
       BrokenPrefabColor = new Color(0.27f, 0.07f, 0.07f);
-      HighlightColor = new Color(0.25f, 0.5f, 0.9f);
+      HighlightColor = new Color(62f / 255f, 125f / 255f, 231f / 255f);
       PrimaryHighlightedColor = new Color(250f / 255f, 251f / 255f, 254f / 255f);
       SecondaryHighlightedColor = new Color(1.0f, 1.0f, 1.0f, 0.7f);
       LinkColor = HighlightColor;
