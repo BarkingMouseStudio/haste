@@ -119,6 +119,10 @@ namespace Haste {
 
     void OnReturn() {
       if (this.resultList.HighlightedItem != null) {
+        // Restore selection in case the action affects
+        // the original selection.
+        HasteSelectionManager.Restore();
+
         // Register action to occur after the window is closed and destroyed.
         // This is done to prevent errors when modifying window layouts and
         // other Unity state while Haste is open.
