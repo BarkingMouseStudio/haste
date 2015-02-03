@@ -7,6 +7,7 @@ namespace Haste {
     Version,
     Enabled,
     UsageCount,
+    IgnorePaths,
     Source
   }
 
@@ -33,6 +34,15 @@ namespace Haste {
       }
       set {
         HasteSettings.SetInt(HasteSetting.UsageCount, value);
+      }
+    }
+
+    public static string IgnorePaths {
+      get {
+        return HasteSettings.GetString(HasteSetting.IgnorePaths);
+      }
+      set {
+        HasteSettings.SetString(HasteSetting.IgnorePaths, value);
       }
     }
 
