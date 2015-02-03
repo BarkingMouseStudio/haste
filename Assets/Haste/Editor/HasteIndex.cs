@@ -10,7 +10,7 @@ namespace Haste {
 
   public class HasteIndex {
 
-    readonly Regex boundaryRegex = new Regex(@"(\b\w)|(\.\w)");
+    readonly Regex boundaryRegex = new Regex(@"\b(?<char>\w)|\w(?<char>[A-Z])|\.(?<char>\w)");
 
     IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
 
@@ -25,7 +25,7 @@ namespace Haste {
       Count++;
 
       foreach (Match match in matches) {
-        char c = Char.ToLower(match.Value[0]);
+        char c = Char.ToLower(match.Groups["char"].Value[0]);
 
         if (!index.ContainsKey(c)) {
           index.Add(c, new HashSet<HasteItem>());
@@ -96,7 +96,16 @@ namespace Haste {
       }
 
       // Sort then take, otherwise we loose good results
-      return matches.OrderByDescending(r => r.Score)
+      return matches.OrderByDescending(r => {
+          #if !IS_HASTE_PRO
+          // Force menu item matches to the bottom in free version
+          if (r.Item.Source == HasteMenuItemSource.NAME) {
+            return 0;
+          }
+          #endif
+
+          return r.Score;
+        })
         .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
         .Take(resultCount)
         .ToArray();
