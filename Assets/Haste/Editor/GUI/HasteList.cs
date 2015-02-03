@@ -1,7 +1,8 @@
+using UnityEngine;
+using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
 
 namespace Haste {
 
@@ -10,14 +11,28 @@ namespace Haste {
     Vector2 scrollPosition = Vector2.zero;
     int highlightedIndex = 0;
 
-    public IHasteResult[] Items { get; set; }
+    private IHasteResult[] items;
+    public IHasteResult[] Items {
+      get {
+        return items;
+      }
+      set {
+        items = value;
+        SetHighlightedIndex(0);
+      }
+    }
 
     public int Size {
       get { return Items != null ? Items.Length : 0; }
     }
 
     public IHasteResult HighlightedItem {
-      get { return Items[highlightedIndex]; }
+      get {
+        if (highlightedIndex < 0 || highlightedIndex >= Items.Length) {
+          return null;
+        }
+        return Items[highlightedIndex];
+      }
     }
 
     void ResetScroll() {
@@ -27,19 +42,21 @@ namespace Haste {
     void ScrollTo(int toIndex) {
       var heightOffset = 0.0f;
       for (var i = 0; i < toIndex; i++) {
-        heightOffset += Items[i].Height(i == highlightedIndex);
+        if (Items[i] != null) {
+          heightOffset += Items[i].Height(i == highlightedIndex);
+        }
       }
       scrollPosition = new Vector2(scrollPosition.x, heightOffset);
     }
 
     public void OnUpArrow() {
       int index = Mathf.Max(highlightedIndex - 1, 0);
-      SetHighlightedIndex(index, true);
+      SetHighlightedIndex(index);
     }
 
     public void OnDownArrow() {
       int index = Mathf.Min(highlightedIndex + 1, Items.Length - 1);
-      SetHighlightedIndex(index, true);
+      SetHighlightedIndex(index);
     }
 
     // void OnMouseDrag(Event e) {
@@ -63,21 +80,12 @@ namespace Haste {
       }
     }
 
-    void SetHighlightedIndex(int index, bool updateScroll = false) {
-      highlightedIndex = index;
-
-      if (highlightedIndex < 0 || highlightedIndex > Items.Length - 1) {
-        if (updateScroll) {
-          ResetScroll();
-        }
-        return;
+    void SetHighlightedIndex(int index) {
+      highlightedIndex = Mathf.Clamp(index, 0, Items.Length - 1);
+      if (HighlightedItem != null) {
+        HighlightedItem.Select();
       }
-
-      HighlightedItem.Select();
-
-      if (updateScroll) {
-        ScrollTo(index);
-      }
+      ScrollTo(index);
     }
 
     void OnEvent(Event e) {
