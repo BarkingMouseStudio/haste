@@ -46,7 +46,7 @@ namespace Haste {
       }
     }
 
-    public static int IndexSize {
+    public static int IndexedCount {
       get { return Watchers.IndexedCount; }
     }
 
@@ -126,7 +126,6 @@ namespace Haste {
     static void StringSettingChanged(HasteSetting setting, string before, string after) {
       switch (setting) {
         case HasteSetting.Version:
-        case HasteSetting.IgnorePaths:
           Rebuild();
           break;
       }
