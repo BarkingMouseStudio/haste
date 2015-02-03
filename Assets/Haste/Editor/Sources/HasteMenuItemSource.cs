@@ -327,15 +327,14 @@ namespace Haste {
         // User assemblies in here:
         // if (assembly.FullName.StartsWith("Assembly-CSharp-Editor")) continue;
 
-        foreach (var attribute in HasteReflection.GetAttributesInAssembly(assembly, typeof(MenuItem))) {
-          MenuItem menuItem = (MenuItem)attribute;
+        foreach (var result in HasteReflection.GetAttributesInAssembly<MenuItem>(assembly)) {
+          MenuItem menuItem = (MenuItem)result.First;
 
-          if (menuItem.menuItem.Contains("Haste")) continue;
+          if (menuItem.menuItem.StartsWith("Window/Haste")) continue;
           if (menuItem.menuItem.StartsWith("internal:")) continue;
           if (menuItem.validate) continue;
 
           string path = modifiers.Replace(menuItem.menuItem, ""); // Remove keyboard modifiers
-
           yield return new HasteItem(path, menuItem.priority, NAME);
         }
       }
@@ -344,14 +343,17 @@ namespace Haste {
         yield return new HasteItem(path, 0, NAME);
       }
 
-      if (Application.platform == RuntimePlatform.OSXEditor) {
-        foreach (string path in MacBuiltinMenuItems) {
-          yield return new HasteItem(path, 0, NAME);
-        }
-      } else if (Application.platform == RuntimePlatform.WindowsEditor) {
-        foreach (string path in WindowsBuiltinMenuItems) {
-          yield return new HasteItem(path, 0, NAME);
-        }
+      switch (Application.platform) {
+        case RuntimePlatform.OSXEditor:
+          foreach (string path in MacBuiltinMenuItems) {
+            yield return new HasteItem(path, 0, NAME);
+          }
+          break;
+        case RuntimePlatform.WindowsEditor:
+          foreach (string path in WindowsBuiltinMenuItems) {
+            yield return new HasteItem(path, 0, NAME);
+          }
+          break;
       }
 
       foreach (string path in CustomMenuItems) {
