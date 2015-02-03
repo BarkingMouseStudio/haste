@@ -19,6 +19,7 @@ namespace Haste {
 
     void OnBackspace() {
       Query = "";
+      OnGUIChanged();
     }
 
     void OnKeyDown(Event e) {

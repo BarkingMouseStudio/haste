@@ -28,11 +28,16 @@ namespace Haste {
 
     public IHasteResult HighlightedItem {
       get {
-        if (highlightedIndex < 0 || highlightedIndex >= Items.Length) {
+        if (highlightedIndex >= 0 && highlightedIndex < Items.Length) {
+          return Items[highlightedIndex];
+        } else {
           return null;
         }
-        return Items[highlightedIndex];
       }
+    }
+
+    void OnEnable() {
+      base.hideFlags = HideFlags.HideAndDontSave;
     }
 
     void ResetScroll() {
@@ -67,33 +72,12 @@ namespace Haste {
     //   Event.current.Use();
     // }
 
-    void OnKeyDown(Event e) {
-      switch (e.keyCode) {
-        case KeyCode.UpArrow:
-          e.Use();
-          OnUpArrow();
-          break;
-        case KeyCode.DownArrow:
-          e.Use();
-          OnDownArrow();
-          break;
-      }
-    }
-
     void SetHighlightedIndex(int index) {
       highlightedIndex = Mathf.Clamp(index, 0, Items.Length - 1);
       if (HighlightedItem != null) {
         HighlightedItem.Select();
       }
       ScrollTo(index);
-    }
-
-    void OnEvent(Event e) {
-      switch (e.type) {
-        case EventType.KeyDown:
-          OnKeyDown(e);
-          break;
-      }
     }
 
     public void OnGUI() {
