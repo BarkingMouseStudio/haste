@@ -31,12 +31,12 @@ namespace Haste {
       return method.Invoke(obj, parameters);
     }
 
-    public static IEnumerable<System.Object> GetAttributesInAssembly(Assembly assembly, Type attributeType) {
+    public static IEnumerable<HasteTuple<T, MethodInfo>> GetAttributesInAssembly<T>(Assembly assembly) {
       var flags = BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static|BindingFlags.DeclaredOnly;
       foreach (var type in assembly.GetTypes()) {
-        foreach (var info in type.GetMethods(flags)) {
-          foreach (var attribute in info.GetCustomAttributes(attributeType, true)) {
-            yield return attribute;
+        foreach (var methodInfo in type.GetMethods(flags)) {
+          foreach (var attribute in methodInfo.GetCustomAttributes(typeof(T), true)) {
+            yield return HasteTuple.Create((T)attribute, methodInfo);
           }
         }
       }
