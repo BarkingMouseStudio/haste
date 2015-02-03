@@ -10,8 +10,6 @@ namespace Haste {
 
   public class HasteIndex {
 
-    readonly Regex boundaryRegex = new Regex(@"(\b\w)|(\.\w)");
-
     IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
 
     // The number of unique items in the index
@@ -20,31 +18,75 @@ namespace Haste {
     // The total size of the indexing including each indexed reference
     public int Size { get; protected set; }
 
-    public void Add(HasteItem item) {
-      MatchCollection matches = boundaryRegex.Matches(item.Path);
-      Count++;
+    public static char[] GetBoundaryChars(string path) {
+      int len = path.Length;
+      List<char> matches = new List<char>();
 
-      foreach (Match match in matches) {
-        char c = Char.ToLower(match.Value[0]);
+      char c, _c;
+      for (int i = 0; i < len; i++) {
+        c = path[i];
 
-        if (!index.ContainsKey(c)) {
-          index.Add(c, new HashSet<HasteItem>());
+        // Is it a word char at the beginning of the string?
+        if (i == 0 && !Char.IsPunctuation(c)) {
+          matches.Add(c);
+          continue;
         }
 
-        index[c].Add(item);
+        if (i > 0) {
+          _c = path[i - 1];
+
+          // Include extensions
+          if (c == '.') {
+            matches.Add(c);
+            continue;
+          }
+
+          // Is it an upper char following a non-upper char?
+          if (Char.IsUpper(c) && Char.IsLetter(_c) && !Char.IsUpper(_c)) {
+            matches.Add(c);
+            continue;
+          }
+
+          // Is it a post-boundary word char
+          if (Char.IsLetter(c) && Char.IsPunctuation(_c)) {
+            matches.Add(c);
+            continue;
+          }
+        }
+      }
+
+      return matches.ToArray();
+    }
+
+    public void Add(HasteItem item) {
+      // System.Diagnostics.Stopwatch timer = System.Diagnostics.Stopwatch.StartNew();
+      Count++;
+
+      char c_;
+      foreach (char c in GetBoundaryChars(item.Path)) {
+        c_ = Char.ToLower(c);
+
+        if (!index.ContainsKey(c_)) {
+          index.Add(c_, new HashSet<HasteItem>());
+        }
+
+        index[c_].Add(item);
         Size++;
       }
+
+      // timer.Stop();
+      // HasteDebug.Info("Ticks for {1}: {0}", timer.ElapsedTicks, item.Path);
     }
 
     public void Remove(HasteItem item) {
-      MatchCollection matches = boundaryRegex.Matches(item.Path);
       Count--;
 
-      foreach (Match match in matches) {
-        char c = Char.ToLower(match.Value[0]);
+      char c_;
+      foreach (char c in GetBoundaryChars(item.Path)) {
+        c_ = Char.ToLower(c);
 
-        if (index.ContainsKey(c)) {
-          index[c].Remove(item);
+        if (index.ContainsKey(c_)) {
+          index[c_].Remove(item);
           Size--;
         }
       }
@@ -56,48 +98,42 @@ namespace Haste {
       Size = 0;
     }
 
+    public static int LetterBitsetFromString(string str) {
+      int bits = 0;
+      int mask;
+      foreach (char c in str) {
+        mask = 1 << (int)c;
+        bits |= mask;
+      }
+      return bits;
+    }
+
     public IHasteResult[] Filter(string query, int resultCount) {
       if (query.Length == 0) {
         return new IHasteResult[0];
       }
 
       char c = Char.ToLower(query[0]);
-
       if (!index.ContainsKey(c)) {
         return new IHasteResult[0];
       }
 
-      IList<IHasteResult> matches = new List<IHasteResult>();
-      foreach (HasteItem item in index[c]) {
-        List<int> indices;
-        float score;
+      int queryBits = LetterBitsetFromString(query);
 
-        string name = Path.GetFileNameWithoutExtension(item.Path);
-        string path = Path.GetDirectoryName(item.Path); // Path excluding name
+      // Filter
+      var matches = index[c].Where(m => {
+        return m.ContainsChars(queryBits) && m.IsSubsequence(query);
+      });
 
-        // Try to match just the name
-        if (HasteFuzzyMatching.FuzzyMatch(name, query, out indices, out score)) {
-          // Increment indices to account for being only the name
-          if (path.Length > 0) {
-            for (int i = 0; i < indices.Count; i++) {
-              indices[i] += path.Length + 1; // Add 1 to account for slash
-            }
-          }
-
-          matches.Add(Haste.Types.GetType(item, score * 2, indices));
-          continue;
-        }
-
-        // Then try to match the whole path
-        if (HasteFuzzyMatching.FuzzyMatch(item.Path, query, out indices, out score)) {
-          matches.Add(Haste.Types.GetType(item, score, indices));
-          continue;
-        }
-      }
+      // Score
+      var results = matches.Select(m => {
+        // float score = m.IndexSum(query);
+        List<int> indices = new List<int>();
+        return Haste.Types.GetType(m, 0, indices);
+      });
 
       // Sort then take, otherwise we loose good results
-      return matches.OrderByDescending(r => r.Score)
-        .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
+      return results.OrderByDescending(r => r, new HasteResultComparer())
         .Take(resultCount)
         .ToArray();
     }
