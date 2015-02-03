@@ -31,6 +31,10 @@ namespace Haste {
       return this;
     }
 
+    void OnEnable() {
+      base.hideFlags = HideFlags.HideAndDontSave;
+    }
+
     public void Capture(Rect position) {
       // Must grab texture before Haste is visible
       using (var texture = new HasteTexture(HasteUtils.GrabScreenSwatch(position))) {
