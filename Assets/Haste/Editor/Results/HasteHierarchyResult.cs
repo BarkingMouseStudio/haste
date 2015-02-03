@@ -73,6 +73,7 @@ namespace Haste {
     public override void Action() {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
       Selection.activeInstanceID = Item.Id;
+      EditorGUIUtility.PingObject(Selection.activeInstanceID);
     }
 
     public override void Select() {

@@ -43,6 +43,7 @@ namespace Haste {
       EditorApplication.ExecuteMenuItem("Window/Project");
       EditorUtility.FocusProjectWindow();
       Selection.activeObject = Object;
+      EditorGUIUtility.PingObject(Selection.activeObject);
     }
 
     public override void Select() {
