@@ -22,8 +22,8 @@ namespace Haste {
 
     HasteWindowState windowState;
 
-    [SerializeField]
-    HasteBackground background;
+    // [SerializeField]
+    // HasteBackground background;
 
     [SerializeField]
     HasteQuery queryInput;
@@ -98,9 +98,9 @@ namespace Haste {
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
 
-      this.background = ScriptableObject.CreateInstance<HasteBackground>()
-        .Init(new Rect(0, 0, this.position.width, this.position.height));
-      this.background.Capture(this.position);
+      // this.background = ScriptableObject.CreateInstance<HasteBackground>()
+      //   .Init(new Rect(0, 0, this.position.width, this.position.height));
+      // this.background.Capture(this.position);
 
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
 
@@ -185,7 +185,7 @@ namespace Haste {
     void OnGUI() {
       OnEvent(Event.current);
 
-      this.background.OnGUI();
+      // this.background.OnGUI();
       this.queryInput.OnGUI();
 
       if (this.queryInput.Query == "") {
