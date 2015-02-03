@@ -11,7 +11,7 @@ namespace Haste {
     Vector2 scrollPosition = Vector2.zero;
     int highlightedIndex = 0;
 
-    private IHasteResult[] items;
+    private IHasteResult[] items = new IHasteResult[0];
     public IHasteResult[] Items {
       get {
         return items;
@@ -45,23 +45,29 @@ namespace Haste {
     }
 
     void ScrollTo(int toIndex) {
-      var heightOffset = 0.0f;
-      for (var i = 0; i < toIndex; i++) {
-        if (Items[i] != null) {
-          heightOffset += Items[i].Height(i == highlightedIndex);
+      if (toIndex >= 0 && toIndex < Items.Length) {
+        var heightOffset = 0.0f;
+        for (var i = 0; i < toIndex; i++) {
+          if (Items[i] != null) {
+            heightOffset += Items[i].Height(i == highlightedIndex);
+          }
         }
+        scrollPosition = new Vector2(scrollPosition.x, heightOffset);
       }
-      scrollPosition = new Vector2(scrollPosition.x, heightOffset);
     }
 
     public void OnUpArrow() {
-      int index = Mathf.Max(highlightedIndex - 1, 0);
-      SetHighlightedIndex(index);
+      if (Items != null) {
+        int index = Mathf.Max(highlightedIndex - 1, 0);
+        SetHighlightedIndex(index);
+      }
     }
 
     public void OnDownArrow() {
-      int index = Mathf.Min(highlightedIndex + 1, Items.Length - 1);
-      SetHighlightedIndex(index);
+      if (Items != null) {
+        int index = Mathf.Min(highlightedIndex + 1, Items.Length - 1);
+        SetHighlightedIndex(index);
+      }
     }
 
     // void OnMouseDrag(Event e) {
