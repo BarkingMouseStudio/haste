@@ -152,8 +152,18 @@ namespace Haste {
       }
     }
 
+    void OnMouseDrag(Event e) {
+      DragAndDrop.PrepareStartDrag();
+      DragAndDrop.objectReferences = null;
+      DragAndDrop.StartDrag("Dragging");
+      Event.current.Use();
+    }
+
     void OnEvent(Event e) {
       switch (e.type) {
+        case EventType.MouseDrag:
+          OnMouseDrag(e);
+          break;
         case EventType.KeyDown:
           OnKeyDown(e);
           break;
