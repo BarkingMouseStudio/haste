@@ -11,7 +11,20 @@ namespace Haste {
 
     public static readonly string NAME = "Project";
 
+    static bool IsIgnored(string[] ignorePaths, string path) {
+      foreach (var ignorePath in ignorePaths) {
+        if (path.StartsWith(ignorePath)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     public IEnumerator<HasteItem> GetEnumerator() {
+      var ignorePaths = HasteSettings.IgnorePaths.Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries).Select((s) => {
+        return s.Trim();
+      }).ToArray();
+
       Queue<string> directories = new Queue<string>();
 
       // Start with our top-level directory
@@ -32,6 +45,10 @@ namespace Haste {
           }
 
           string path = HasteUtils.GetRelativeAssetPath(filePath);
+          if (IsIgnored(ignorePaths, path)) {
+            continue;
+          }
+
           yield return new HasteItem(path, 0, NAME);
         }
 
@@ -40,9 +57,13 @@ namespace Haste {
             continue; // Ignore hidden files
           }
 
+          string path = HasteUtils.GetRelativeAssetPath(directoryPath);
+          if (IsIgnored(ignorePaths, path)) {
+            continue;
+          }
+
           directories.Enqueue(directoryPath);
 
-          string path = HasteUtils.GetRelativeAssetPath(directoryPath);
           yield return new HasteItem(path, 0, NAME);
         }
       }
