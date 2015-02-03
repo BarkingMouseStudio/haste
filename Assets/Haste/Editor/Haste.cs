@@ -8,7 +8,6 @@ using System.Reflection;
 namespace Haste {
 
   public delegate void SceneChangedHandler(string currentScene, string previousScene);
-  public delegate void VersionChangedHandler(string currentVersion, string previousVersion);
   public delegate void SelectionChangedHandler();
 
   public delegate void HasteWindowAction();
@@ -18,10 +17,9 @@ namespace Haste {
 
     private static readonly string VERSION = "af14dc48d7c972a7ba5a01a3d6424da3ecc3127a";
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
-    public static readonly string DEFAULT_SHORTCUT = "%k";
+    // public static readonly string DEFAULT_SHORTCUT = "%k";
 
     public static event SceneChangedHandler SceneChanged;
-    public static event VersionChangedHandler VersionChanged;
     public static event SelectionChangedHandler SelectionChanged;
 
     public static HasteScheduler Scheduler;
@@ -94,21 +92,16 @@ namespace Haste {
         () => new HasteMenuItemSource());
 
       HasteSettings.ChangedBool += BoolSettingChanged;
+      HasteSettings.ChangedString += StringSettingChanged;
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
       EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
 
       SceneChanged += HandleSceneChanged;
-      VersionChanged += HandleVersionChanged;
-
       EditorApplication.update += Update;
 
       // AddGlobalEventHandler();
 
-      var previousVersion = HasteSettings.Version;
-      var currentVersion = VERSION;
-      if (previousVersion != currentVersion) {
-        OnVersionChanged(currentVersion, previousVersion);
-      }
+      HasteSettings.Version = VERSION;
     }
 
     // static void AddGlobalEventHandler() {
@@ -123,8 +116,19 @@ namespace Haste {
     // }
 
     static void BoolSettingChanged(HasteSetting setting, bool before, bool after) {
-      if (setting == HasteSetting.Enabled) {
-        Rebuild();
+      switch (setting) {
+        case HasteSetting.Enabled:
+          Rebuild();
+          break;
+      }
+    }
+
+    static void StringSettingChanged(HasteSetting setting, string before, string after) {
+      switch (setting) {
+        case HasteSetting.Version:
+        case HasteSetting.IgnorePaths:
+          Rebuild();
+          break;
       }
     }
 
@@ -140,11 +144,6 @@ namespace Haste {
       Watchers.RestartSource(HasteHierarchySource.NAME);
     }
 
-    static void HandleVersionChanged(string currentVersion, string previousVersion) {
-      HasteSettings.Version = currentVersion;
-      Rebuild();
-    }
-
     public static void Rebuild() {
       Index.Clear();
       Watchers.Rebuild();
@@ -153,12 +152,6 @@ namespace Haste {
     static void OnSceneChanged(string currentScene, string previousScene) {
       if (SceneChanged != null) {
         SceneChanged(currentScene, previousScene);
-      }
-    }
-
-    static void OnVersionChanged(string currentVersion, string previousVersion) {
-      if (VersionChanged != null) {
-        VersionChanged(currentVersion, previousVersion);
       }
     }
 
