@@ -68,7 +68,7 @@ namespace Haste {
       GUI.DrawTexture(rect, GameObjectIcon);
 
       using (new HasteVertical()) {
-        var childCount = go.transform.childCount;
+        var childCount = go.transform != null ? go.transform.childCount : 0;
         if (childCount > 0) {
           EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
         } else {
