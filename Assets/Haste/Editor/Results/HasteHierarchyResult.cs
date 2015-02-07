@@ -42,9 +42,17 @@ namespace Haste {
     GUIStyle GetLabelStyle(GameObject go) {
       var prefabType = PrefabUtility.GetPrefabType(go);
       if (prefabType == PrefabType.PrefabInstance || prefabType == PrefabType.ModelPrefabInstance) {
-        return HasteStyles.PrefabStyle;
+        if (go.activeInHierarchy) {
+          return HasteStyles.PrefabStyle;
+        } else {
+          return HasteStyles.DisabledPrefabStyle;
+        }
       } else if (prefabType == PrefabType.MissingPrefabInstance) {
-        return HasteStyles.BrokenPrefabStyle;
+        if (go.activeInHierarchy) {
+          return HasteStyles.BrokenPrefabStyle;
+        } else {
+          return HasteStyles.DisabledBrokenPrefabStyle;
+        }
       } else if (!go.activeInHierarchy) {
         return HasteStyles.DisabledNameStyle;
       } else {
@@ -60,7 +68,7 @@ namespace Haste {
       GUI.DrawTexture(rect, GameObjectIcon);
 
       using (new HasteVertical()) {
-        var childCount = go.transform.childCount;
+        var childCount = go.transform != null ? go.transform.childCount : 0;
         if (childCount > 0) {
           EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
         } else {

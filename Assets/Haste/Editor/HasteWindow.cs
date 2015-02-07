@@ -22,8 +22,8 @@ namespace Haste {
 
     HasteWindowState windowState;
 
-    [SerializeField]
-    HasteBackground background;
+    // [SerializeField]
+    // HasteBackground background;
 
     [SerializeField]
     HasteQuery queryInput;
@@ -80,6 +80,9 @@ namespace Haste {
 
       HasteWindow.Instance = EditorWindow.CreateInstance<HasteWindow>();
       HasteWindow.Instance.InitializeInstance();
+
+      HasteWindow.Instance.ShowPopup();
+      HasteWindow.Instance.Focus();
     }
 
     void InitializeInstance() {
@@ -98,18 +101,15 @@ namespace Haste {
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
 
-      this.background = ScriptableObject.CreateInstance<HasteBackground>()
-        .Init(new Rect(0, 0, this.position.width, this.position.height));
-      this.background.Capture(this.position);
+      // this.background = ScriptableObject.CreateInstance<HasteBackground>()
+      //   .Init(new Rect(0, 0, this.position.width, this.position.height));
+      // this.background.Capture(this.position);
 
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
 
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
       this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
-
-      ShowPopup();
-      Focus();
     }
 
     void OnEscape() {
@@ -195,7 +195,7 @@ namespace Haste {
     void OnGUI() {
       OnEvent(Event.current);
 
-      this.background.OnGUI();
+      // this.background.OnGUI();
       this.queryInput.OnGUI();
 
       if (this.queryInput.Query == "") {

@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    private static readonly string VERSION = "af14dc48d7c972a7ba5a01a3d6424da3ecc3127a";
+    private static readonly string VERSION = "f2cfa8d53ac7af9cd89b7ae8958f0d7d98ab3417";
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
     // public static readonly string DEFAULT_SHORTCUT = "%k";
 

@@ -48,20 +48,20 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Ignore Paths");
-        EditorGUILayout.Space();
-        HasteSettings.IgnorePaths = EditorGUILayout.TextField(HasteSettings.IgnorePaths);
-        EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("Comma-separated paths to ignore when indexing assets. Useful for excluding folders you do not want to see in results. Rebuild the index to apply changes (see below).", MessageType.Info);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
-
         if (Haste.IsIndexing) {
           EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
         } else {
           EditorGUILayout.LabelField("Indexed Count", Haste.IndexedCount.ToString());
         }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Ignore Paths");
+        EditorGUILayout.Space();
+        HasteSettings.IgnorePaths = EditorGUILayout.TextField(HasteSettings.IgnorePaths);
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox("Comma-separated paths to ignore when indexing assets. Useful for excluding folders you do not want to see in results. Rebuild the index to apply changes (see below).", MessageType.Info);
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();

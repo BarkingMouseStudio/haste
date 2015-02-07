@@ -3,7 +3,12 @@ using UnityEditor;
 
 namespace Haste {
 
-  public static class Tests {
+  public static class SmokeTests {
+
+    [MenuItem("Window/Haste/Force Recompile Scripts")]
+    public static void ForceRecompileScripts() {
+      AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+    }
 
     [MenuItem("Window/Haste/Verify Menu Items")]
     public static void VerifyMenuItems() {

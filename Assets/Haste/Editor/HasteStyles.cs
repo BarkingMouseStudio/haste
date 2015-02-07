@@ -9,6 +9,32 @@ namespace Haste {
     public static readonly int WindowHeight = 300;
     public static readonly int ItemHeight = 46;
 
+    public static GUIStyle IntroStyle;
+    public static GUIStyle IndexingStyle;
+    public static GUIStyle TipStyle;
+    public static GUIStyle EmptyStyle;
+    public static GUIStyle UpgradeStyle;
+
+    public static GUIStyle NameStyle;
+    public static GUIStyle DisabledNameStyle;
+    public static GUIStyle HighlightedNameStyle;
+    public static GUIStyle HighlightedDisabledNameStyle;
+
+    public static GUIStyle PrefabStyle;
+    public static GUIStyle BrokenPrefabStyle;
+    public static GUIStyle DisabledPrefabStyle;
+    public static GUIStyle DisabledBrokenPrefabStyle;
+
+    public static GUIStyle PrefixStyle;
+    public static GUIStyle DisabledPrefixStyle;
+
+    public static GUIStyle DescriptionStyle;
+    public static GUIStyle DisabledDescriptionStyle;
+    public static GUIStyle HighlightedDescriptionStyle;
+    public static GUIStyle HighlightedDisabledDescriptionStyle;
+
+    public static readonly string BoldEnd = "</b></color>";
+
     private static string boldStart = "";
     public static string BoldStart {
       get {
@@ -28,8 +54,6 @@ namespace Haste {
         return highlightedBoldStart;
       }
     }
-
-    public static readonly string BoldEnd = "</b></color>";
 
     private static Font queryStyleFont;
     public static Font QueryStyleFont {
@@ -54,26 +78,6 @@ namespace Haste {
         return queryStyle;
       }
     }
-
-    public static GUIStyle IntroStyle;
-    public static GUIStyle IndexingStyle;
-    public static GUIStyle TipStyle;
-    public static GUIStyle EmptyStyle;
-    public static GUIStyle UpgradeStyle;
-
-    public static GUIStyle NameStyle;
-    public static GUIStyle DisabledNameStyle;
-    public static GUIStyle HighlightedNameStyle;
-
-    public static GUIStyle PrefabStyle;
-    public static GUIStyle BrokenPrefabStyle;
-
-    public static GUIStyle PrefixStyle;
-    public static GUIStyle DisabledPrefixStyle;
-
-    public static GUIStyle DescriptionStyle;
-    public static GUIStyle DisabledDescriptionStyle;
-    public static GUIStyle HighlightedDescriptionStyle;
 
     private static GUIStyle highlightStyle;
     public static GUIStyle HighlightStyle {
@@ -121,11 +125,23 @@ namespace Haste {
       PrefabStyle.fontSize = 16;
       PrefabStyle.normal.textColor = HasteColors.PrefabColor;
 
+      DisabledPrefabStyle = new GUIStyle(EditorStyles.largeLabel);
+      DisabledPrefabStyle.alignment = TextAnchor.MiddleLeft;
+      DisabledPrefabStyle.fixedHeight = 24;
+      DisabledPrefabStyle.fontSize = 16;
+      DisabledPrefabStyle.normal.textColor = HasteColors.DisabledPrefabColor;
+
       BrokenPrefabStyle = new GUIStyle(EditorStyles.largeLabel);
       BrokenPrefabStyle.alignment = TextAnchor.MiddleLeft;
       BrokenPrefabStyle.fixedHeight = 24;
       BrokenPrefabStyle.fontSize = 16;
       BrokenPrefabStyle.normal.textColor = HasteColors.BrokenPrefabColor;
+
+      DisabledBrokenPrefabStyle = new GUIStyle(EditorStyles.largeLabel);
+      DisabledBrokenPrefabStyle.alignment = TextAnchor.MiddleLeft;
+      DisabledBrokenPrefabStyle.fixedHeight = 24;
+      DisabledBrokenPrefabStyle.fontSize = 16;
+      DisabledBrokenPrefabStyle.normal.textColor = HasteColors.DisabledBrokenPrefabColor;
 
       EmptyStyle = new GUIStyle(EditorStyles.largeLabel);
       EmptyStyle.alignment = TextAnchor.MiddleCenter;
@@ -135,6 +151,7 @@ namespace Haste {
       UpgradeStyle = new GUIStyle(EditorStyles.label);
       UpgradeStyle.alignment = TextAnchor.MiddleCenter;
       UpgradeStyle.fontSize = 14;
+      UpgradeStyle.fontStyle = FontStyle.Bold;
       UpgradeStyle.normal.textColor = HasteColors.LinkColor;
 
       NameStyle = new GUIStyle(EditorStyles.largeLabel);
@@ -154,6 +171,12 @@ namespace Haste {
       DisabledNameStyle.fixedHeight = 24;
       DisabledNameStyle.fontSize = 16;
       DisabledNameStyle.normal.textColor = HasteColors.DisabledColor;
+
+      HighlightedDisabledNameStyle = new GUIStyle(EditorStyles.largeLabel);
+      HighlightedDisabledNameStyle.alignment = TextAnchor.MiddleLeft;
+      HighlightedDisabledNameStyle.fixedHeight = 24;
+      HighlightedDisabledNameStyle.fontSize = 16;
+      HighlightedDisabledNameStyle.normal.textColor = HasteColors.SecondaryHighlightedColor;
 
       DisabledDescriptionStyle = new GUIStyle(EditorStyles.label);
       DisabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
@@ -175,6 +198,13 @@ namespace Haste {
       HighlightedDescriptionStyle.fontSize = 12;
       HighlightedDescriptionStyle.richText = true;
       HighlightedDescriptionStyle.normal.textColor = HasteColors.SecondaryHighlightedColor;
+
+      HighlightedDisabledDescriptionStyle = new GUIStyle(EditorStyles.label);
+      HighlightedDisabledDescriptionStyle.alignment = TextAnchor.MiddleLeft;
+      HighlightedDisabledDescriptionStyle.fixedHeight = 24;
+      HighlightedDisabledDescriptionStyle.fontSize = 12;
+      HighlightedDisabledDescriptionStyle.richText = true;
+      HighlightedDisabledDescriptionStyle.normal.textColor = HasteColors.SecondaryHighlightedColor;
     }
   }
 }
