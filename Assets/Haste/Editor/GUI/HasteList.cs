@@ -80,9 +80,6 @@ namespace Haste {
 
     void SetHighlightedIndex(int index) {
       highlightedIndex = Mathf.Clamp(index, 0, Items.Length - 1);
-      if (HighlightedItem != null) {
-        HighlightedItem.Select();
-      }
       ScrollTo(index);
     }
 
@@ -93,7 +90,15 @@ namespace Haste {
         bool isHighlighted;
         for (var i = 0; i < Items.Length; i++) {
           isHighlighted = i == highlightedIndex;
-          HasteListItem.Draw(Items[i], isHighlighted);
+          var e = HasteListItem.Draw(Items[i], isHighlighted);
+          switch (e) {
+            case HasteListItemEvent.DoubleClick:
+              break;
+            case HasteListItemEvent.Click:
+              break;
+            case HasteListItemEvent.MouseDown:
+              break;
+          }
         }
       }
     }
