@@ -80,6 +80,9 @@ namespace Haste {
 
       HasteWindow.Instance = EditorWindow.CreateInstance<HasteWindow>();
       HasteWindow.Instance.InitializeInstance();
+
+      HasteWindow.Instance.ShowPopup();
+      HasteWindow.Instance.Focus();
     }
 
     void InitializeInstance() {
@@ -107,9 +110,6 @@ namespace Haste {
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
       this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
-
-      ShowPopup();
-      Focus();
     }
 
     void OnEscape() {
