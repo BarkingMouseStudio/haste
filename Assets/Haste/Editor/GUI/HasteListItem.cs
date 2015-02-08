@@ -1,39 +1,33 @@
 using UnityEditor;
 using UnityEngine;
+using System;
 
 namespace Haste {
-
-  public enum HasteListItemEvent {
-    None,
-    MouseDown,
-    Click,
-    DoubleClick
-  }
 
   // Wraps results to handle some of the common drawing and interaction tasks.
   public static class HasteListItem {
 
-    public static HasteListItemEvent Draw(IHasteResult result, bool isHighlighted) {
+    public static void Draw(IHasteResult result, int index, bool isHighlighted, Action<Event, int> MouseDown, Action<Event, int> Click, Action<Event, int> DoubleClick, Action<Event, int> MouseDrag) {
       var resultStyle = isHighlighted ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
-      var result = HasteListItemEvent.None;
 
-      using (new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted))))) {
+      using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
         // Highlight and selection are different
         var e = Event.current;
         var isMouseContained = horizontal.Rect.Contains(e.mousePosition);
         if (isMouseContained) {
           switch (e.type) {
+            case EventType.MouseDrag:
+              MouseDrag(e, index);
+              break;
             case EventType.MouseDown:
-              // Highlight
               if (e.clickCount == 2) {
-                result = HasteListItemEvent.DoubleClick;
+                DoubleClick(e, index);
               } else {
-                result = HasteListItemEvent.MouseDown;
+                MouseDown(e, index);
               }
               break;
             case EventType.MouseUp:
-              // Select
-              result = HasteListItemEvent.Click;
+              Click(e, index);
               break;
           }
         }
@@ -41,7 +35,5 @@ namespace Haste {
         result.Draw(isHighlighted);
       }
     }
-
-    return result;
   }
 }

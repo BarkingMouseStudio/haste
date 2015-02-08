@@ -20,7 +20,7 @@ namespace Haste {
 
     const int RESULT_COUNT = 25;
 
-    HasteWindowState windowState;
+    HasteWindowState windowState = HasteWindowState.Intro;
 
     // [SerializeField]
     // HasteBackground background;
@@ -106,6 +106,7 @@ namespace Haste {
       // this.background.Capture(this.position);
 
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
+      // this.resultList.OnSelect += OnReturn;
 
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
@@ -152,18 +153,8 @@ namespace Haste {
       }
     }
 
-    void OnMouseDrag(Event e) {
-      DragAndDrop.PrepareStartDrag();
-      DragAndDrop.objectReferences = null;
-      DragAndDrop.StartDrag("Dragging");
-      Event.current.Use();
-    }
-
     void OnEvent(Event e) {
       switch (e.type) {
-        case EventType.MouseDrag:
-          OnMouseDrag(e);
-          break;
         case EventType.KeyDown:
           OnKeyDown(e);
           break;

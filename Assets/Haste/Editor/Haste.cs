@@ -179,6 +179,8 @@ namespace Haste {
 
     // Main update loop in Haste—run's scheduler
     static void Update() {
+      // We must delay the window action to handle actions
+      // that affect layout state to prevent bugs in Unity.
       if (WindowAction != null && HasteWindow.Instance == null) {
         WindowAction();
         WindowAction = null;
