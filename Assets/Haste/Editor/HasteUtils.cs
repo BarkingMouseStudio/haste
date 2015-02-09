@@ -88,14 +88,12 @@ namespace Haste {
 
     public static string GetHierarchyPath(Transform transform) {
       string path;
-
       if (transform.parent == null) {
         path = transform.gameObject.name;
       } else {
         path = GetHierarchyPath(transform.parent) +
           Path.DirectorySeparatorChar + transform.gameObject.name;
       }
-
       return path;
     }
   }
