@@ -11,7 +11,6 @@ namespace Haste {
       var resultStyle = isHighlighted ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
-        // Highlight and selection are different
         var e = Event.current;
         var isMouseContained = horizontal.Rect.Contains(e.mousePosition);
         if (isMouseContained) {
