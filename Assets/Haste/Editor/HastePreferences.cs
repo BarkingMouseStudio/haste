@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace Haste {
 
@@ -25,7 +26,11 @@ namespace Haste {
         EditorGUILayout.Space();
         #endif
 
-        EditorGUILayout.LabelField("Times Opened", HasteSettings.UsageCount.ToString());
+        EditorGUILayout.LabelField(String.Format("Haste has been opened {0:N0} times since {1} (about {2:N0} times per day).",
+          HasteSettings.UsageCount,
+          HasteSettings.UsageSinceDate.ToLongDateString(),
+          HasteSettings.UsageAverage
+        ), HasteStyles.UsageStyle);
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();

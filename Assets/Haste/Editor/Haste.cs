@@ -101,6 +101,10 @@ namespace Haste {
 
       // AddGlobalEventHandler();
 
+      if (HasteSettings.UsageSince == 0L) {
+        HasteSettings.UsageSince = DateTime.Now.Ticks;
+      }
+
       HasteSettings.Version = VERSION;
     }
 

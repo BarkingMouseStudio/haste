@@ -10,6 +10,7 @@ namespace Haste {
     public static readonly int ItemHeight = 46;
 
     public static GUIStyle IntroStyle;
+    public static GUIStyle UsageStyle;
     public static GUIStyle IndexingStyle;
     public static GUIStyle TipStyle;
     public static GUIStyle EmptyStyle;
@@ -147,6 +148,9 @@ namespace Haste {
       EmptyStyle.alignment = TextAnchor.MiddleCenter;
       EmptyStyle.fixedHeight = 24;
       EmptyStyle.fontSize = 16;
+
+      UsageStyle = new GUIStyle(EditorStyles.label);
+      UsageStyle.wordWrap = true;
 
       UpgradeStyle = new GUIStyle(EditorStyles.label);
       UpgradeStyle.alignment = TextAnchor.MiddleCenter;
