@@ -6,12 +6,21 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  public delegate void HasteListEvent(IHasteResult item);
+
   public class HasteList : ScriptableObject {
+
+    private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
     Vector2 scrollPosition = Vector2.zero;
 
+    public event HasteListEvent ItemDrag;
+    public event HasteListEvent ItemMouseDown;
+    public event HasteListEvent ItemClick;
+    public event HasteListEvent ItemDoubleClick;
+
     private int highlightedIndex = 0;
-    public int HighlightedIndex {
+    int HighlightedIndex {
       get { return highlightedIndex; }
       set { highlightedIndex = Mathf.Clamp(value, 0, Items.Length - 1); }
     }
@@ -21,11 +30,20 @@ namespace Haste {
       get {
         return items;
       }
-      set {
-        items = value;
-        HighlightedIndex = 0;
-        ScrollTo(0);
+    }
+
+    public void SetItems(IHasteResult[] items) {
+      this.items = items;
+
+      HighlightedIndex = 0;
+      ResetScroll();
+      if (HighlightedItem != null) {
+        ItemClick(HighlightedItem);
       }
+    }
+
+    public void ClearItems() {
+      SetItems(emptyResults);
     }
 
     public int Size {
@@ -63,46 +81,41 @@ namespace Haste {
     }
 
     public void OnUpArrow() {
-      if (Items != null) {
-        HighlightedIndex = Mathf.Max(HighlightedIndex - 1, 0);
-        ScrollTo(HighlightedIndex);
-      }
+      HighlightedIndex = Mathf.Max(HighlightedIndex - 1, 0);
+      ScrollTo(HighlightedIndex);
     }
 
     public void OnDownArrow() {
-      if (Items != null) {
-        HighlightedIndex = Mathf.Min(HighlightedIndex + 1, Items.Length - 1);
-        ScrollTo(HighlightedIndex);
-      }
+      HighlightedIndex = Mathf.Min(HighlightedIndex + 1, Items.Length - 1);
+      ScrollTo(HighlightedIndex);
     }
 
     void OnItemDrag(Event e, int index) {
-      var item = Items[index];
-      if (item != null) {
-        DragAndDrop.PrepareStartDrag();
-        DragAndDrop.objectReferences = new UnityEngine.Object[]{
-          item.Object
-        };
-        DragAndDrop.StartDrag(item.DragLabel);
-        e.Use();
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemDrag != null) {
+        ItemDrag(HighlightedItem);
       }
     }
 
     void OnItemMouseDown(Event e, int index) {
-      // Highlight
       HighlightedIndex = index;
-      HasteWindow.Instance.Repaint();
-      HasteDebug.Info("OnItemMouseDown: {0}", index);
+      if (HighlightedItem != null && ItemMouseDown != null) {
+        ItemMouseDown(HighlightedItem);
+      }
     }
 
     void OnItemClick(Event e, int index) {
-      // Select
-      HasteDebug.Info("OnItemClick: {0}", index);
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemClick != null) {
+        ItemClick(HighlightedItem);
+      }
     }
 
     void OnItemDoubleClick(Event e, int index) {
-      // Action (OnReturn)
-      HasteDebug.Info("OnItemDoubleClick: {0}", index);
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemDoubleClick != null) {
+        ItemDoubleClick(HighlightedItem);
+      }
     }
 
     public void OnGUI() {
@@ -112,6 +125,12 @@ namespace Haste {
         bool isHighlighted;
         for (var i = 0; i < Items.Length; i++) {
           isHighlighted = i == HighlightedIndex;
+          // TODO: This is rediculous...
+          // if (Array.IndexOf(Selection.objects, Items[i].Object) != -1) {
+          //   isHighlighted = true;
+          // }
+          // Better:
+          // Items[i].IsHighlighted
           HasteListItem.Draw(Items[i], i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
         }
       }
