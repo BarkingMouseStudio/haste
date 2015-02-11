@@ -136,6 +136,12 @@ namespace Haste {
 
       // Perform multi-selection
       if (nextSelection.Count > 0) {
+        if (nextSelection.Any(x => x is GameObject)) {
+          EditorApplication.ExecuteMenuItem("Window/Hierarchy");
+        } else {
+          EditorApplication.ExecuteMenuItem("Window/Project");
+          EditorUtility.FocusProjectWindow();
+        }
         Selection.objects = nextSelection.ToArray();
         Close();
         return;
