@@ -18,12 +18,18 @@ namespace Haste {
   [Serializable]
   public class HasteWindow : EditorWindow {
 
-    const int RESULT_COUNT = 25;
+    const int RESULT_COUNT = 100;
 
     HasteWindowState windowState = HasteWindowState.Intro;
 
     // [SerializeField]
     // HasteBackground background;
+
+    [SerializeField]
+    UnityEngine.Object[] prevSelection;
+
+    [SerializeField]
+    public HashSet<UnityEngine.Object> nextSelection;
 
     [SerializeField]
     HasteQuery queryInput;
@@ -37,23 +43,9 @@ namespace Haste {
     [SerializeField]
     HasteList resultList;
 
+    Rect selectionPosition;
+
     public static HasteWindow Instance { get; protected set; }
-
-    // internal static void CallDelayed (EditorApplication.CallbackFunction function, float timeFromNow)
-    // {
-    //   EditorApplication.delayedCallback = function;
-    //   EditorApplication.s_DelayedCallbackTime = Time.realtimeSinceStartup + timeFromNow;
-    //   EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Combine (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
-    // }
-
-    // private static void CheckCallDelayed ()
-    // {
-    //   if (Time.realtimeSinceStartup > EditorApplication.s_DelayedCallbackTime)
-    //   {
-    //     EditorApplication.update = (EditorApplication.CallbackFunction)Delegate.Remove (EditorApplication.update, new EditorApplication.CallbackFunction (EditorApplication.CheckCallDelayed));
-    //     EditorApplication.delayedCallback ();
-    //   }
-    // }
 
     [MenuItem("Window/Haste %k", true)]
     public static bool IsHasteEnabled() {
@@ -75,9 +67,6 @@ namespace Haste {
       // Increment open count
       HasteSettings.UsageCount++;
 
-      // Save the current selection
-      HasteSelectionManager.Save();
-
       HasteWindow.Instance = EditorWindow.CreateInstance<HasteWindow>();
       HasteWindow.Instance.InitializeInstance();
 
@@ -98,6 +87,15 @@ namespace Haste {
       this.minSize = this.maxSize =
         new Vector2(this.position.width, this.position.height);
 
+      this.selectionPosition = new Rect(HasteStyles.WindowWidth - 80, 24, 80, 80);
+
+      if (Selection.objects != null) {
+        this.prevSelection = new UnityEngine.Object[Selection.objects.Length];
+        Array.Copy(Selection.objects, this.prevSelection, Selection.objects.Length);
+      }
+
+      this.nextSelection = new HashSet<UnityEngine.Object>();
+
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
 
@@ -106,49 +104,134 @@ namespace Haste {
       // this.background.Capture(this.position);
 
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
-      // this.resultList.OnSelect += OnReturn;
+      this.resultList.ItemDrag += OnItemDrag;
+      this.resultList.ItemMouseDown += OnItemHighlight;
+      this.resultList.ItemClick += OnItemSelect;
+      this.resultList.ItemDoubleClick += OnItemAction;
 
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
       this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
     }
 
-    void OnEscape() {
-      HasteSelectionManager.Restore();
+    void OnEscape(Event e) {
+      Selection.objects = prevSelection;
       Close();
     }
 
-    void OnReturn() {
-      if (this.resultList.HighlightedItem != null) {
-        // Restore selection in case the action affects
-        // the original selection.
-        HasteSelectionManager.Restore();
+    void OnReturn(Event e) {
+      // Add to multi-selection
+      if (EditorGUI.actionKey) {
+        var obj = this.resultList.HighlightedItem.Object;
+        if (obj != null) {
+          if (nextSelection.Contains(obj)) {
+            nextSelection.Remove(obj);
+          } else {
+            nextSelection.Add(obj);
+          }
+          Selection.objects = nextSelection.ToArray();
+        }
+        return;
+      }
 
+      // Perform multi-selection
+      if (nextSelection.Count > 0) {
+        Selection.objects = nextSelection.ToArray();
+        Close();
+        return;
+      }
+
+      // Restore selection in case the action affects
+      // the original selection.
+      Selection.objects = prevSelection;
+
+      if (this.resultList.HighlightedItem != null) {
         // Register action to occur after the window is closed and destroyed.
         // This is done to prevent errors when modifying window layouts and
         // other Unity state while Haste is open.
         Haste.WindowAction += this.resultList.HighlightedItem.Action;
       }
+
       Close();
+    }
+
+    void OnItemDrag(IHasteResult item) {
+      DragAndDrop.PrepareStartDrag();
+
+      if (nextSelection.Count > 1) {
+        DragAndDrop.objectReferences = nextSelection.ToArray();
+        DragAndDrop.StartDrag("<Multiple>");
+      } else if (nextSelection.Count > 0) {
+        DragAndDrop.objectReferences = nextSelection.ToArray();
+        DragAndDrop.StartDrag(nextSelection.First().name);
+      } else {
+        DragAndDrop.objectReferences = new UnityEngine.Object[]{
+          item.Object
+        };
+        DragAndDrop.StartDrag(item.DragLabel);
+      }
+    }
+
+    void OnItemHighlight(IHasteResult item) {
+      Repaint();
+    }
+
+    void OnItemSelect(IHasteResult item) {
+      if (EditorGUI.actionKey) {
+        var obj = item.Object;
+        if (obj != null) {
+          if (nextSelection.Contains(obj)) {
+            nextSelection.Remove(obj);
+          } else {
+            nextSelection.Add(obj);
+          }
+          Selection.objects = nextSelection.ToArray();
+        }
+
+        Repaint();
+        return;
+      }
+
+      Selection.activeObject = item.Object;
+    }
+
+    void OnItemAction(IHasteResult item) {
+      Selection.objects = prevSelection;
+      Haste.WindowAction += item.Action;
+      Close();
+    }
+
+    void OnUpArrow(Event e) {
+      this.resultList.OnUpArrow();
+      if (this.resultList.HighlightedItem != null) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      }
+    }
+
+    void OnDownArrow(Event e) {
+      this.resultList.OnDownArrow();
+      if (this.resultList.HighlightedItem != null) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      }
     }
 
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
         case KeyCode.Escape:
           e.Use();
-          OnEscape();
+          OnEscape(e);
           break;
         case KeyCode.Return:
           e.Use();
-          OnReturn();
+          OnReturn(e);
           break;
         case KeyCode.UpArrow:
           e.Use();
-          this.resultList.OnUpArrow();
+          OnUpArrow(e);
           break;
         case KeyCode.DownArrow:
           e.Use();
-          this.resultList.OnDownArrow();
+          OnDownArrow(e);
           break;
       }
     }
@@ -170,16 +253,16 @@ namespace Haste {
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
         // Cannot use OnLostFocus due to render bug in Unity
-        HasteSelectionManager.Restore();
+        Selection.objects = prevSelection;
         Close();
       }
     }
 
     void OnQueryChanged(string query) {
       if (query == "") {
-        this.resultList.Items = new IHasteResult[0];
+        this.resultList.ClearItems();
       } else {
-        this.resultList.Items = Haste.Index.Filter(query, RESULT_COUNT);
+        this.resultList.SetItems(Haste.Index.Filter(query, RESULT_COUNT));
       }
     }
 
@@ -188,6 +271,8 @@ namespace Haste {
 
       // this.background.OnGUI();
       this.queryInput.OnGUI();
+
+      HasteSelection.Draw(selectionPosition, nextSelection);
 
       if (this.queryInput.Query == "") {
         this.windowState = HasteWindowState.Intro;

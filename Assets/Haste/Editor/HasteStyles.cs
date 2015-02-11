@@ -12,6 +12,7 @@ namespace Haste {
     public static GUIStyle IntroStyle;
     public static GUIStyle UsageStyle;
     public static GUIStyle IndexingStyle;
+    public static GUIStyle CountStyle;
     public static GUIStyle TipStyle;
     public static GUIStyle EmptyStyle;
     public static GUIStyle UpgradeStyle;
@@ -80,6 +81,18 @@ namespace Haste {
       }
     }
 
+    private static GUIStyle selectionStyle;
+    public static GUIStyle SelectionStyle {
+      get {
+        if (selectionStyle == null) {
+          selectionStyle = new GUIStyle();
+          selectionStyle.normal.background = HasteUtils.CreateColorSwatch(HasteColors.SelectionColor);
+          selectionStyle.normal.background.hideFlags = HideFlags.HideAndDontSave;
+        }
+        return selectionStyle;
+      }
+    }
+
     private static GUIStyle highlightStyle;
     public static GUIStyle HighlightStyle {
       get {
@@ -113,6 +126,10 @@ namespace Haste {
       IndexingStyle.alignment = TextAnchor.MiddleCenter;
       IndexingStyle.fontSize = 14;
       IndexingStyle.normal.textColor = HasteColors.SecondaryColor;
+
+      CountStyle = new GUIStyle(EditorStyles.largeLabel);
+      CountStyle.alignment = TextAnchor.MiddleRight;
+      CountStyle.fontSize = 14;
 
       TipStyle = new GUIStyle(EditorStyles.label);
       TipStyle.alignment = TextAnchor.MiddleCenter;

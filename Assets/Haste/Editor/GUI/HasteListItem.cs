@@ -7,8 +7,15 @@ namespace Haste {
   // Wraps results to handle some of the common drawing and interaction tasks.
   public static class HasteListItem {
 
-    public static void Draw(IHasteResult result, int index, bool isHighlighted, Action<Event, int> MouseDown, Action<Event, int> Click, Action<Event, int> DoubleClick, Action<Event, int> MouseDrag) {
-      var resultStyle = isHighlighted ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
+    public static void Draw(IHasteResult result, int index, bool isHighlighted, bool isSelected, Action<Event, int> MouseDown, Action<Event, int> Click, Action<Event, int> DoubleClick, Action<Event, int> MouseDrag) {
+      GUIStyle resultStyle;
+      if (isSelected) {
+        resultStyle = HasteStyles.SelectionStyle;
+      } else if (isHighlighted) {
+        resultStyle = HasteStyles.HighlightStyle;
+      } else {
+        resultStyle = HasteStyles.NonHighlightStyle;
+      }
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
         var e = Event.current;
