@@ -83,9 +83,5 @@ namespace Haste {
       Selection.instanceIDs = new int[]{Item.Id};
       EditorGUIUtility.PingObject(Selection.activeInstanceID);
     }
-
-    public override void Select() {
-      Selection.activeInstanceID = Item.Id;
-    }
   }
 }

@@ -19,7 +19,6 @@ namespace Haste {
     float Height(bool isHighlighted);
     bool Validate();
     void Action();
-    void Select();
   }
 
   public abstract class AbstractHasteResult : IHasteResult {
@@ -63,10 +62,6 @@ namespace Haste {
 
     public virtual void Action() {
       // NO-OP
-    }
-
-    public virtual void Select() {
-      Selection.activeObject = null;
     }
   }
 

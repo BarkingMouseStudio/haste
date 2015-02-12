@@ -45,9 +45,5 @@ namespace Haste {
       Selection.objects = new UnityEngine.Object[]{Object};
       EditorGUIUtility.PingObject(Selection.activeObject);
     }
-
-    public override void Select() {
-      Selection.activeObject = Object;
-    }
   }
 }
