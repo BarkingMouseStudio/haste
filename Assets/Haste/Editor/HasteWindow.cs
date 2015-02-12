@@ -29,7 +29,7 @@ namespace Haste {
     UnityEngine.Object[] prevSelection;
 
     [SerializeField]
-    public HashSet<UnityEngine.Object> nextSelection;
+    HashSet<UnityEngine.Object> nextSelection;
 
     [SerializeField]
     HasteQuery queryInput;
@@ -112,6 +112,10 @@ namespace Haste {
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
       this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
+    }
+
+    public bool IsSelected(UnityEngine.Object obj) {
+      return nextSelection.Contains(obj);
     }
 
     void OnEscape(Event e) {

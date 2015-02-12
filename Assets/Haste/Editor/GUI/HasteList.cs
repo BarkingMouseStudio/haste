@@ -122,17 +122,10 @@ namespace Haste {
       using (var scrollView = new HasteScrollView(scrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))) {
         scrollPosition = scrollView.ScrollPosition;
 
-        bool isHighlighted, isSelected;
+        bool isHighlighted;
         for (var i = 0; i < Items.Length; i++) {
           isHighlighted = i == HighlightedIndex;
-
-          isSelected = false;
-          // TODO: This is wrong!
-          if (HasteWindow.Instance.nextSelection.Contains(Items[i].Object)) {
-            isSelected = true;
-          }
-
-          HasteListItem.Draw(Items[i], i, isHighlighted, isSelected, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
+          HasteListItem.Draw(Items[i], i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
         }
       }
     }

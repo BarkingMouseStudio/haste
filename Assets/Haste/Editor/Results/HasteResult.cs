@@ -12,6 +12,7 @@ namespace Haste {
     List<int> Indices { get; }
     float Score { get; }
     bool IsDraggable { get; }
+    bool IsSelected { get; }
     UnityEngine.Object Object { get; }
     string DragLabel { get; }
 
@@ -41,6 +42,12 @@ namespace Haste {
 
     public virtual string DragLabel {
       get { return ""; }
+    }
+
+    public virtual bool IsSelected {
+      get {
+        return HasteWindow.Instance.IsSelected(Object);
+      }
     }
 
     public AbstractHasteResult(HasteItem item, float score, List<int> indices) {
