@@ -162,18 +162,20 @@ namespace Haste {
     }
 
     void OnItemDrag(IHasteResult item) {
+      Selection.objects = prevSelection;
+
       DragAndDrop.PrepareStartDrag();
 
-      if (nextSelection.Count > 1) {
-        DragAndDrop.objectReferences = nextSelection.ToArray();
-        DragAndDrop.StartDrag("<Multiple>");
-      } else if (nextSelection.Count > 0) {
-        DragAndDrop.objectReferences = nextSelection.ToArray();
-        DragAndDrop.StartDrag(nextSelection.First().name);
+      if (nextSelection.Contains(item.Object)) {
+        if (nextSelection.Count == 1) {
+          DragAndDrop.objectReferences = nextSelection.ToArray();
+          DragAndDrop.StartDrag(item.Object.name);
+        } else {
+          DragAndDrop.objectReferences = nextSelection.ToArray();
+          DragAndDrop.StartDrag("<Multiple>");
+        }
       } else {
-        DragAndDrop.objectReferences = new UnityEngine.Object[]{
-          item.Object
-        };
+        DragAndDrop.objectReferences = new UnityEngine.Object[]{item.Object};
         DragAndDrop.StartDrag(item.DragLabel);
       }
     }
