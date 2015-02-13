@@ -87,7 +87,7 @@ namespace Haste {
       this.minSize = this.maxSize =
         new Vector2(this.position.width, this.position.height);
 
-      this.selectionPosition = new Rect(HasteStyles.WindowWidth - 80, 24, 80, 80);
+      this.selectionPosition = new Rect(HasteStyles.WindowWidth - 90, 24, 80, 80);
 
       if (Selection.objects != null) {
         this.prevSelection = new UnityEngine.Object[Selection.objects.Length];
