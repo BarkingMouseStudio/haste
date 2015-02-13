@@ -151,6 +151,12 @@ namespace Haste {
         return;
       }
 
+      if (prevSelection.Any(x => x is GameObject)) {
+        // Do this again so the window (with selection)
+        // actually gets focus.
+        EditorApplication.ExecuteMenuItem("Window/Hierarchy");
+      }
+
       // Restore selection in case the action affects
       // the original selection.
       Selection.objects = prevSelection;
