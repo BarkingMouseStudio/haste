@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    private static readonly string VERSION = "f2cfa8d53ac7af9cd89b7ae8958f0d7d98ab3417";
+    private static readonly string VERSION = "c1283bdf4b8e609b37c529e1fc8588779628dbf3";
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
     // public static readonly string DEFAULT_SHORTCUT = "%k";
 
@@ -130,6 +130,8 @@ namespace Haste {
     static void StringSettingChanged(HasteSetting setting, string before, string after) {
       switch (setting) {
         case HasteSetting.Version:
+          HasteSettings.UsageCount = 0;
+          HasteSettings.UsageSince = DateTime.Now.Ticks;
           Rebuild();
           break;
       }
