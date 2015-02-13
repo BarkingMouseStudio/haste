@@ -301,7 +301,6 @@ namespace Haste {
       "Window/Asset Store",
       "Window/Version Control",
       "Window/Animator",
-      "Window/Sprite Editor",
       "Window/Sprite Packer",
       // ---
       "Window/Lightmapping",
