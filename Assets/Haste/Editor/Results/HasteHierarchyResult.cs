@@ -40,23 +40,26 @@ namespace Haste {
     public HasteHierarchyResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
     GUIStyle GetLabelStyle(GameObject go) {
-      var prefabType = PrefabUtility.GetPrefabType(go);
-      if (prefabType == PrefabType.PrefabInstance || prefabType == PrefabType.ModelPrefabInstance) {
-        if (go.activeInHierarchy) {
-          return HasteStyles.PrefabStyle;
-        } else {
-          return HasteStyles.DisabledPrefabStyle;
-        }
-      } else if (prefabType == PrefabType.MissingPrefabInstance) {
-        if (go.activeInHierarchy) {
-          return HasteStyles.BrokenPrefabStyle;
-        } else {
-          return HasteStyles.DisabledBrokenPrefabStyle;
-        }
-      } else if (!go.activeInHierarchy) {
-        return HasteStyles.DisabledNameStyle;
-      } else {
-        return HasteStyles.NameStyle;
+      switch (PrefabUtility.GetPrefabType(go)) {
+        case PrefabType.PrefabInstance:
+        case PrefabType.ModelPrefabInstance:
+          if (go.activeInHierarchy) {
+            return HasteStyles.PrefabStyle;
+          } else {
+            return HasteStyles.DisabledPrefabStyle;
+          }
+        case PrefabType.MissingPrefabInstance:
+          if (go.activeInHierarchy) {
+            return HasteStyles.BrokenPrefabStyle;
+          } else {
+            return HasteStyles.DisabledBrokenPrefabStyle;
+          }
+        default:
+          if (go.activeInHierarchy) {
+            return HasteStyles.NameStyle;
+          } else {
+            return HasteStyles.DisabledNameStyle;
+          }
       }
     }
 
