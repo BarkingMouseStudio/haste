@@ -41,7 +41,7 @@ namespace Haste {
       Count--;
 
       foreach (Match match in matches) {
-        char c = Char.ToLower(match.Value[0]);
+        char c = Char.ToLower(match.Groups["char"].Value[0]);
 
         if (index.ContainsKey(c)) {
           index[c].Remove(item);
