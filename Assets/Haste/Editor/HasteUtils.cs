@@ -17,6 +17,8 @@ namespace Haste {
         var layoutsPreferencesPath = (string)WindowLayout.GetProperty("layoutsPreferencesPath", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(WindowLayout, null);
         return Directory.GetFiles(layoutsPreferencesPath).Select((path) => {
           return Path.GetFileNameWithoutExtension(path);
+        }).Where((path) => {
+          return !path.Contains("LastLayout");
         }).ToArray();
       }
     }
