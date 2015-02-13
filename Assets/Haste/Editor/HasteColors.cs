@@ -33,7 +33,7 @@ namespace Haste {
       HighlightColor = new Color(0.24f, 0.37f, 0.59f, 0.5f);
       PrimaryHighlightedColor = new Color(0.91f, 0.91f, 0.91f);
       SecondaryHighlightedColor = new Color(1.0f, 1.0f, 1.0f, 0.7f);
-      LinkColor = HighlightColor;
+      LinkColor = SelectionColor;
     }
 
     static void InitLightColors() {
@@ -49,7 +49,7 @@ namespace Haste {
       HighlightColor = new Color(62f / 255f, 125f / 255f, 231f / 255f, 0.5f);
       PrimaryHighlightedColor = new Color(250f / 255f, 251f / 255f, 254f / 255f);
       SecondaryHighlightedColor = new Color(1.0f, 1.0f, 1.0f, 0.7f);
-      LinkColor = HighlightColor;
+      LinkColor = SelectionColor;
     }
 
     static HasteColors() {
