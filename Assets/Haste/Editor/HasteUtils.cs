@@ -17,6 +17,8 @@ namespace Haste {
         var layoutsPreferencesPath = (string)WindowLayout.GetProperty("layoutsPreferencesPath", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(WindowLayout, null);
         return Directory.GetFiles(layoutsPreferencesPath).Select((path) => {
           return Path.GetFileNameWithoutExtension(path);
+        }).Where((path) => {
+          return !path.Contains("LastLayout");
         }).ToArray();
       }
     }
@@ -88,14 +90,12 @@ namespace Haste {
 
     public static string GetHierarchyPath(Transform transform) {
       string path;
-
       if (transform.parent == null) {
         path = transform.gameObject.name;
       } else {
         path = GetHierarchyPath(transform.parent) +
           Path.DirectorySeparatorChar + transform.gameObject.name;
       }
-
       return path;
     }
   }

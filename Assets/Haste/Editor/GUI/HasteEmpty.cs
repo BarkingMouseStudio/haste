@@ -12,6 +12,10 @@ namespace Haste {
       return this;
     }
 
+    void OnEnable() {
+      base.hideFlags = HideFlags.HideAndDontSave;
+    }
+
     public void OnGUI() {
       EditorGUILayout.Space();
 

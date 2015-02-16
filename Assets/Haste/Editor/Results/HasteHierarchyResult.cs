@@ -40,15 +40,26 @@ namespace Haste {
     public HasteHierarchyResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
 
     GUIStyle GetLabelStyle(GameObject go) {
-      var prefabType = PrefabUtility.GetPrefabType(go);
-      if (prefabType == PrefabType.PrefabInstance || prefabType == PrefabType.ModelPrefabInstance) {
-        return HasteStyles.PrefabStyle;
-      } else if (prefabType == PrefabType.MissingPrefabInstance) {
-        return HasteStyles.BrokenPrefabStyle;
-      } else if (!go.activeInHierarchy) {
-        return HasteStyles.DisabledNameStyle;
-      } else {
-        return HasteStyles.NameStyle;
+      switch (PrefabUtility.GetPrefabType(go)) {
+        case PrefabType.PrefabInstance:
+        case PrefabType.ModelPrefabInstance:
+          if (go.activeInHierarchy) {
+            return HasteStyles.PrefabStyle;
+          } else {
+            return HasteStyles.DisabledPrefabStyle;
+          }
+        case PrefabType.MissingPrefabInstance:
+          if (go.activeInHierarchy) {
+            return HasteStyles.BrokenPrefabStyle;
+          } else {
+            return HasteStyles.DisabledBrokenPrefabStyle;
+          }
+        default:
+          if (go.activeInHierarchy) {
+            return HasteStyles.NameStyle;
+          } else {
+            return HasteStyles.DisabledNameStyle;
+          }
       }
     }
 
@@ -60,7 +71,7 @@ namespace Haste {
       GUI.DrawTexture(rect, GameObjectIcon);
 
       using (new HasteVertical()) {
-        var childCount = go.transform.childCount;
+        var childCount = go.transform != null ? go.transform.childCount : 0;
         if (childCount > 0) {
           EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
         } else {
@@ -72,11 +83,8 @@ namespace Haste {
 
     public override void Action() {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-      Selection.activeInstanceID = Item.Id;
-    }
-
-    public override void Select() {
-      Selection.activeInstanceID = Item.Id;
+      Selection.instanceIDs = new int[]{Item.Id};
+      EditorGUIUtility.PingObject(Selection.activeInstanceID);
     }
   }
 }

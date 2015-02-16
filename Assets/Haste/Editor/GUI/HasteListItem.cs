@@ -1,26 +1,42 @@
 using UnityEditor;
 using UnityEngine;
+using System;
 
 namespace Haste {
 
   // Wraps results to handle some of the common drawing and interaction tasks.
   public static class HasteListItem {
 
-    public static void Draw(IHasteResult result, bool isHighlighted) {
-      var resultStyle = isHighlighted ? HasteStyles.HighlightStyle : HasteStyles.NonHighlightStyle;
+    public static void Draw(IHasteResult result, int index, bool isHighlighted, Action<Event, int> MouseDown, Action<Event, int> Click, Action<Event, int> DoubleClick, Action<Event, int> MouseDrag) {
+      GUIStyle resultStyle;
+      if (result.IsSelected) {
+        resultStyle = HasteStyles.SelectionStyle;
+      } else if (isHighlighted) {
+        resultStyle = HasteStyles.HighlightStyle;
+      } else {
+        resultStyle = HasteStyles.NonHighlightStyle;
+      }
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
-        // Highlight and selection are different.
-        // Selection doesn't take over until MouseUp
-        // var mouseDown = Event.current.type == EventType.MouseDown;
-        // var contains = rect.Contains(Event.current.mousePosition);
-        // if (Event.current.isMouse && mouseDown && contains) {
-        //     if (Event.current.clickCount == 2) {
-        //       // return ButtonEvent.DoubleClick;
-        //     } else {
-        //       // return ButtonEvent.SingleClick;
-        //     }
-        // }
+        var e = Event.current;
+        var isMouseContained = horizontal.Rect.Contains(e.mousePosition);
+        if (isMouseContained) {
+          switch (e.type) {
+            case EventType.MouseDrag:
+              MouseDrag(e, index);
+              break;
+            case EventType.MouseDown:
+              if (e.clickCount == 2) {
+                DoubleClick(e, index);
+              } else {
+                MouseDown(e, index);
+              }
+              break;
+            case EventType.MouseUp:
+              Click(e, index);
+              break;
+          }
+        }
 
         result.Draw(isHighlighted);
       }

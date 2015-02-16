@@ -12,6 +12,7 @@ namespace Haste {
     List<int> Indices { get; }
     float Score { get; }
     bool IsDraggable { get; }
+    bool IsSelected { get; }
     UnityEngine.Object Object { get; }
     string DragLabel { get; }
 
@@ -19,7 +20,6 @@ namespace Haste {
     float Height(bool isHighlighted);
     bool Validate();
     void Action();
-    void Select();
   }
 
   public abstract class AbstractHasteResult : IHasteResult {
@@ -44,6 +44,12 @@ namespace Haste {
       get { return ""; }
     }
 
+    public virtual bool IsSelected {
+      get {
+        return HasteWindow.Instance.IsSelected(Object);
+      }
+    }
+
     public AbstractHasteResult(HasteItem item, float score, List<int> indices) {
       Item = item;
       Score = score;
@@ -63,10 +69,6 @@ namespace Haste {
 
     public virtual void Action() {
       // NO-OP
-    }
-
-    public virtual void Select() {
-      Selection.activeObject = null;
     }
   }
 

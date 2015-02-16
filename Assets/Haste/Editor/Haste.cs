@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    private static readonly string VERSION = "af14dc48d7c972a7ba5a01a3d6424da3ecc3127a";
+    private static readonly string VERSION = "c1283bdf4b8e609b37c529e1fc8588779628dbf3";
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
     // public static readonly string DEFAULT_SHORTCUT = "%k";
 
@@ -101,6 +101,10 @@ namespace Haste {
 
       // AddGlobalEventHandler();
 
+      if (HasteSettings.UsageSince == 0L) {
+        HasteSettings.UsageSince = DateTime.Now.Ticks;
+      }
+
       HasteSettings.Version = VERSION;
     }
 
@@ -126,6 +130,8 @@ namespace Haste {
     static void StringSettingChanged(HasteSetting setting, string before, string after) {
       switch (setting) {
         case HasteSetting.Version:
+          HasteSettings.UsageCount = 0;
+          HasteSettings.UsageSince = DateTime.Now.Ticks;
           Rebuild();
           break;
       }
@@ -179,6 +185,8 @@ namespace Haste {
 
     // Main update loop in Haste—run's scheduler
     static void Update() {
+      // We must delay the window action to handle actions
+      // that affect layout state to prevent bugs in Unity.
       if (WindowAction != null && HasteWindow.Instance == null) {
         WindowAction();
         WindowAction = null;

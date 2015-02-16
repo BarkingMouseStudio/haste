@@ -6,8 +6,9 @@ namespace Haste {
   public enum HasteSetting {
     Version,
     Enabled,
-    UsageCount,
     IgnorePaths,
+    UsageCount,
+    UsageSince,
     Source
   }
 
@@ -18,6 +19,33 @@ namespace Haste {
     public static event SettingChangedHandler<bool> ChangedBool;
     public static event SettingChangedHandler<int> ChangedInt;
     public static event SettingChangedHandler<string> ChangedString;
+
+    public static int UsageAverage {
+      get {
+        TimeSpan elapsed = new TimeSpan(DateTime.Now.Ticks - UsageSinceDate.Ticks);
+        var days = Math.Max(1, Math.Floor(elapsed.TotalDays));
+        return (int)(UsageCount / days);
+      }
+    }
+
+    public static DateTime UsageSinceDate {
+      get {
+        return new DateTime(UsageSince);
+      }
+    }
+
+    public static long UsageSince {
+      get {
+        var str = HasteSettings.GetString(HasteSetting.UsageSince);
+        if (String.IsNullOrEmpty(str)) {
+          return 0L;
+        }
+        return Convert.ToInt64(str);
+      }
+      set {
+        HasteSettings.SetString(HasteSetting.UsageSince, value.ToString());
+      }
+    }
 
     public static bool Enabled {
       get {

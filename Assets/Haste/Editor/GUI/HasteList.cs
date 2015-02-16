@@ -6,20 +6,44 @@ using System.Collections.Generic;
 
 namespace Haste {
 
+  public delegate void HasteListEvent(IHasteResult item);
+
   public class HasteList : ScriptableObject {
 
-    Vector2 scrollPosition = Vector2.zero;
-    int highlightedIndex = 0;
+    private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
-    private IHasteResult[] items;
+    Vector2 scrollPosition = Vector2.zero;
+
+    public event HasteListEvent ItemDrag;
+    public event HasteListEvent ItemMouseDown;
+    public event HasteListEvent ItemClick;
+    public event HasteListEvent ItemDoubleClick;
+
+    private int highlightedIndex = 0;
+    int HighlightedIndex {
+      get { return highlightedIndex; }
+      set { highlightedIndex = Mathf.Clamp(value, 0, Items.Length - 1); }
+    }
+
+    private IHasteResult[] items = new IHasteResult[0];
     public IHasteResult[] Items {
       get {
         return items;
       }
-      set {
-        items = value;
-        SetHighlightedIndex(0);
+    }
+
+    public void SetItems(IHasteResult[] items) {
+      this.items = items;
+
+      HighlightedIndex = 0;
+      ResetScroll();
+      if (HighlightedItem != null) {
+        ItemClick(HighlightedItem);
       }
+    }
+
+    public void ClearItems() {
+      SetItems(emptyResults);
     }
 
     public int Size {
@@ -28,11 +52,16 @@ namespace Haste {
 
     public IHasteResult HighlightedItem {
       get {
-        if (highlightedIndex < 0 || highlightedIndex >= Items.Length) {
+        if (HighlightedIndex >= 0 && HighlightedIndex < Items.Length) {
+          return Items[HighlightedIndex];
+        } else {
           return null;
         }
-        return Items[highlightedIndex];
       }
+    }
+
+    void OnEnable() {
+      base.hideFlags = HideFlags.HideAndDontSave;
     }
 
     void ResetScroll() {
@@ -40,59 +69,52 @@ namespace Haste {
     }
 
     void ScrollTo(int toIndex) {
-      var heightOffset = 0.0f;
-      for (var i = 0; i < toIndex; i++) {
-        if (Items[i] != null) {
-          heightOffset += Items[i].Height(i == highlightedIndex);
+      if (toIndex >= 0 && toIndex < Items.Length) {
+        var heightOffset = 0.0f;
+        for (var i = 0; i < toIndex; i++) {
+          if (Items[i] != null) {
+            heightOffset += Items[i].Height(i == HighlightedIndex);
+          }
         }
+        scrollPosition = new Vector2(scrollPosition.x, heightOffset);
       }
-      scrollPosition = new Vector2(scrollPosition.x, heightOffset);
     }
 
     public void OnUpArrow() {
-      int index = Mathf.Max(highlightedIndex - 1, 0);
-      SetHighlightedIndex(index);
+      HighlightedIndex = Mathf.Max(HighlightedIndex - 1, 0);
+      ScrollTo(HighlightedIndex);
     }
 
     public void OnDownArrow() {
-      int index = Mathf.Min(highlightedIndex + 1, Items.Length - 1);
-      SetHighlightedIndex(index);
+      HighlightedIndex = Mathf.Min(HighlightedIndex + 1, Items.Length - 1);
+      ScrollTo(HighlightedIndex);
     }
 
-    // void OnMouseDrag(Event e) {
-    //   // TODO: highlightedResult is wrong
-    //   DragAndDrop.PrepareStartDrag();
-    //   DragAndDrop.objectReferences = new UnityEngine.Object[]{highlightedResult.Object};
-    //   DragAndDrop.StartDrag(highlightedResult.DragLabel);
-    //   Event.current.Use();
-    // }
-
-    void OnKeyDown(Event e) {
-      switch (e.keyCode) {
-        case KeyCode.UpArrow:
-          e.Use();
-          OnUpArrow();
-          break;
-        case KeyCode.DownArrow:
-          e.Use();
-          OnDownArrow();
-          break;
+    void OnItemDrag(Event e, int index) {
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemDrag != null) {
+        ItemDrag(HighlightedItem);
       }
     }
 
-    void SetHighlightedIndex(int index) {
-      highlightedIndex = Mathf.Clamp(index, 0, Items.Length - 1);
-      if (HighlightedItem != null) {
-        HighlightedItem.Select();
+    void OnItemMouseDown(Event e, int index) {
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemMouseDown != null) {
+        ItemMouseDown(HighlightedItem);
       }
-      ScrollTo(index);
     }
 
-    void OnEvent(Event e) {
-      switch (e.type) {
-        case EventType.KeyDown:
-          OnKeyDown(e);
-          break;
+    void OnItemClick(Event e, int index) {
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemClick != null) {
+        ItemClick(HighlightedItem);
+      }
+    }
+
+    void OnItemDoubleClick(Event e, int index) {
+      HighlightedIndex = index;
+      if (HighlightedItem != null && ItemDoubleClick != null) {
+        ItemDoubleClick(HighlightedItem);
       }
     }
 
@@ -102,8 +124,8 @@ namespace Haste {
 
         bool isHighlighted;
         for (var i = 0; i < Items.Length; i++) {
-          isHighlighted = i == highlightedIndex;
-          HasteListItem.Draw(Items[i], isHighlighted);
+          isHighlighted = i == HighlightedIndex;
+          HasteListItem.Draw(Items[i], i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
         }
       }
     }
