@@ -85,7 +85,7 @@ namespace Haste {
     }
 
     public static string GetRelativeAssetPath(string assetPath) {
-      return "Assets/" + assetPath.TrimStart(Application.dataPath + "/");
+      return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + Path.DirectorySeparatorChar));
     }
 
     public static string GetHierarchyPath(Transform transform) {
