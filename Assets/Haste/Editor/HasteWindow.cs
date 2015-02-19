@@ -22,9 +22,6 @@ namespace Haste {
 
     HasteWindowState windowState = HasteWindowState.Intro;
 
-    // [SerializeField]
-    // HasteBackground background;
-
     [SerializeField]
     UnityEngine.Object[] prevSelection;
 
@@ -98,10 +95,6 @@ namespace Haste {
 
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
-
-      // this.background = ScriptableObject.CreateInstance<HasteBackground>()
-      //   .Init(new Rect(0, 0, this.position.width, this.position.height));
-      // this.background.Capture(this.position);
 
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
       this.resultList.ItemDrag += OnItemDrag;
@@ -287,7 +280,6 @@ namespace Haste {
     void OnGUI() {
       OnEvent(Event.current);
 
-      // this.background.OnGUI();
       this.queryInput.OnGUI();
 
       HasteSelection.Draw(selectionPosition, nextSelection);
