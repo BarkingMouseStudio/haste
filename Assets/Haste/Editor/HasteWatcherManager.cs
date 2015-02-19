@@ -97,6 +97,12 @@ namespace Haste {
       }
     }
 
+    public void Stop() {
+      foreach (IHasteWatcher watcher in watchers.Values) {
+        watcher.Stop();
+      }
+    }
+
     public void Rebuild() {
       foreach (IHasteWatcher watcher in watchers.Values) {
         if (watcher.Enabled) {

@@ -122,7 +122,11 @@ namespace Haste {
     static void BoolSettingChanged(HasteSetting setting, bool before, bool after) {
       switch (setting) {
         case HasteSetting.Enabled:
-          Rebuild();
+          if (after) {
+            Rebuild();
+          } else {
+            Stop();
+          }
           break;
       }
     }
@@ -152,6 +156,11 @@ namespace Haste {
     public static void Rebuild() {
       Index.Clear();
       Watchers.Rebuild();
+    }
+
+    public static void Stop() {
+      Index.Clear();
+      Watchers.Stop();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {
