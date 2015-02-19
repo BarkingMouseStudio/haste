@@ -52,7 +52,7 @@ namespace Haste {
       folders.Push(CreateFolder(GetRandomName(), "Assets"));
 
       float folderProbability = 0.4f;
-      int count = 10000;
+      int count = 100;
 
       string folder;
       for (var i = 0; i < count; i++) {
