@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Haste {
@@ -61,20 +62,17 @@ namespace Haste {
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-      string bolded = "";
-
-      // TODO: This could iterate indices and use substring instead
-      int index = 0;
-      for (int i = 0; i < str.Length; i++) {
-        if (index < indices.Length && i == indices[index]) {
-          bolded += boldStart + str[i] + boldEnd;
-          index++;
-        } else {
-          bolded += str[i];
-        }
+      StringBuilder bolded = new StringBuilder(str);
+      int index;
+      int offset = 0;
+      for (int i = 0; i < indices.Length; i++) {
+        index = indices[i];
+        bolded.Insert(index + offset, boldStart);
+        offset += boldStart.Length;
+        bolded.Insert(index + offset + 1, boldEnd);
+        offset += boldEnd.Length;
       }
-
-      return bolded;
+      return bolded.ToString();
     }
 
     public static Texture2D CreateColorSwatch(Color color) {
@@ -85,7 +83,7 @@ namespace Haste {
     }
 
     public static string GetRelativeAssetPath(string assetPath) {
-      return "Assets/" + assetPath.TrimStart(Application.dataPath + "/");
+      return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + Path.DirectorySeparatorChar));
     }
 
     public static string GetHierarchyPath(Transform transform) {

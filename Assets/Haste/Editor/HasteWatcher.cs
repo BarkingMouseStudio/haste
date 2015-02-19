@@ -77,6 +77,7 @@ namespace Haste {
     public void Stop() {
       if (IsIndexing) {
         node.Stop();
+        node = null;
       }
 
       // Clear both to free memory
@@ -87,6 +88,7 @@ namespace Haste {
     public void Restart() {
       if (IsIndexing) {
         node.Stop();
+        node = null;
       }
 
       // Don't clear current so we can collect change events

@@ -49,20 +49,20 @@ namespace Haste {
       base.hideFlags = HideFlags.HideAndDontSave;
     }
 
-    public void Focus() {
-      EditorGUI.FocusTextInControl(NAME);
-    }
+    // public void Focus() {
+    //   EditorGUI.FocusTextInControl(NAME);
+    // }
 
-    public void Blur() {
-      EditorGUI.FocusTextInControl("");
-    }
+    // public void Blur() {
+    //   EditorGUI.FocusTextInControl("");
+    // }
 
     public void OnGUI() {
       OnEvent(Event.current);
 
       // Dummy element for blurring
-      GUI.SetNextControlName("");
-      GUI.Button(new Rect(0, 0, 0, 0), "", GUIStyle.none);
+      // GUI.SetNextControlName("");
+      // GUI.Button(new Rect(0, 0, 0, 0), "", GUIStyle.none);
 
       using (new HasteFocusText(NAME)) {
         Query = EditorGUILayout.TextField(Query, HasteStyles.QueryStyle,

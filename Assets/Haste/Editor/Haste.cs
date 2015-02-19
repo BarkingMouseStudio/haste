@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    private static readonly string VERSION = "c1283bdf4b8e609b37c529e1fc8588779628dbf3";
+    public static readonly string VERSION = "c1283bdf4b8e609b37c529e1fc8588779628dbf3";
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
     // public static readonly string DEFAULT_SHORTCUT = "%k";
 
@@ -122,7 +122,11 @@ namespace Haste {
     static void BoolSettingChanged(HasteSetting setting, bool before, bool after) {
       switch (setting) {
         case HasteSetting.Enabled:
-          Rebuild();
+          if (after) {
+            Rebuild();
+          } else {
+            Stop();
+          }
           break;
       }
     }
@@ -152,6 +156,11 @@ namespace Haste {
     public static void Rebuild() {
       Index.Clear();
       Watchers.Rebuild();
+    }
+
+    public static void Stop() {
+      Index.Clear();
+      Watchers.Stop();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {
