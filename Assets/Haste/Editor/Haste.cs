@@ -15,8 +15,20 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    private static readonly string VERSION = "c1283bdf4b8e609b37c529e1fc8588779628dbf3";
+    private static readonly string VERSION = "1.5.1";
+
+    private static Version version;
+    public static Version Version {
+      get {
+        if (version == null) {
+          version = new Version(VERSION);
+        }
+        return version;
+      }
+    }
+
     public static readonly string ASSET_STORE_PRO_URL = "content/18584";
+    public static readonly string ASSET_STORE_FREE_URL = "content/28390";
     // public static readonly string DEFAULT_SHORTCUT = "%k";
 
     public static event SceneChangedHandler SceneChanged;
@@ -105,7 +117,7 @@ namespace Haste {
         HasteSettings.UsageSince = DateTime.Now.Ticks;
       }
 
-      HasteSettings.Version = VERSION;
+      HasteSettings.Version = Version.ToString();
     }
 
     // static void AddGlobalEventHandler() {
