@@ -35,6 +35,14 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
+        using (new HasteHorizontal()) {
+          EditorGUILayout.PrefixLabel("Current Version");
+          EditorGUILayout.LabelField(Haste.VERSION);
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
         EditorGUILayout.LabelField("Available Sources");
         EditorGUILayout.Space();
 
