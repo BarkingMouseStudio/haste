@@ -53,8 +53,10 @@ namespace Haste {
           foreach (var watcher in Haste.Watchers) {
             string label = System.String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
             bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
-            EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), enabled);
-            Haste.Watchers.ToggleSource(watcher.Key, enabled);
+            if (enabled != watcher.Value.Enabled) {
+              EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), enabled);
+              Haste.Watchers.ToggleSource(watcher.Key, enabled);
+            }
           }
         }
 
