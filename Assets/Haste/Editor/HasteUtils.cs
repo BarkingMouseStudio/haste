@@ -61,6 +61,7 @@ namespace Haste {
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
+      // TODO: StringBuilder?
       string bolded = "";
 
       // TODO: This could iterate indices and use substring instead
