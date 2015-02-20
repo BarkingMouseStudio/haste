@@ -2,7 +2,7 @@ using System;
 
 namespace Haste {
 
-  public static class ArrayExtensions {
+  public static class HasteArrayUtils {
 
     public static T[] Slice<T>(this T[] arr, int index) {
       int length = arr.Length - index;
