@@ -9,7 +9,7 @@ namespace Haste {
 
   public class HasteMenuItemResult : AbstractHasteResult {
 
-    public HasteMenuItemResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
+    public HasteMenuItemResult(HasteItem item) : base(item) {}
 
     public override void Draw(bool isHighlighted) {
       #if IS_HASTE_PRO
