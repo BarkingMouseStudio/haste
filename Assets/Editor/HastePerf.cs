@@ -21,6 +21,15 @@ namespace Haste {
       return nameBuilder.ToString();
     }
 
+    public static string GetRandomPath() {
+      StringBuilder pathBuilder = new StringBuilder();
+      for (int i = 0; i < Random.Range(0, 2); i++) {
+        pathBuilder.Append(GetRandomName()).Append(Path.DirectorySeparatorChar);
+      }
+      pathBuilder.Append(GetRandomName());
+      return pathBuilder.ToString();
+    }
+
     [MenuItem("Window/Populate GameObjects")]
     public static void PopulateGameObjects() {
       Stack<GameObject> parents = new Stack<GameObject>();

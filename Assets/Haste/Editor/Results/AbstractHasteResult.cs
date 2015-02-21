@@ -34,49 +34,30 @@ namespace Haste {
       }
     }
 
-    // TODO: Reduce property usage (fn calls) by implementing
-    // a local `<` operator and using that in the IComparer.
-    public bool IsFirstCharMatch { get; private set; }
-    public bool IsPrefixMatch { get; private set; }
-    public bool IsNamePrefixMatch { get; private set; }
-    public int IndexSum { get; private set; }
-    public int GapSum { get; private set; }
-    public int PathLen { get; private set; }
-    public string PathName { get; private set; }
-    public float BoundaryQueryRatio { get; private set; }
-    public float BoundaryUtilization { get; private set; }
+    public float Score { get; private set; }
 
-    public AbstractHasteResult(HasteItem item, string query) {
+    public AbstractHasteResult(HasteItem item, string queryLower) {
       Item = item;
 
-      string queryLower = query.ToLower();
-      int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, item.Boundaries);
-
-      PathLen = item.Path.Length;
-      BoundaryQueryRatio = boundaryMatchCount / query.Length;
-      BoundaryUtilization = boundaryMatchCount / item.Boundaries.Length;
-      IsNamePrefixMatch = Path.GetFileNameWithoutExtension(item.PathLower).StartsWith(queryLower);
-      IsFirstCharMatch = item.PathLower[0] == queryLower[0];
-      IsPrefixMatch = item.PathLower.StartsWith(queryLower);
-
-      Indices = GetIndices();
-
-      IndexSum = 0;
-      foreach (int index in Indices) {
-        IndexSum += index;
-      }
-
-      GapSum = 0;
-      int a, b;
-      for (int i = 1; i < Indices.Count; i++) {
-        a = Indices[i - 1];
-        b = Indices[i];
-        GapSum += b - a;
-      }
+      List<int> indices;
+      Score = CalculateScore(queryLower, out indices);
+      Indices = indices;
     }
 
-    public List<int> GetIndices() {
-      return new List<int>();
+    public float CalculateScore(string queryLower, out List<int> indices) {
+      float score = 0;
+      HasteFuzzyMatching.FuzzyMatch(Item.Path, queryLower, out indices, out score);
+      return score;
+    }
+
+    public List<int> GetIndices(string queryLower) {
+      var indices = new List<int>();
+      int lastIndex = 0;
+      for (int i = 0; i < queryLower.Length; i++) {
+        lastIndex = Item.PathLower.IndexOf(queryLower[i], lastIndex + 1);
+        indices.Add(lastIndex);
+      }
+      return indices;
     }
 
     public virtual bool Validate() {

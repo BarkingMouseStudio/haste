@@ -10,6 +10,8 @@ namespace Haste {
 
   public class HasteIndex {
 
+    private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
+
     IDictionary<char, HashSet<HasteItem>> index =
       new Dictionary<char, HashSet<HasteItem>>();
 
@@ -22,15 +24,13 @@ namespace Haste {
     public void Add(HasteItem item) {
       Count++;
 
-      char c_;
       foreach (char c in item.Boundaries) {
-        c_ = char.ToLower(c);
-
-        if (!index.ContainsKey(c_)) {
-          index.Add(c_, new HashSet<HasteItem>());
+        if (!index.ContainsKey(c)) {
+          index.Add(c, new HashSet<HasteItem>());
         }
 
-        index[c_].Add(item);
+        // TODO: Optimize GetHashCode (slow)
+        index[c].Add(item);
         Size++;
       }
     }
@@ -38,12 +38,10 @@ namespace Haste {
     public void Remove(HasteItem item) {
       Count--;
 
-      char c_;
       foreach (char c in item.Boundaries) {
-        c_ = char.ToLower(c);
-
-        if (index.ContainsKey(c_)) {
-          index[c_].Remove(item);
+        if (index.ContainsKey(c)) {
+          // TODO: Optimize GetHashCode (slow)
+          index[c].Remove(item);
           Size--;
         }
       }
@@ -57,13 +55,13 @@ namespace Haste {
 
     public IHasteResult[] Filter(string query, int resultCount) {
       if (query.Length == 0) {
-        return new IHasteResult[0];
+        return emptyResults;
       }
 
       char c = char.ToLower(query[0]);
       HashSet<HasteItem> bucket;
       if (!index.TryGetValue(c, out bucket)) {
-        return new IHasteResult[0];
+        return emptyResults;
       }
 
       string queryLower = query.ToLower();
@@ -71,6 +69,10 @@ namespace Haste {
 
       // Filter
       var matches = bucket.Where(m => {
+        if (m.PathLower.Length < queryLower.Length) {
+          return false;
+        }
+
         var contains = HasteStringUtils.ContainsChars(m.Bitset, queryBits);
         if (!contains) {
           return false;
@@ -84,14 +86,9 @@ namespace Haste {
         return true;
       });
 
-      // Score
-      var results = matches.Select(m => {
-        return Haste.Types.GetType(m, query);
-      });
-
-      // Sort then take (otherwise we loose good results)
-      var comparer = new HasteResultComparer();
-      return results.OrderByDescending(r => r, comparer)
+      // Score, sort then take (otherwise we loose good results)
+      return matches.Select(m => Haste.Types.GetType(m, queryLower))
+        .OrderByDescending(r => r.Score)
         .Take(resultCount)
         .ToArray();
     }

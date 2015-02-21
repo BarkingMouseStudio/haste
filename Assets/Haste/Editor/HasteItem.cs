@@ -16,14 +16,20 @@ namespace Haste {
     public string Source { get; private set; }
     public int Bitset { get; private set; }
     public string Boundaries { get; private set; }
+    public int[] BoundaryIndices { get; private set; }
 
+    // TODO: HasteItem is a little too large now
     public HasteItem(string path, int id, string source) {
       Path = path;
       Id = id;
       Source = source;
-      Boundaries = Path.GetBoundaries();
-      PathLower = path.ToLower();
+      PathLower = path.ToLower(); // TODO: This is slow and allocs (thread culture lookup)
       Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
+
+      // TODO: This allocs and is slow but is probably better of here than at search
+      int[] boundaryIndices;
+      Boundaries = PathLower.GetBoundaries(out boundaryIndices);
+      BoundaryIndices = boundaryIndices;
     }
 
     public bool Equals(HasteItem other) {

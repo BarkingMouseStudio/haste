@@ -19,7 +19,7 @@ namespace Haste {
 
       for (int i = 0; i < longerLen; i++) {
         for (int j = 0; j < shorterLen; j++) {
-          if (char.ToLower(longer[i]) == char.ToLower(shorter[j])) {
+          if (longer[i] == shorter[j]) {
             current[j + 1] = previous[j] + 1;
           } else {
             current[j + 1] = Math.Max(current[j], previous[j + 1]);
@@ -75,9 +75,10 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static string GetBoundaries(this String str) {
+    public static string GetBoundaries(this String str, out int[] boundaryIndices) {
       int len = str.Length;
       StringBuilder matches = new StringBuilder();
+      List<int> indices = new List<int>();
 
       char c, _c;
       for (int i = 0; i < len; i++) {
@@ -85,6 +86,7 @@ namespace Haste {
 
         // Is it a word char at the beginning of the string?
         if (i == 0 && !char.IsPunctuation(c)) {
+          indices.Add(i);
           matches.Append(c);
           continue;
         }
@@ -94,24 +96,28 @@ namespace Haste {
 
           // Include extensions
           if (c == '.') {
+            indices.Add(i);
             matches.Append(c);
             continue;
           }
 
           // Is it an upper char following a non-upper char?
           if (char.IsUpper(c) && char.IsLetter(_c) && !char.IsUpper(_c)) {
+            indices.Add(i);
             matches.Append(c);
             continue;
           }
 
           // Is it a post-boundary word char
           if (char.IsLetter(c) && char.IsPunctuation(_c)) {
+            indices.Add(i);
             matches.Append(c);
             continue;
           }
         }
       }
 
+      boundaryIndices = indices.ToArray();
       return matches.ToString();
     }
 
