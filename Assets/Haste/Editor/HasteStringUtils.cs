@@ -1,10 +1,38 @@
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Haste {
 
   public static class HasteStringUtils {
+
+    public static int LongestCommonSubsequenceLength(string first, string second) {
+      string longer  = first.Length > second.Length ? first : second;
+      string shorter = first.Length > second.Length ? second : first;
+
+      int longerLen  = longer.Length;
+      int shorterLen = shorter.Length;
+
+      int[] previous = new int[shorterLen + 1];
+      int[] current = new int[shorterLen + 1];
+
+      for (int i = 0; i < longerLen; i++) {
+        for (int j = 0; j < shorterLen; j++) {
+          if (char.ToLower(longer[i]) == char.ToLower(shorter[j])) {
+            current[j + 1] = previous[j] + 1;
+          } else {
+            current[j + 1] = Math.Max(current[j], previous[j + 1]);
+          }
+        }
+
+        for (int j = 0; j < shorterLen; j++) {
+          previous[j + 1] = current[j + 1];
+        }
+      }
+
+      return current[shorterLen];
+    }
 
     public static int LetterBitsetFromString(string str) {
       int bits = 0;

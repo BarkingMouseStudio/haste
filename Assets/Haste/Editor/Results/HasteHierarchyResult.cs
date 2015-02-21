@@ -37,7 +37,7 @@ namespace Haste {
       get { return Object.name; }
     }
 
-    public HasteHierarchyResult(HasteItem item) : base(item) {}
+    public HasteHierarchyResult(HasteItem item, string query) : base(item, query) {}
 
     GUIStyle GetLabelStyle(GameObject go) {
       switch (PrefabUtility.GetPrefabType(go)) {

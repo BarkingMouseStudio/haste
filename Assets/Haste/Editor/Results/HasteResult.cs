@@ -8,6 +8,7 @@ using System.Collections.Generic;
 namespace Haste {
 
   public class HasteResult : AbstractHasteResult {
-    public HasteResult(HasteItem item) : base(item) {}
+
+    public HasteResult(HasteItem item, string query) : base(item, query) {}
   }
 }

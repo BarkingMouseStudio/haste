@@ -18,7 +18,7 @@ namespace Haste {
   [Serializable]
   public class HasteWindow : EditorWindow {
 
-    const int RESULT_COUNT = 100;
+    const int RESULT_COUNT = 35;
 
     HasteWindowState windowState = HasteWindowState.Intro;
 

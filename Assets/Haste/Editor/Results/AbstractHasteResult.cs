@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,8 +10,7 @@ namespace Haste {
   public abstract class AbstractHasteResult : IHasteResult {
 
     public HasteItem Item { get; protected set; }
-    public List<int> Indices { get; protected set; }
-    public float Score { get; protected set; }
+    public List<int> Indices { get; private set; }
 
     public virtual bool IsDraggable {
       get { return false; }
@@ -34,40 +34,49 @@ namespace Haste {
       }
     }
 
-    public AbstractHasteResult(HasteItem item) {
+    // TODO: Reduce property usage (fn calls) by implementing
+    // a local `<` operator and using that in the IComparer.
+    public bool IsFirstCharMatch { get; private set; }
+    public bool IsPrefixMatch { get; private set; }
+    public bool IsNamePrefixMatch { get; private set; }
+    public int IndexSum { get; private set; }
+    public int GapSum { get; private set; }
+    public int PathLen { get; private set; }
+    public string PathName { get; private set; }
+    public float BoundaryQueryRatio { get; private set; }
+    public float BoundaryUtilization { get; private set; }
+
+    public AbstractHasteResult(HasteItem item, string query) {
       Item = item;
 
-      // indexSum = 0;
-      // gapSum = 0;
-      Indices = new List<int>();
-      Score = 0;
-    }
+      string queryLower = query.ToLower();
+      int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, item.Boundaries);
 
-    int LongestCommonSubsequenceLength(string first, string second) {
-      string longer  = first.Length > second.Length ? first : second;
-      string shorter = first.Length > second.Length ? second : first;
+      PathLen = item.Path.Length;
+      BoundaryQueryRatio = boundaryMatchCount / query.Length;
+      BoundaryUtilization = boundaryMatchCount / item.Boundaries.Length;
+      IsNamePrefixMatch = Path.GetFileNameWithoutExtension(item.PathLower).StartsWith(queryLower);
+      IsFirstCharMatch = item.PathLower[0] == queryLower[0];
+      IsPrefixMatch = item.PathLower.StartsWith(queryLower);
 
-      int longerLen  = longer.Length;
-      int shorterLen = shorter.Length;
+      Indices = GetIndices();
 
-      int[] previous = new int[shorterLen + 1];
-      int[] current = new int[shorterLen + 1];
-
-      for (int i = 0; i < longerLen; i++) {
-        for (int j = 0; j < shorterLen; j++) {
-          if (longer[i].ToUpper() == shorter[j].ToUpper()) {
-            current[j + 1] = previous[j] + 1;
-          } else {
-            current[j + 1] = Math.Max(current[j], previous[j + 1]);
-          }
-        }
-
-        for (int j = 0; j < shorterLen; j++) {
-          previous[j + 1] = current[j + 1];
-        }
+      IndexSum = 0;
+      foreach (int index in Indices) {
+        IndexSum += index;
       }
 
-      return current[shorterLen];
+      GapSum = 0;
+      int a, b;
+      for (int i = 1; i < Indices.Count; i++) {
+        a = Indices[i - 1];
+        b = Indices[i];
+        GapSum += b - a;
+      }
+    }
+
+    public List<int> GetIndices() {
+      return new List<int>();
     }
 
     public virtual bool Validate() {
