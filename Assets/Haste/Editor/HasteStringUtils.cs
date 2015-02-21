@@ -75,7 +75,7 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static string GetBoundaries(this String str, out int[] boundaryIndices) {
+    public static string GetBoundaries(string str, out int[] boundaryIndices) {
       int len = str.Length;
       StringBuilder matches = new StringBuilder();
       List<int> indices = new List<int>();
@@ -85,13 +85,12 @@ namespace Haste {
         c = str[i];
 
         // Is it a word char at the beginning of the string?
-        if (i == 0 && !char.IsPunctuation(c)) {
-          indices.Add(i);
-          matches.Append(c);
-          continue;
-        }
-
-        if (i > 0) {
+        if (i == 0) {
+          if (!char.IsPunctuation(c)) {
+            indices.Add(i);
+            matches.Append(c);
+          }
+        } else {
           _c = str[i - 1];
 
           // Include extensions
@@ -101,14 +100,14 @@ namespace Haste {
             continue;
           }
 
-          // Is it an upper char following a non-upper char?
-          if (char.IsUpper(c) && char.IsLetter(_c) && !char.IsUpper(_c)) {
+          // Is it an upper char proceeding a lowercase char or whitespace?
+          if (char.IsUpper(c) && !char.IsUpper(_c)) {
             indices.Add(i);
             matches.Append(c);
             continue;
           }
 
-          // Is it a post-boundary word char
+          // Is it a post-boundary word char?
           if (char.IsLetter(c) && char.IsPunctuation(_c)) {
             indices.Add(i);
             matches.Append(c);
@@ -119,6 +118,36 @@ namespace Haste {
 
       boundaryIndices = indices.ToArray();
       return matches.ToString();
+    }
+
+    public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
+      if (indices.Length == 0) {
+        return str;
+      }
+
+      StringBuilder bolded = new StringBuilder();
+      int j = 0;
+      for (int i = 0; i < str.Length; i++) {
+        if (j < indices.Length && i == indices[j]) {
+          bolded.Append(boldStart).Append(str[i]).Append(boldEnd);
+          j++;
+        } else {
+          bolded.Append(str[i]);
+        }
+      }
+
+      // // Faster; may not work correctly?
+      // StringBuilder bolded = new StringBuilder(str);
+      // int index;
+      // int offset = 0;
+      // for (int i = 0; i < indices.Length; i++) {
+      //   index = indices[i];
+      //   bolded.Insert(index + offset, boldStart);
+      //   offset += boldStart.Length;
+      //   bolded.Insert(index + offset + 1, boldEnd);
+      //   offset += boldEnd.Length + 1;
+      // }
+      return bolded.ToString();
     }
 
     public static string TrimStart(this String str, string prefix) {

@@ -24,7 +24,7 @@ namespace Haste {
     public void Add(HasteItem item) {
       Count++;
 
-      foreach (char c in item.Boundaries) {
+      foreach (char c in item.BoundariesLower) {
         if (!index.ContainsKey(c)) {
           index.Add(c, new HashSet<HasteItem>());
         }
@@ -38,7 +38,7 @@ namespace Haste {
     public void Remove(HasteItem item) {
       Count--;
 
-      foreach (char c in item.Boundaries) {
+      foreach (char c in item.BoundariesLower) {
         if (index.ContainsKey(c)) {
           // TODO: Optimize GetHashCode (slow)
           index[c].Remove(item);
@@ -58,17 +58,21 @@ namespace Haste {
         return emptyResults;
       }
 
-      char c = char.ToLower(query[0]);
+      string queryLower = query.ToLower();
+
+      // Lookup bucket by first char
+      // TODO: Maybe faster to prebucket matching bigrams and trigrams too?
       HashSet<HasteItem> bucket;
-      if (!index.TryGetValue(c, out bucket)) {
+      if (!index.TryGetValue(queryLower[0], out bucket)) {
         return emptyResults;
       }
 
-      string queryLower = query.ToLower();
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
 
       // Filter
       var matches = bucket.Where(m => {
+        // TODO: (idea) Require at least 1 name char match?
+
         if (m.PathLower.Length < queryLower.Length) {
           return false;
         }

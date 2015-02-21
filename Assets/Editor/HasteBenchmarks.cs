@@ -64,6 +64,15 @@ namespace Haste {
       });
     }
 
+    [MenuItem("Window/Benchmarks/BoldLabel")]
+    public static void BenchBoldLabel() {
+      string str = "Apples/Bananas/Carrots";
+      int[] indices = new int[]{0, 7, 15};
+      Benchmark("BoldLabel", 10000, () => {
+        HasteStringUtils.BoldLabel(str, indices);
+      });
+    }
+
     [MenuItem("Window/Benchmarks/HasteItem")]
     public static void BenchHasteItem() {
       Benchmark("HasteItem", 10000, () => {
@@ -77,7 +86,7 @@ namespace Haste {
       var testQuery = "abc";
 
       Benchmark("LongestCommonSubsequenceLength", 10000, () => {
-        HasteStringUtils.LongestCommonSubsequenceLength(testQuery, testItem.Boundaries);
+        HasteStringUtils.LongestCommonSubsequenceLength(testQuery, testItem.BoundariesLower);
       });
     }
   }

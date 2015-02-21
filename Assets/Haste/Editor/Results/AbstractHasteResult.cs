@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Haste {
 
@@ -40,66 +41,83 @@ namespace Haste {
 
       List<int> indices;
       Score = CalculateScore(queryLower, out indices);
+      indices.Sort();
       Indices = indices;
     }
 
     public float CalculateScore(string queryLower, out List<int> indices) {
-      indices = new List<int>(0);
+      indices = new List<int>();
+
+      string pathLower = Item.PathLower;
+      int[] boundaryIndices = Item.BoundaryIndices;
 
       float score = 0;
-      // int gap = 0;
+      int pathIndex = 0;
+      int queryIndex = 0;
+      int boundaryPosition = 0;
+      int pathLen = pathLower.Length;
+      int queryLen = queryLower.Length;
+      int boundaryLen = boundaryIndices.Length;
+      int boundaryIndex;
+      float gap = 0.0f;
+      bool matchedChar = false;
 
-      // The number of characters in the query that hit a boundary
-      int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.Boundaries);
+      // 1. Favor name boundary matches (work backwards? match positions change around without look aheads)
+      // 2. Favor boundary matches (still requires look aheads to ensure?)
+      // 3. Penalize non-boundary match gaps
+      // 4. Boost exact matches (no gap; might be implicit with 3)
 
-      // The ratio of boundary characters in the query
-      float boundaryQueryRatio = boundaryMatchCount / queryLower.Length;
-      score += boundaryQueryRatio;
+      while (pathIndex < pathLen && queryIndex < queryLen) {
+        matchedChar = false;
 
-      // The ratio of matched boundary characters
-      float boundaryUtilization = boundaryMatchCount / Item.Boundaries.Length;
-      score += boundaryUtilization;
+        // We matched a query character
+        if (pathLower[pathIndex] == queryLower[queryIndex]) {
 
-      // if (IsFirstCharNameMatch) {
-      //   score += 2;
-      // } else if (IsFirstCharMatch) {
-      //   score += 1;
-      // }
+          // We have boundaries to match
+          if (boundaryPosition < boundaryLen) {
+            boundaryIndex = boundaryIndices[boundaryPosition];
 
-      // bool equalBoundaryRatios = Mathf.Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
-      // bool equalBoundaryUtilization = Mathf.Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
+            // Found a boundary match
+            if (pathIndex == boundaryIndex) {
+              score += 2.0f;
+              boundaryPosition++;
+              matchedChar = true;
 
-      // if (Mathf.Approximately(a.BoundaryQueryRatio, 1.0f) || Mathf.Approximately(b.BoundaryQueryRatio, 1.0f)) {
-      //   if (!equalBoundaryRatios) {
-      //     return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
-      //   } else if (!equalBoundaryUtilization) {
-      //     return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
-      //   }
-      // }
+            // Not a current boundary match
+            } else {
 
-      // if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
-      //   return a.IsNamePrefixMatch ? -1 : 1;
-      // }
+              // This query character couldn't be matched on a future boundary
+              if (pathLower[boundaryIndex] != queryLower[queryIndex]) {
+                score += 1.0f / (gap + 1.0f);
+                matchedChar = true;
+              }
+            }
 
-      // if (a.IsPrefixMatch != b.IsPrefixMatch) {
-      //   return a.IsPrefixMatch ? -1 : 1;
-      // }
+          // Just a regular match
+          } else {
+            score += 1.0f / (gap + 1.0f);
+            matchedChar = true;
+          }
+        }
 
-      // if (!equalBoundaryRatios) {
-      //   return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
-      // } else if (!equalBoundaryUtilization) {
-      //   return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
-      // }
+        if (matchedChar) {
+          indices.Add(pathIndex);
+          queryIndex++;
+          gap = 0;
 
-      // if (a.GapSum != b.GapSum) {
-      //   return a.GapSum < b.GapSum ? -1 : 1;
-      // }
+        // Query and path characters don't match
+        } else {
+          // Increment gap between matched characters
+          gap++;
+        }
 
-      // if (a.pathLen != b.pathLen) {
-      //   return a.pathLen < b.pathLen ? -1 : 1;
-      // }
+        // Advance to test next string
+        pathIndex++;
+      }
 
-      // return a.Item.PathLower.CompareTo(b.Item.PathLower);
+      if (pathLower.IndexOf("make parent") != -1) {
+        HasteDebug.Info("{0} {1} {2}", Item.Path, Item.BoundariesLower, score);
+      }
 
       return score;
     }
@@ -111,7 +129,7 @@ namespace Haste {
     public virtual void Draw(bool isHighlighted) {
       using (new HasteVertical()) {
         EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : HasteStyles.NameStyle);
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices.ToArray(), isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
       }
     }
 

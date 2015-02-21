@@ -46,52 +46,6 @@ namespace Haste {
         Application.dataPath.Split(Path.DirectorySeparatorChar).Slice(0, 3));
     }
 
-    public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-      if (indices.Length == 0) {
-        return str;
-      }
-
-      StringBuilder bolded = new StringBuilder();
-      int j = 0;
-      for (int i = 0; i < str.Length; i++) {
-        if (j < indices.Length && i == indices[j]) {
-          bolded.Append(boldStart).Append(str[i]).Append(boldEnd);
-          j++;
-        } else {
-          bolded.Append(str[i]);
-        }
-      }
-
-      // int index = -1;
-      // for (int i = 0; i < indices.Length; i++) {
-      //   index = indices[i];
-
-      //   if (i < indices.Length - 1) {
-      //     nextIndex = indices[i];
-      //     bolded.Append(str.Substring(index, nextIndex))
-      //   }
-
-      //   if (index < indices.Length && i == indices[index]) {
-      //     bolded.Append(boldStart).Append(str[i]).Append(boldEnd);
-      //     index++;
-      //   } else {
-      //     bolded.Append(str[i]);
-      //   }
-      // }
-
-      // StringBuilder bolded = new StringBuilder(str);
-      // int index;
-      // int offset = 0;
-      // for (int i = 0; i < indices.Length; i++) {
-      //   index = indices[i];
-      //   bolded.Insert(index + offset, boldStart);
-      //   offset += boldStart.Length;
-      //   bolded.Insert(index + offset + 1, boldEnd);
-      //   offset += boldEnd.Length + 1;
-      // }
-      return bolded.ToString();
-    }
-
     public static Texture2D CreateColorSwatch(Color color) {
       Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
       texture.SetPixel(0, 0, color);
