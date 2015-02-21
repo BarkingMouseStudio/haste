@@ -87,8 +87,9 @@ namespace Haste {
       });
 
       // Score, sort then take (otherwise we loose good results)
+      var comparer = new HasteResultComparer();
       return matches.Select(m => Haste.Types.GetType(m, queryLower))
-        .OrderByDescending(r => r.Score)
+        .OrderBy(r => r, comparer)
         .Take(resultCount)
         .ToArray();
     }

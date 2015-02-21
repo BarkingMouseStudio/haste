@@ -16,46 +16,13 @@ namespace Haste {
       // 2. Favor boundaries
       // 3. Penalize non-boundary gaps
       // 4. Boost exact matches
-      // if (a.IsFirstCharMatch != b.IsFirstCharMatch) {
-      //   return a.IsFirstCharMatch ? -1 : 1;
-      // }
+      if (a.Score != b.Score) {
+        return a.Score < b.Score ? -1 : 1;
+      }
 
-      // bool equalBoundaryRatios = Mathf.Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
-      // bool equalBoundaryUtilization = Mathf.Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
-
-      // if (Mathf.Approximately(a.BoundaryQueryRatio, 1.0f) || Mathf.Approximately(b.BoundaryQueryRatio, 1.0f)) {
-      //   if (!equalBoundaryRatios) {
-      //     return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
-      //   } else if (!equalBoundaryUtilization) {
-      //     return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
-      //   }
-      // }
-
-      // if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
-      //   return a.IsNamePrefixMatch ? -1 : 1;
-      // }
-
-      // if (a.IsPrefixMatch != b.IsPrefixMatch) {
-      //   return a.IsPrefixMatch ? -1 : 1;
-      // }
-
-      // if (!equalBoundaryRatios) {
-      //   return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
-      // } else if (!equalBoundaryUtilization) {
-      //   return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
-      // }
-
-      // if (a.IndexSum != b.IndexSum) {
-      //   return a.IndexSum > b.IndexSum ? -1 : 1;
-      // }
-
-      // if (a.GapSum != b.GapSum) {
-      //   return a.GapSum < b.GapSum ? -1 : 1;
-      // }
-
-      // if (a.PathLen != b.PathLen) {
-      //   return a.PathLen < b.PathLen ? -1 : 1;
-      // }
+      if (a.Item.Path.Length != b.Item.Path.Length) {
+        return a.Item.Path.Length < b.Item.Path.Length ? -1 : 1;
+      }
 
       return a.Item.PathLower.CompareTo(b.Item.PathLower);
     }

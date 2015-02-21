@@ -30,6 +30,9 @@ namespace Haste {
 
     // The maximum time an iteration can spend indexing
     // before a yield so we don't stall the editor.
+
+    // NOTE: Watchers are run sequentially so this is
+    // effectively global but can change for each iterator.
     const float MAX_ITER_TIME = 4.0f / 1000.0f; // 4ms
 
     public event CreatedHandler Created;

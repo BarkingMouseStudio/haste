@@ -6,11 +6,12 @@ namespace Haste {
   public interface IHasteResult {
     HasteItem Item { get; }
     List<int> Indices { get; }
+    float Score { get; }
+
     bool IsDraggable { get; }
     bool IsSelected { get; }
     UnityEngine.Object Object { get; }
     string DragLabel { get; }
-    float Score { get; }
 
     void Draw(bool isHighlighted);
     float Height(bool isHighlighted);

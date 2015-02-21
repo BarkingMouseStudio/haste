@@ -9,8 +9,9 @@ namespace Haste {
 
   public abstract class AbstractHasteResult : IHasteResult {
 
-    public HasteItem Item { get; protected set; }
+    public HasteItem Item { get; private set; }
     public List<int> Indices { get; private set; }
+    public float Score { get; private set; }
 
     public virtual bool IsDraggable {
       get { return false; }
@@ -34,8 +35,6 @@ namespace Haste {
       }
     }
 
-    public float Score { get; private set; }
-
     public AbstractHasteResult(HasteItem item, string queryLower) {
       Item = item;
 
@@ -45,19 +44,64 @@ namespace Haste {
     }
 
     public float CalculateScore(string queryLower, out List<int> indices) {
-      float score = 0;
-      HasteFuzzyMatching.FuzzyMatch(Item.Path, queryLower, out indices, out score);
-      return score;
-    }
+      indices = new List<int>(0);
 
-    public List<int> GetIndices(string queryLower) {
-      var indices = new List<int>();
-      int lastIndex = 0;
-      for (int i = 0; i < queryLower.Length; i++) {
-        lastIndex = Item.PathLower.IndexOf(queryLower[i], lastIndex + 1);
-        indices.Add(lastIndex);
-      }
-      return indices;
+      float score = 0;
+      // int gap = 0;
+
+      // The number of characters in the query that hit a boundary
+      int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.Boundaries);
+
+      // The ratio of boundary characters in the query
+      float boundaryQueryRatio = boundaryMatchCount / queryLower.Length;
+      score += boundaryQueryRatio;
+
+      // The ratio of matched boundary characters
+      float boundaryUtilization = boundaryMatchCount / Item.Boundaries.Length;
+      score += boundaryUtilization;
+
+      // if (IsFirstCharNameMatch) {
+      //   score += 2;
+      // } else if (IsFirstCharMatch) {
+      //   score += 1;
+      // }
+
+      // bool equalBoundaryRatios = Mathf.Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
+      // bool equalBoundaryUtilization = Mathf.Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
+
+      // if (Mathf.Approximately(a.BoundaryQueryRatio, 1.0f) || Mathf.Approximately(b.BoundaryQueryRatio, 1.0f)) {
+      //   if (!equalBoundaryRatios) {
+      //     return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
+      //   } else if (!equalBoundaryUtilization) {
+      //     return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
+      //   }
+      // }
+
+      // if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
+      //   return a.IsNamePrefixMatch ? -1 : 1;
+      // }
+
+      // if (a.IsPrefixMatch != b.IsPrefixMatch) {
+      //   return a.IsPrefixMatch ? -1 : 1;
+      // }
+
+      // if (!equalBoundaryRatios) {
+      //   return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
+      // } else if (!equalBoundaryUtilization) {
+      //   return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
+      // }
+
+      // if (a.GapSum != b.GapSum) {
+      //   return a.GapSum < b.GapSum ? -1 : 1;
+      // }
+
+      // if (a.pathLen != b.pathLen) {
+      //   return a.pathLen < b.pathLen ? -1 : 1;
+      // }
+
+      // return a.Item.PathLower.CompareTo(b.Item.PathLower);
+
+      return score;
     }
 
     public virtual bool Validate() {
