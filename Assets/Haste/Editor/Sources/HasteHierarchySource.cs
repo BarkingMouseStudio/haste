@@ -13,11 +13,10 @@ namespace Haste {
 
     IDictionary<int, string> paths = new Dictionary<int, string>();
 
+    // TODO: Use StringBuilder: pass it in and down; String.Concat is slow
+    // TODO: Remove recursion
     string GetTransformPath(Transform transform) {
       int id = transform.gameObject.GetInstanceID();
-
-      // TODO: Use StringBuilder: pass it in and down; String.Concat is slow
-      // TODO: Remove recursion
       string path;
 
       if (!paths.TryGetValue(id, out path)) {
