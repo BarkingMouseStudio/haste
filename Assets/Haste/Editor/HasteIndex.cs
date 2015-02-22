@@ -15,6 +15,8 @@ namespace Haste {
     IDictionary<char, HashSet<HasteItem>> index =
       new Dictionary<char, HashSet<HasteItem>>();
 
+    HasteResultComparer comparer = new HasteResultComparer();
+
     // The number of unique items in the index
     public int Count { get; protected set; }
 
@@ -29,7 +31,6 @@ namespace Haste {
           index.Add(c, new HashSet<HasteItem>());
         }
 
-        // TODO: Optimize GetHashCode (slow)
         index[c].Add(item);
         Size++;
       }
@@ -40,7 +41,6 @@ namespace Haste {
 
       foreach (char c in item.BoundariesLower) {
         if (index.ContainsKey(c)) {
-          // TODO: Optimize GetHashCode (slow)
           index[c].Remove(item);
           Size--;
         }
@@ -61,7 +61,6 @@ namespace Haste {
       string queryLower = query.ToLower();
 
       // Lookup bucket by first char
-      // TODO: Maybe faster to prebucket matching bigrams and trigrams too?
       HashSet<HasteItem> bucket;
       if (!index.TryGetValue(queryLower[0], out bucket)) {
         return emptyResults;
@@ -71,8 +70,6 @@ namespace Haste {
 
       // Filter
       var matches = bucket.Where(m => {
-        // TODO: (idea) Require at least 1 name char match?
-
         if (m.PathLower.Length < queryLower.Length) {
           return false;
         }
@@ -91,7 +88,6 @@ namespace Haste {
       });
 
       // Score, sort then take (otherwise we loose good results)
-      var comparer = new HasteResultComparer();
       return matches.Select(m => Haste.Types.GetType(m, queryLower))
         .OrderBy(r => r, comparer)
         .Take(resultCount)

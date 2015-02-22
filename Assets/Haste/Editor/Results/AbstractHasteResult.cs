@@ -48,6 +48,11 @@ namespace Haste {
       int[] nameBoundaryIndices;
       HasteStringUtils.GetBoundaries(name, out nameBoundaryIndices).ToLower();
 
+      // 1. Favor name boundary matches
+      // 2. Favor boundary matches
+      // 3. Penalize non-boundary match gaps
+      // 4. Boost exact matches
+
       if (!CalculateScore(name, queryLower, offset, nameBoundaryIndices, out score, out indices)) {
         CalculateScore(Item.PathLower, queryLower, 0, Item.BoundaryIndices, out score, out indices);
       }
@@ -76,11 +81,6 @@ namespace Haste {
       int boundaryIndex;
       float gap = 0.0f;
       bool matchedChar = false;
-
-      // 1. Favor name boundary matches
-      // 2. Favor boundary matches
-      // 3. Penalize non-boundary match gaps
-      // 4. Boost exact matches
 
       while (pathIndex < pathLen && queryIndex < queryLen) {
         matchedChar = false;

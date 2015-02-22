@@ -57,7 +57,10 @@ namespace Haste {
     }
 
     public override int GetHashCode() {
-      return Source.GetHashCode() ^ Id.GetHashCode() ^ Path.GetHashCode();
+      int hash = (int)17;
+      hash = hash * 23 ^ Id.GetHashCode();
+      hash = hash * 23 ^ Path.GetHashCode();
+      return hash;
     }
   }
 }
