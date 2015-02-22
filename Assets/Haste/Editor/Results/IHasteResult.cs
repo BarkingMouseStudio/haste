@@ -5,7 +5,7 @@ namespace Haste {
 
   public interface IHasteResult {
     HasteItem Item { get; }
-    List<int> Indices { get; }
+    int[] Indices { get; }
     float Score { get; }
 
     bool IsDraggable { get; }

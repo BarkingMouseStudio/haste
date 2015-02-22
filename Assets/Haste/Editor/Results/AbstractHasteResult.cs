@@ -11,7 +11,7 @@ namespace Haste {
   public abstract class AbstractHasteResult : IHasteResult {
 
     public HasteItem Item { get; private set; }
-    public List<int> Indices { get; private set; }
+    public int[] Indices { get; private set; }
     public float Score { get; private set; }
 
     public virtual bool IsDraggable {
@@ -39,8 +39,6 @@ namespace Haste {
     public AbstractHasteResult(HasteItem item, string queryLower) {
       Item = item;
 
-      List<int> indices;
-      float score;
 
       // Try to match just the name first, the fall back to path matching
       string name = Path.GetFileNameWithoutExtension(Item.Path);
@@ -53,13 +51,16 @@ namespace Haste {
       // 3. Penalize non-boundary match gaps
       // 4. Boost exact matches
 
+      List<int> indices;
+      float score;
+
       if (!CalculateScore(name, queryLower, offset, nameBoundaryIndices, out score, out indices)) {
         CalculateScore(Item.PathLower, queryLower, 0, Item.BoundaryIndices, out score, out indices);
       }
 
       Score = score;
       indices.Sort();
-      Indices = indices;
+      Indices = indices.ToArray();
     }
 
     public bool CalculateScore(string pathLower, string queryLower, int offset, int[] boundaryIndices, out float score, out List<int> indices) {
