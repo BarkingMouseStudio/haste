@@ -40,32 +40,47 @@ namespace Haste {
       Item = item;
 
       List<int> indices;
-      Score = CalculateScore(queryLower, out indices);
+      float score;
+
+      // Try to match just the name first, the fall back to path matching
+      string name = Path.GetFileNameWithoutExtension(Item.Path);
+      int offset = Item.Path.LastIndexOf(name);
+      int[] nameBoundaryIndices;
+      HasteStringUtils.GetBoundaries(name, out nameBoundaryIndices).ToLower();
+
+      if (!CalculateScore(name, queryLower, offset, nameBoundaryIndices, out score, out indices)) {
+        CalculateScore(Item.PathLower, queryLower, 0, Item.BoundaryIndices, out score, out indices);
+      }
+
+      Score = score;
       indices.Sort();
       Indices = indices;
     }
 
-    public float CalculateScore(string queryLower, out List<int> indices) {
+    public bool CalculateScore(string pathLower, string queryLower, int offset, int[] boundaryIndices, out float score, out List<int> indices) {
       indices = new List<int>();
+      score = 0;
 
-      string pathLower = Item.PathLower;
-      int[] boundaryIndices = Item.BoundaryIndices;
+      int pathLen = pathLower.Length;
+      int queryLen = queryLower.Length;
 
-      float score = 0;
+      if (pathLen < queryLen) {
+        // Can't match if the string is too short
+        return false;
+      }
+
       int pathIndex = 0;
       int queryIndex = 0;
       int boundaryPosition = 0;
-      int pathLen = pathLower.Length;
-      int queryLen = queryLower.Length;
       int boundaryLen = boundaryIndices.Length;
       int boundaryIndex;
       float gap = 0.0f;
       bool matchedChar = false;
 
-      // 1. Favor name boundary matches (work backwards? match positions change around without look aheads)
-      // 2. Favor boundary matches (still requires look aheads to ensure?)
+      // 1. Favor name boundary matches
+      // 2. Favor boundary matches
       // 3. Penalize non-boundary match gaps
-      // 4. Boost exact matches (no gap; might be implicit with 3)
+      // 4. Boost exact matches
 
       while (pathIndex < pathLen && queryIndex < queryLen) {
         matchedChar = false;
@@ -83,11 +98,22 @@ namespace Haste {
               boundaryPosition++;
               matchedChar = true;
 
-            // Not a current boundary match
+            // No current boundary match, lookahead
             } else {
+              bool couldMatchBoundary = false;
+              int nextBoundaryIndex;
+
+              while (boundaryPosition < boundaryLen) {
+                nextBoundaryIndex = boundaryIndices[boundaryPosition];
+                if (pathLower[nextBoundaryIndex] == queryLower[queryIndex]) {
+                  couldMatchBoundary = true;
+                  break;
+                }
+                boundaryPosition++;
+              }
 
               // This query character couldn't be matched on a future boundary
-              if (pathLower[boundaryIndex] != queryLower[queryIndex]) {
+              if (!couldMatchBoundary) {
                 score += 1.0f / (gap + 1.0f);
                 matchedChar = true;
               }
@@ -101,9 +127,20 @@ namespace Haste {
         }
 
         if (matchedChar) {
-          indices.Add(pathIndex);
+          indices.Add(pathIndex + offset);
           queryIndex++;
           gap = 0;
+
+          if (queryIndex > queryLower.Length - 1) {
+            // If we have an exact match
+            if (pathLower == queryLower) {
+              // Bump the score by an extra point for each char
+              score += queryLower.Length;
+            }
+
+            // We've reached the end of our query with successful matches
+            return true;
+          }
 
         // Query and path characters don't match
         } else {
@@ -115,11 +152,7 @@ namespace Haste {
         pathIndex++;
       }
 
-      if (pathLower.IndexOf("make parent") != -1) {
-        HasteDebug.Info("{0} {1} {2}", Item.Path, Item.BoundariesLower, score);
-      }
-
-      return score;
+      return false;
     }
 
     public virtual bool Validate() {
