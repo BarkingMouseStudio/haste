@@ -82,13 +82,13 @@ namespace Haste {
       });
 
       Watchers.AddSource(HasteProjectSource.NAME,
-        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME)),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME), true),
         () => new HasteProjectSource());
       Watchers.AddSource(HasteHierarchySource.NAME,
-        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteHierarchySource.NAME)),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteHierarchySource.NAME), true),
         () => new HasteHierarchySource());
       Watchers.AddSource(HasteMenuItemSource.NAME,
-        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME)),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME), true),
         () => new HasteMenuItemSource());
 
       HasteSettings.ChangedBool += BoolSettingChanged;

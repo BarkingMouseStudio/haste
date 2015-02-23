@@ -49,7 +49,7 @@ namespace Haste {
 
     public static bool Enabled {
       get {
-        return HasteSettings.GetBool(HasteSetting.Enabled);
+        return HasteSettings.GetBool(HasteSetting.Enabled, true);
       }
       set {
         HasteSettings.SetBool(HasteSetting.Enabled, value);
@@ -83,8 +83,8 @@ namespace Haste {
       }
     }
 
-    public static int GetInt(HasteSetting setting) {
-      return EditorPrefs.GetInt(GetPrefKey(setting), 0);
+    public static int GetInt(HasteSetting setting, int defaultValue = 0) {
+      return EditorPrefs.GetInt(GetPrefKey(setting), defaultValue);
     }
 
     public static void SetInt(HasteSetting setting, int value) {
@@ -95,8 +95,8 @@ namespace Haste {
       }
     }
 
-    public static bool GetBool(HasteSetting setting) {
-      return EditorPrefs.GetBool(GetPrefKey(setting), true);
+    public static bool GetBool(HasteSetting setting, bool defaultValue = false) {
+      return EditorPrefs.GetBool(GetPrefKey(setting), defaultValue);
     }
 
     public static void SetBool(HasteSetting setting, bool value) {
@@ -107,8 +107,8 @@ namespace Haste {
       }
     }
 
-    public static string GetString(HasteSetting setting) {
-      return EditorPrefs.GetString(GetPrefKey(setting), "");
+    public static string GetString(HasteSetting setting, string defaultValue = "") {
+      return EditorPrefs.GetString(GetPrefKey(setting), defaultValue);
     }
 
     public static void SetString(HasteSetting setting, string value) {

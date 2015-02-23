@@ -44,12 +44,6 @@ namespace Haste {
 
     public static HasteWindow Instance { get; protected set; }
 
-    [MenuItem("Window/Haste %k", true)]
-    public static bool IsHasteEnabled() {
-      return HasteSettings.Enabled;
-    }
-
-    [MenuItem("Window/Haste %k")]
     public static void Open() {
       if (HasteWindow.Instance == null) {
         HasteWindow.Init();
