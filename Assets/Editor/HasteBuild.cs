@@ -4,6 +4,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.CSharp;
 
 namespace Haste {
@@ -11,7 +12,7 @@ namespace Haste {
   public static class HasteBuild {
 
     public static readonly string SOURCE_PATH = "Assets/Haste/Editor/";
-    public static readonly string INTERNAL_RESOURCES_PATH = "Assets/Haste/Editor/InternalResources/";
+    public static readonly string INTERNAL_RESOURCES_PATH = "Assets/Haste/Editor/InternalResources";
 
     public static string UnityEnginePath {
       get {
@@ -33,14 +34,14 @@ namespace Haste {
       }
     }
 
-    public static string[] GetSource(string buildPath) {
+    public static string[] GetSource(string path) {
       var source = new List<string>();
 
-      foreach (var file in Directory.GetFiles(buildPath, "*.cs")) {
+      foreach (var file in Directory.GetFiles(path, "*.cs")) {
         source.Add(File.ReadAllText(file));
       }
 
-      foreach (var dir in Directory.GetDirectories(buildPath)) {
+      foreach (var dir in Directory.GetDirectories(path)) {
         if (!dir.StartsWith(INTERNAL_RESOURCES_PATH)) {
           source.AddRange(GetSource(dir));
         }
@@ -60,19 +61,36 @@ namespace Haste {
       return codeProvider.CompileAssemblyFromSource(compileParams, sources);
     }
 
-    [MenuItem("Window/Build Haste")]
-    public static void BuildHaste() {
+    public static string CreateFolder(string parent, string path) {
+      return Directory.CreateDirectory(Path.Combine(parent, path)).FullName;
+    }
+
+    public static void ExportPackage(string exportPath, string[] source, string name, string compilerOptions) {
+      // Create folders
+      var editorPath = CreateFolder(CreateFolder(exportPath, "Haste"), "Editor");
+
+      // Build dll
+      BuildAssembly(source, Path.Combine(editorPath, "Haste.dll"), compilerOptions).LogErrors();
+
+      // Copy internal resources folder
+      var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
+      FileUtil.CopyFileOrDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
+    }
+
+    [MenuItem("Window/Export Haste")]
+    public static void ExportHaste() {
+      var rootPath = EditorUtility.SaveFolderPanel("Export Haste", "", "");
+      if (string.IsNullOrEmpty(rootPath)) {
+        Debug.LogError("Export path required");
+        return;
+      }
+
       var source = GetSource(SOURCE_PATH);
-
-      var dest = EditorUtility.SaveFilePanel("Build Haste Free", "", "HasteFree.dll", "dll");
-      if (dest.Length != 0) {
-        BuildAssembly(source, dest, "").LogErrors();
-      }
-
-      dest = EditorUtility.SaveFilePanel("Build Haste Pro", "", "HastePro.dll", "dll");
-      if (dest.Length != 0) {
-        BuildAssembly(source, dest, "/optimize /define:IS_HASTE_PRO").LogErrors();
-      }
+      ExportPackage(Path.Combine(rootPath, "HasteFree"), source, "HasteFree", "");
+      ExportPackage(Path.Combine(rootPath, "HastePro"), source, "HastePro", "/optimize /define:IS_HASTE_PRO");
+      AssetDatabase.ExportPackage("Assets/Haste",
+        Path.Combine(rootPath, String.Format("HasteSource.unitypackage")),
+        ExportPackageOptions.Recurse | ExportPackageOptions.IncludeDependencies);
     }
   }
 }
