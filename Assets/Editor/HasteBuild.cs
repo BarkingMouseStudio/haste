@@ -41,7 +41,9 @@ namespace Haste {
       }
 
       foreach (var dir in Directory.GetDirectories(buildPath)) {
-        source.AddRange(GetSource(dir));
+        if (!dir.StartsWith(INTERNAL_RESOURCES_PATH)) {
+          source.AddRange(GetSource(dir));
+        }
       }
 
       return source.ToArray();
