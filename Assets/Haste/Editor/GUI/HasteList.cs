@@ -12,6 +12,9 @@ namespace Haste {
 
     private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
+    // Impacts performance
+    const int HIGHLIGHT_RESULT_COUNT = 25;
+
     Vector2 scrollPosition = Vector2.zero;
 
     public event HasteListEvent ItemDrag;
@@ -122,10 +125,11 @@ namespace Haste {
       using (var scrollView = new HasteScrollView(scrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))) {
         scrollPosition = scrollView.ScrollPosition;
 
-        bool isHighlighted;
+        bool isHighlighted, highlightMatches;
         for (var i = 0; i < Items.Length; i++) {
           isHighlighted = i == HighlightedIndex;
-          HasteListItem.Draw(Items[i], i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
+          highlightMatches = i < HIGHLIGHT_RESULT_COUNT;
+          HasteListItem.Draw(Items[i], i, isHighlighted, highlightMatches, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
         }
       }
     }

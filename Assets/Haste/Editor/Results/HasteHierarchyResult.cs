@@ -63,7 +63,7 @@ namespace Haste {
       }
     }
 
-    public override void Draw(bool isHighlighted) {
+    public override void Draw(bool isHighlighted, bool highlightMatches) {
       var go = (GameObject)Object;
 
       var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
@@ -77,7 +77,11 @@ namespace Haste {
         } else {
           EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
         }
-        EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        if (highlightMatches) {
+          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        } else {
+          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        }
       }
     }
 

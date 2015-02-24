@@ -68,7 +68,7 @@ namespace Haste {
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
 
-      // Filter
+      // Perform fast subsequence filtering
       var matches = bucket.Where(m => {
         if (m.PathLower.Length < queryLower.Length) {
           return false;

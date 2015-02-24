@@ -12,6 +12,16 @@ namespace Haste {
 
   public static class HasteUtils {
 
+    public static bool Approximately(float a, float b) {
+      if (a > b) {
+        return (a - b) < Mathf.Epsilon;
+      } else if (a < b) {
+        return (b - a) < Mathf.Epsilon;
+      } else {
+        return true;
+      }
+    }
+
     public static string[] Layouts {
       get {
         var WindowLayout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");

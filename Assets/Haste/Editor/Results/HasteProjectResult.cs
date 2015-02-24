@@ -28,7 +28,7 @@ namespace Haste {
 
     public HasteProjectResult(HasteItem item, string query) : base(item, query) {}
 
-    public override void Draw(bool isHighlighted) {
+    public override void Draw(bool isHighlighted, bool highlightMatches) {
       var icon = AssetDatabase.GetCachedIcon(Item.Path);
       if (icon != null) {
         var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
@@ -36,7 +36,7 @@ namespace Haste {
         UnityEngine.GUI.DrawTexture(rect, icon);
       }
 
-      base.Draw(isHighlighted);
+      base.Draw(isHighlighted, highlightMatches);
     }
 
     public override void Action() {

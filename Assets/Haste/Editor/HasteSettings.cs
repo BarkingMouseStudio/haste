@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
 
 namespace Haste {
@@ -15,6 +18,8 @@ namespace Haste {
   public delegate void SettingChangedHandler<T>(HasteSetting setting, T before, T after);
 
   public static class HasteSettings {
+
+    static IDictionary<HasteSetting, string> keys = new Dictionary<HasteSetting, string>();
 
     public static event SettingChangedHandler<bool> ChangedBool;
     public static event SettingChangedHandler<int> ChangedInt;
@@ -120,11 +125,18 @@ namespace Haste {
     }
 
     public static string GetPrefKey(HasteSetting setting) {
-      return String.Format("Haste:{0}", setting.ToString());
+      string key;
+      if (!keys.TryGetValue(setting, out key)) {
+        key = String.Format("Haste:{0}", setting.ToString());
+        keys.Add(setting, key);
+      }
+      return key;
     }
 
     public static string GetPrefKey(HasteSetting setting, string value) {
-      return String.Format("Haste:{0}:{1}", setting, value);
+      StringBuilder builder = new StringBuilder(GetPrefKey(setting));
+      builder.Append(":").Append(value);
+      return builder.ToString();
     }
   }
 }

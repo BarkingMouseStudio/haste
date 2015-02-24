@@ -16,7 +16,6 @@ namespace Haste {
     public string Source { get; private set; }
     public int Bitset { get; private set; }
     public string BoundariesLower { get; private set; }
-    public int[] BoundaryIndices { get; private set; }
 
     // TODO: HasteItem is a little too large now, consider recaculating indices
     public HasteItem(string path, int id, string source) {
@@ -34,9 +33,7 @@ namespace Haste {
       // TODO: Benchmark recalculating boundary indices during sort since we
       // have to iterate again anyway.
       // TODO: ToLower here is slow
-      int[] boundaryIndices;
-      BoundariesLower = HasteStringUtils.GetBoundaries(Path, out boundaryIndices).ToLower();
-      BoundaryIndices = boundaryIndices;
+      BoundariesLower = HasteStringUtils.GetBoundaries(Path).ToLower();
     }
 
     public bool Equals(HasteItem other) {

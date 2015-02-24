@@ -75,9 +75,104 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static string GetBoundaries(string str, out int[] boundaryIndices) {
+    public static bool GetMatchIndices(string pathLower, string queryLower, int offset, int[] boundaryIndices, out int[] indices) {
+      List<int> indices_ = new List<int>();
+      float score = 0;
+
+      int pathLen = pathLower.Length;
+      int queryLen = queryLower.Length;
+
+      // Can't match if the string is too short
+      if (pathLen < queryLen) {
+        indices = indices_.ToArray();
+        return false;
+      }
+
+      int pathIndex = 0;
+      int queryIndex = 0;
+      int boundaryPosition = 0;
+      int boundaryLen = boundaryIndices.Length;
+      int boundaryIndex;
+      float gap = 0.0f;
+      bool matchedChar = false;
+
+      while (pathIndex < pathLen && queryIndex < queryLen) {
+        matchedChar = false;
+
+        // We matched a query character
+        if (pathLower[pathIndex] == queryLower[queryIndex]) {
+
+          // We have boundaries to match
+          if (boundaryPosition < boundaryLen) {
+            boundaryIndex = boundaryIndices[boundaryPosition];
+
+            // Found a boundary match
+            if (pathIndex == boundaryIndex) {
+              score += 2.0f;
+              boundaryPosition++;
+              matchedChar = true;
+
+            // No current boundary match, lookahead
+            } else {
+              bool couldMatchBoundary = false;
+              int nextBoundaryIndex;
+
+              while (boundaryPosition < boundaryLen) {
+                nextBoundaryIndex = boundaryIndices[boundaryPosition];
+                if (pathLower[nextBoundaryIndex] == queryLower[queryIndex]) {
+                  couldMatchBoundary = true;
+                  break;
+                }
+                boundaryPosition++;
+              }
+
+              // This query character couldn't be matched on a future boundary
+              if (!couldMatchBoundary) {
+                score += 1.0f / (gap + 1.0f);
+                matchedChar = true;
+              }
+            }
+
+          // Just a regular match
+          } else {
+            score += 1.0f / (gap + 1.0f);
+            matchedChar = true;
+          }
+        }
+
+        if (matchedChar) {
+          indices_.Add(pathIndex + offset);
+          queryIndex++;
+          gap = 0;
+
+          if (queryIndex > queryLower.Length - 1) {
+            // If we have an exact match
+            if (pathLower == queryLower) {
+              // Bump the score by an extra point for each char
+              score += queryLower.Length;
+            }
+
+            // We've reached the end of our query with successful matches
+            indices = indices_.ToArray();
+            return true;
+          }
+
+        // Query and path characters don't match
+        } else {
+          // Increment gap between matched characters
+          gap++;
+        }
+
+        // Advance to test next string
+        pathIndex++;
+      }
+
+      indices = indices_.ToArray();
+      return false;
+    }
+
+    public static int[] GetBoundaryIndices(string str) {
       int len = str.Length;
-      StringBuilder matches = new StringBuilder();
       List<int> indices = new List<int>();
 
       char c, _c;
@@ -88,7 +183,6 @@ namespace Haste {
         if (i == 0) {
           if (!char.IsPunctuation(c)) {
             indices.Add(i);
-            matches.Append(c);
           }
         } else {
           _c = str[i - 1];
@@ -96,32 +190,67 @@ namespace Haste {
           // Include extensions
           if (c == '.') {
             indices.Add(i);
-            matches.Append(c);
             continue;
           }
 
           // Is it an upper char proceeding a lowercase char or whitespace?
           if (char.IsUpper(c) && !char.IsUpper(_c)) {
             indices.Add(i);
-            matches.Append(c);
             continue;
           }
 
           // Is it a post-boundary word char?
           if (char.IsLetter(c) && char.IsPunctuation(_c)) {
             indices.Add(i);
+            continue;
+          }
+        }
+      }
+
+      return indices.ToArray();
+    }
+
+    public static string GetBoundaries(string str) {
+      int len = str.Length;
+      StringBuilder matches = new StringBuilder();
+
+      char c, _c;
+      for (int i = 0; i < len; i++) {
+        c = str[i];
+
+        // Is it a word char at the beginning of the string?
+        if (i == 0) {
+          if (!char.IsPunctuation(c)) {
+            matches.Append(c);
+          }
+        } else {
+          _c = str[i - 1];
+
+          // Include extensions
+          if (c == '.') {
+            matches.Append(c);
+            continue;
+          }
+
+          // Is it an upper char proceeding a lowercase char or whitespace?
+          if (char.IsUpper(c) && !char.IsUpper(_c)) {
+            matches.Append(c);
+            continue;
+          }
+
+          // Is it a post-boundary word char?
+          if (char.IsLetter(c) && char.IsPunctuation(_c)) {
             matches.Append(c);
             continue;
           }
         }
       }
 
-      boundaryIndices = indices.ToArray();
       return matches.ToString();
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-      if (indices.Length == 0) {
+      if (indices == null || indices.Length == 0) {
         return str;
       }
 

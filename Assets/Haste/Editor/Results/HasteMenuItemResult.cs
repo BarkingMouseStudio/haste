@@ -11,9 +11,9 @@ namespace Haste {
 
     public HasteMenuItemResult(HasteItem item, string query) : base(item, query) {}
 
-    public override void Draw(bool isHighlighted) {
+    public override void Draw(bool isHighlighted, bool highlightMatches) {
       #if IS_HASTE_PRO
-        base.Draw(isHighlighted);
+        base.Draw(isHighlighted, highlightMatches);
       #else
         using (new HasteVertical()) {
           EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedDisabledNameStyle : HasteStyles.DisabledNameStyle);
