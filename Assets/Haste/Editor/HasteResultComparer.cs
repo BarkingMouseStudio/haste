@@ -27,38 +27,38 @@ namespace Haste {
       }
       #endif
 
-      // if (a.IsFirstCharMatch != b.IsFirstCharMatch || a.IsFirstCharNameMatch != b.IsFirstCharNameMatch) {
-      //   return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
-      // }
+      if (a.IsFirstCharMatch != b.IsFirstCharMatch || a.IsFirstCharNameMatch != b.IsFirstCharNameMatch) {
+        return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
+      }
 
-      // bool equalBoundaryRatios = HasteUtils.Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
-      // bool equalBoundaryUtilization = HasteUtils.Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
+      bool equalBoundaryRatios = HasteUtils.Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
+      bool equalBoundaryUtilization = HasteUtils.Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
 
-      // if (HasteUtils.Approximately(a.BoundaryQueryRatio, 1.0f) || HasteUtils.Approximately(b.BoundaryQueryRatio, 1.0f)) {
-      //   if (!equalBoundaryRatios) {
-      //     return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
-      //   } else if (!equalBoundaryUtilization) {
-      //     return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
-      //   }
-      // }
+      if (HasteUtils.Approximately(a.BoundaryQueryRatio, 1.0f) || HasteUtils.Approximately(b.BoundaryQueryRatio, 1.0f)) {
+        if (!equalBoundaryRatios) {
+          return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
+        } else if (!equalBoundaryUtilization) {
+          return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
+        }
+      }
 
-      // if (a.IsPrefixMatch != b.IsPrefixMatch || a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
-      //   return a.IsPrefixMatch || b.IsNamePrefixMatch ? -1 : 1;
-      // }
+      if (a.IsPrefixMatch != b.IsPrefixMatch || a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
+        return a.IsPrefixMatch || b.IsNamePrefixMatch ? -1 : 1;
+      }
 
-      // if (!equalBoundaryRatios) {
-      //   return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
-      // } else if (!equalBoundaryUtilization) {
-      //   return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
-      // }
+      if (!equalBoundaryRatios) {
+        return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
+      } else if (!equalBoundaryUtilization) {
+        return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
+      }
 
       // If scores are equal, order by path length
-      // if (a.Item.Path.Length != b.Item.Path.Length) {
+      if (a.Item.Path.Length != b.Item.Path.Length) {
         return a.Item.Path.Length < b.Item.Path.Length ? -1 : 1;
-      // }
+      }
 
-      // // If lengths are equal, order lexically
-      // return EditorUtility.NaturalCompare(a.Item.PathLower, b.Item.PathLower);
+      // If lengths are equal, order lexically
+      return a.Item.PathLower.CompareTo(b.Item.PathLower); // EditorUtility.NaturalCompare(a.Item.PathLower, b.Item.PathLower);
     }
   }
 }

@@ -37,11 +37,14 @@ namespace Haste {
       }
     }
 
-    public int[] Indices { get; private set; }
-
-    // Lazy load indices for _some_ items
-    public void SetIndices(int[] indices) {
-      Indices = indices;
+    private int[] indices;
+    public int[] Indices {
+      get {
+        if (indices == null) {
+          indices = new int[0];
+        }
+        return indices;
+      }
     }
 
     public bool IsFirstCharMatch { get; private set; }
@@ -56,15 +59,21 @@ namespace Haste {
     public AbstractHasteResult(HasteItem item, string queryLower) {
       Item = item;
 
-      Name = ""; // Path.GetFileNameWithoutExtension(Item.Path);
-      NameLower = ""; // Name.ToLower();
-      NameBoundaries = ""; // HasteStringUtils.GetBoundaries(Name).ToLower();
+      // The number of characters in the query that hit a boundary
+      int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.BoundariesLower);
+
+      BoundaryQueryRatio = boundaryMatchCount / queryLower.Length;
+      BoundaryUtilization = boundaryMatchCount / Item.BoundariesLower.Length;
+
+      Name = Path.GetFileNameWithoutExtension(Item.Path);
+      NameLower = Name.ToLower();
+      NameBoundaries = HasteStringUtils.GetBoundaries(Name).ToLower();
 
       IsFirstCharMatch = Item.PathLower[0] == queryLower[0];
-      IsFirstCharNameMatch = false; // Name[0] == queryLower[0];
+      IsFirstCharNameMatch = Name[0] == queryLower[0];
 
-      IsPrefixMatch = false; // Item.PathLower.StartsWith(queryLower);
-      IsNamePrefixMatch = false; // NameLower.StartsWith(queryLower);
+      IsPrefixMatch = Item.PathLower.StartsWith(queryLower);
+      IsNamePrefixMatch = NameLower.StartsWith(queryLower);
     }
 
     public virtual bool Validate() {

@@ -19,7 +19,6 @@ namespace Haste {
     float BoundaryUtilization { get; }
 
     int[] Indices { get; }
-    void SetIndices(int[] indices);
 
     bool IsDraggable { get; }
     bool IsSelected { get; }
