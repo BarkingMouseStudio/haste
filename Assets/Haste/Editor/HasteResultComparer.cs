@@ -8,6 +8,18 @@ namespace Haste {
 
   public class HasteResultComparer : IComparer<IHasteResult> {
 
+    // This is a shortcut instead of Mathf.Approximately which is slow.
+    // We don't need perfect comparisons: its called "fuzzy matching".
+    public static bool Approximately(float a, float b) {
+      if (a > b) {
+        return (a - b) < Mathf.Epsilon;
+      } else if (a < b) {
+        return (b - a) < Mathf.Epsilon;
+      } else {
+        return true;
+      }
+    }
+
     // Less than 0: a is less than b
     // Equals 0: a equals b
     // Greater than 0: a greater than b
@@ -31,10 +43,10 @@ namespace Haste {
         return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
       }
 
-      bool equalBoundaryRatios = HasteUtils.Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
-      bool equalBoundaryUtilization = HasteUtils.Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
+      bool equalBoundaryRatios = Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
+      bool equalBoundaryUtilization = Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
 
-      if (HasteUtils.Approximately(a.BoundaryQueryRatio, 1.0f) || HasteUtils.Approximately(b.BoundaryQueryRatio, 1.0f)) {
+      if (Approximately(a.BoundaryQueryRatio, 1.0f) || Approximately(b.BoundaryQueryRatio, 1.0f)) {
         if (!equalBoundaryRatios) {
           return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
         } else if (!equalBoundaryUtilization) {

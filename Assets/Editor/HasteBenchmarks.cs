@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Haste {
 
@@ -46,6 +47,9 @@ namespace Haste {
       if (GUILayout.Button(String.Format("Bench {0}", "HasteItem"))) {
         BenchHasteItem();
       }
+      if (GUILayout.Button(String.Format("Bench {0}", "HasteResultComparer"))) {
+        BenchHasteResultComparer();
+      }
       if (GUILayout.Button(String.Format("Bench {0}", "GetFileNameWithoutExtension"))) {
         BenchGetFileNameWithoutExtension();
       }
@@ -60,6 +64,9 @@ namespace Haste {
       }
       if (GUILayout.Button(String.Format("Bench {0}", "BoldLabel"))) {
         BenchBoldLabel();
+      }
+      if (GUILayout.Button(String.Format("Bench {0}", "LetterBitsetFromString"))) {
+        BenchLetterBitsetFromString();
       }
     }
 
@@ -79,6 +86,27 @@ namespace Haste {
       });
     }
 
+    // ~ 15,000
+    public void BenchHasteResultComparer() {
+      IList<HasteItem> items = new List<HasteItem>();
+      for (int i = 0; i < 100; i++) {
+        items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
+      }
+
+      string query = "abc";
+      int queryLen = query.Length;
+
+      IEnumerable<HasteHierarchyResult> results = items.Select(m => {
+        return new HasteHierarchyResult(m, query, queryLen);
+      });
+
+      var comparer = new HasteResultComparer();
+
+      Benchmark("HasteResultComparer", 100, () => {
+        results.OrderBy(r => r, comparer).ToArray();
+      });
+    }
+
     // ~ 250,000
     public void BenchHasteIndexFilter() {
       var index = new HasteIndex();
@@ -90,7 +118,14 @@ namespace Haste {
       });
     }
 
-    // ~ 50
+    // ~ 2.75
+    public void BenchLetterBitsetFromString() {
+      Benchmark("LetterBitsetFromString", 100000, () => {
+        HasteStringUtils.LetterBitsetFromString("this is a test");
+      });
+    }
+
+    // ~ 55
     public void BenchHasteResult() {
       var item = new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       var query = "abc";
@@ -119,9 +154,9 @@ namespace Haste {
     // ~ 4
     public void BenchApproximately() {
       Benchmark("Approximately", 100000, () => {
-        HasteUtils.Approximately(1.0f, 0.0f);
-        HasteUtils.Approximately(0.0f, 1.0f);
-        HasteUtils.Approximately(1.0f, 1.0f);
+        HasteResultComparer.Approximately(1.0f, 0.0f);
+        HasteResultComparer.Approximately(0.0f, 1.0f);
+        HasteResultComparer.Approximately(1.0f, 1.0f);
       });
     }
 

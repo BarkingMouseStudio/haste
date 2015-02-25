@@ -9,7 +9,7 @@ namespace Haste {
   public static class HasteStringUtils {
 
     public static int LongestCommonSubsequenceLength(string first, string second) {
-      string longer  = first.Length > second.Length ? first : second;
+      string longer = first.Length > second.Length ? first : second;
       string shorter = first.Length > second.Length ? second : first;
 
       int longerLen  = longer.Length;
@@ -23,7 +23,11 @@ namespace Haste {
           if (longer[i] == shorter[j]) {
             current[j + 1] = previous[j] + 1;
           } else {
-            current[j + 1] = Math.Max(current[j], previous[j + 1]);
+            if (current[j] >= previous[j + 1]) {
+              current[j + 1] = current[j];
+            } else {
+              current[j + 1] = previous[j + 1];
+            }
           }
         }
 
@@ -38,7 +42,9 @@ namespace Haste {
     public static int LetterBitsetFromString(string str) {
       int bits = 0;
       int mask;
-      foreach (char c in str) {
+      char c;
+      for (int i = 0; i < str.Length; i++) {
+        c = str[i];
         mask = 1 << (int)c;
         bits |= mask;
       }
@@ -75,7 +81,6 @@ namespace Haste {
 
     public static bool GetMatchIndices(string pathLower, string queryLower, int offset, int[] boundaryIndices, out int[] indices) {
       List<int> indices_ = new List<int>();
-      float score = 0;
 
       int pathLen = pathLower.Length;
       int queryLen = queryLower.Length;
@@ -91,7 +96,6 @@ namespace Haste {
       int boundaryPosition = 0;
       int boundaryLen = boundaryIndices.Length;
       int boundaryIndex;
-      float gap = 0.0f;
       bool matchedChar = false;
 
       while (pathIndex < pathLen && queryIndex < queryLen) {
@@ -106,7 +110,6 @@ namespace Haste {
 
             // Found a boundary match
             if (pathIndex == boundaryIndex) {
-              score += 2.0f;
               boundaryPosition++;
               matchedChar = true;
 
@@ -126,14 +129,12 @@ namespace Haste {
 
               // This query character couldn't be matched on a future boundary
               if (!couldMatchBoundary) {
-                score += 1.0f / (gap + 1.0f);
                 matchedChar = true;
               }
             }
 
           // Just a regular match
           } else {
-            score += 1.0f / (gap + 1.0f);
             matchedChar = true;
           }
         }
@@ -141,24 +142,12 @@ namespace Haste {
         if (matchedChar) {
           indices_.Add(pathIndex + offset);
           queryIndex++;
-          gap = 0;
 
           if (queryIndex > queryLower.Length - 1) {
-            // If we have an exact match
-            if (pathLower == queryLower) {
-              // Bump the score by an extra point for each char
-              score += queryLower.Length;
-            }
-
             // We've reached the end of our query with successful matches
             indices = indices_.ToArray();
             return true;
           }
-
-        // Query and path characters don't match
-        } else {
-          // Increment gap between matched characters
-          gap++;
         }
 
         // Advance to test next string
@@ -238,7 +227,7 @@ namespace Haste {
 
         // Is it a word char at the beginning of the string?
         if (i == 0) {
-          if (char.IsPunctuation(c)) {
+          if (!char.IsPunctuation(c)) {
             matches.Append(char.ToLowerInvariant(c));
           }
         } else {
@@ -268,11 +257,11 @@ namespace Haste {
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-      if (indices.Length == 0) {
+      int indicesLen = indices.Length;
+      if (indicesLen == 0) {
         return str;
       }
 
-      int indicesLen = indices.Length;
       int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
       StringBuilder bolded = new StringBuilder(str, maxCap);
 
@@ -284,7 +273,7 @@ namespace Haste {
         bolded.Insert(index + offset, boldStart);
         offset += boldStart.Length;
         bolded.Insert(index + offset + 1, boldEnd);
-        offset += boldEnd.Length + 1;
+        offset += boldEnd.Length;
       }
 
       return bolded.ToString();

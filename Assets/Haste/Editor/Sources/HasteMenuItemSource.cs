@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Haste {
 
@@ -14,6 +15,18 @@ namespace Haste {
     static readonly Regex modifiers = new Regex(@"\s+[\%\#\&\_]+\w$", RegexOptions.IgnoreCase);
 
     public static readonly string NAME = "Menu Item";
+
+    static string[] Layouts {
+      get {
+        var WindowLayout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");
+        var layoutsPreferencesPath = (string)WindowLayout.GetProperty("layoutsPreferencesPath", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(WindowLayout, null);
+        return Directory.GetFiles(layoutsPreferencesPath).Select((path) => {
+          return Path.GetFileNameWithoutExtension(path);
+        }).Where((path) => {
+          return !path.Contains("LastLayout");
+        }).ToArray();
+      }
+    }
 
     public static string[] CustomMenuItems = new string[]{
       "Assets/Instantiate Prefab",
@@ -359,7 +372,7 @@ namespace Haste {
         yield return new HasteItem(path, 0, NAME);
       }
 
-      var layouts = HasteUtils.Layouts.Select((layout) => {
+      var layouts = Layouts.Select((layout) => {
         return String.Format("Window/Layouts/{0}", layout);
       });
 

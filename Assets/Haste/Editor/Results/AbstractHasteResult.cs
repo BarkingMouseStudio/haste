@@ -41,10 +41,17 @@ namespace Haste {
     public int[] Indices {
       get {
         if (indices == null) {
-          indices = new int[0];
+          indices = GetIndices();
         }
         return indices;
       }
+    }
+
+    int[] GetIndices() {
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
+      int[] indices;
+      HasteStringUtils.GetMatchIndices(Item.PathLower, QueryLower, 0, boundaryIndices, out indices);
+      return indices;
     }
 
     public bool IsFirstCharMatch { get; private set; }
@@ -59,14 +66,22 @@ namespace Haste {
     public float BoundaryQueryRatio { get; private set; }
     public float BoundaryUtilization { get; private set; }
 
+    string QueryLower { get; set; }
+
     public AbstractHasteResult(HasteItem item, string queryLower, int queryLen) {
+      QueryLower = queryLower;
       Item = item;
 
       // The number of characters in the query that hit a boundary
       int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.BoundariesLower);
-
       BoundaryQueryRatio = boundaryMatchCount / queryLen;
-      BoundaryUtilization = boundaryMatchCount / Item.BoundariesLower.Length;
+
+      int boundaryLen = Item.BoundariesLower.Length;
+      if (boundaryLen > 0) {
+        BoundaryUtilization = boundaryMatchCount / boundaryLen;
+      } else {
+        BoundaryUtilization = 0;
+      }
 
       Name = HasteStringUtils.GetFileNameWithoutExtension(Item.Path);
       NameLower = Name.ToLowerInvariant();

@@ -11,10 +11,30 @@ namespace Haste {
 
     [Test]
     public void Approximately() {
-      Assert.That(HasteUtils.Approximately(0.0f, 0.0f), Is.True);
-      Assert.That(HasteUtils.Approximately(1.0f, 1.0f), Is.True);
-      Assert.That(HasteUtils.Approximately(1.0f, 0.0f), Is.False);
-      Assert.That(HasteUtils.Approximately(0.0f, 1.0f), Is.False);
+      Assert.That(HasteResultComparer.Approximately(0.0f, 0.0f), Is.True);
+      Assert.That(HasteResultComparer.Approximately(1.0f, 1.0f), Is.True);
+      Assert.That(HasteResultComparer.Approximately(1.0f, 0.0f), Is.False);
+      Assert.That(HasteResultComparer.Approximately(0.0f, 1.0f), Is.False);
+    }
+
+    [Test]
+    public void GetBoundaries() {
+      Assert.That(HasteStringUtils.GetBoundaries("Yak"), Is.EqualTo("y"));
+      Assert.That(HasteStringUtils.GetBoundaries("LlamaCrab"), Is.EqualTo("lc"));
+      Assert.That(HasteStringUtils.GetBoundaries("ShrewRail/Wren"), Is.EqualTo("srw"));
+    }
+
+    [Test]
+    public void BoldLabel() {
+      string path = "Apples/Bananas/Carrots";
+      string query = "albncr";
+
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(path);
+      int[] indices;
+      HasteStringUtils.GetMatchIndices(path.ToLowerInvariant(), query.ToLowerInvariant(), 0, boundaryIndices, out indices);
+
+      Assert.That(HasteStringUtils.BoldLabel(path, indices, "[", "]"),
+        Is.EqualTo("[A]pp[l]es/[B]a[n]anas/[C]a[r]rots"));
     }
 
     // [Test]

@@ -86,7 +86,7 @@ namespace Haste {
       get {
         if (selectionStyle == null) {
           selectionStyle = new GUIStyle();
-          selectionStyle.normal.background = HasteUtils.CreateColorSwatch(HasteColors.SelectionColor);
+          selectionStyle.normal.background = CreateColorSwatch(HasteColors.SelectionColor);
           selectionStyle.normal.background.hideFlags = HideFlags.HideAndDontSave;
         }
         return selectionStyle;
@@ -98,7 +98,7 @@ namespace Haste {
       get {
         if (highlightStyle == null) {
           highlightStyle = new GUIStyle();
-          highlightStyle.normal.background = HasteUtils.CreateColorSwatch(HasteColors.HighlightColor);
+          highlightStyle.normal.background = CreateColorSwatch(HasteColors.HighlightColor);
           highlightStyle.normal.background.hideFlags = HideFlags.HideAndDontSave;
         }
         return highlightStyle;
@@ -114,6 +114,13 @@ namespace Haste {
         }
         return nonHighlightStyle;
       }
+    }
+
+    static Texture2D CreateColorSwatch(Color color) {
+      Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+      texture.SetPixel(0, 0, color);
+      texture.Apply();
+      return texture;
     }
 
     static HasteStyles() {
