@@ -9,7 +9,7 @@ using Microsoft.CSharp;
 
 namespace Haste {
 
-  public static class HasteBuild {
+  internal static class HasteBuild {
 
     public static readonly string SOURCE_PATH = "Assets/Haste/Editor/";
     public static readonly string INTERNAL_RESOURCES_PATH = "Assets/Haste/Editor/InternalResources";

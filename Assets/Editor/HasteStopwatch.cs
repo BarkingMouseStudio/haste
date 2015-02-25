@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Haste {
 
-  public class HasteStopwatch : IDisposable {
+  internal class HasteStopwatch : IDisposable {
 
     Stopwatch timer;
     string name;

@@ -54,11 +54,12 @@ namespace Haste {
     }
 
     public IHasteResult[] Filter(string query, int resultCount) {
-      if (query.Length == 0) {
+      int queryLen = query.Length;
+      if (queryLen == 0) {
         return emptyResults;
       }
 
-      string queryLower = query.ToLower();
+      string queryLower = query.ToLowerInvariant();
 
       // Lookup bucket by first char
       HashSet<HasteItem> bucket;
@@ -70,7 +71,7 @@ namespace Haste {
 
       // Perform fast subsequence filtering
       var matches = bucket.Where(m => {
-        if (m.PathLower.Length < queryLower.Length) {
+        if (m.PathLower.Length < queryLen) {
           return false;
         }
 
@@ -79,7 +80,7 @@ namespace Haste {
           return false;
         }
 
-        var subsequence = m.PathLower.ContainsSubsequence(queryLower);
+        var subsequence = HasteStringUtils.ContainsSubsequence(m.PathLower, queryLower, m.PathLower.Length, queryLen);
         if (!subsequence) {
           return false;
         }
@@ -88,7 +89,7 @@ namespace Haste {
       });
 
       // Score, sort then take (otherwise we loose good results)
-      return matches.Select(m => Haste.Types.GetType(m, queryLower))
+      return matches.Select(m => Haste.Types.GetType(m, queryLower, queryLen))
         .OrderBy(r => r, comparer)
         .Take(resultCount)
         .ToArray();

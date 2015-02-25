@@ -7,7 +7,8 @@ namespace Haste {
 
   // Unique object to exist in Haste's index.
   // Contains everything necessary to index
-  // the item and filter them.
+  // the item and filter them. Features required
+  // during sorting are omitted.
   public class HasteItem : IEquatable<HasteItem> {
 
     public string Path { get; private set; }
@@ -17,23 +18,13 @@ namespace Haste {
     public int Bitset { get; private set; }
     public string BoundariesLower { get; private set; }
 
-    // TODO: HasteItem is a little too large now, consider recaculating indices
     public HasteItem(string path, int id, string source) {
       Path = path;
       Id = id;
       Source = source;
-
-      // TODO: This is slow and allocs (thread culture lookup)
-      // TODO: Try String.ToLowerInvariant or String.ToLower(Haste.CultureInfo)
-      PathLower = path.ToLower();
+      PathLower = path.ToLowerInvariant();
       Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
-
-      // TODO: This allocs and is slow but is probably better of here
-      // than at search.
-      // TODO: Benchmark recalculating boundary indices during sort since we
-      // have to iterate again anyway.
-      // TODO: ToLower here is slow
-      BoundariesLower = HasteStringUtils.GetBoundaries(Path).ToLower();
+      BoundariesLower = HasteStringUtils.GetBoundaries(Path);
     }
 
     public bool Equals(HasteItem other) {

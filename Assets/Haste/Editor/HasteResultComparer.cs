@@ -42,8 +42,12 @@ namespace Haste {
         }
       }
 
+      if (a.IsExactMatch != b.IsExactMatch || a.IsExactNameMatch != b.IsExactNameMatch) {
+        return a.IsExactMatch || a.IsExactNameMatch ? -1 : 1;
+      }
+
       if (a.IsPrefixMatch != b.IsPrefixMatch || a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
-        return a.IsPrefixMatch || b.IsNamePrefixMatch ? -1 : 1;
+        return a.IsPrefixMatch || a.IsNamePrefixMatch ? -1 : 1;
       }
 
       if (!equalBoundaryRatios) {
@@ -58,7 +62,7 @@ namespace Haste {
       }
 
       // If lengths are equal, order lexically
-      return a.Item.PathLower.CompareTo(b.Item.PathLower); // EditorUtility.NaturalCompare(a.Item.PathLower, b.Item.PathLower);
+      return EditorUtility.NaturalCompare(a.Item.PathLower, b.Item.PathLower);
     }
   }
 }

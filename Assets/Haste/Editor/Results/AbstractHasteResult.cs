@@ -53,27 +53,34 @@ namespace Haste {
     public bool IsPrefixMatch { get; private set; }
     public bool IsNamePrefixMatch { get; private set; }
 
+    public bool IsExactMatch { get; private set; }
+    public bool IsExactNameMatch { get; private set; }
+
     public float BoundaryQueryRatio { get; private set; }
     public float BoundaryUtilization { get; private set; }
 
-    public AbstractHasteResult(HasteItem item, string queryLower) {
+    public AbstractHasteResult(HasteItem item, string queryLower, int queryLen) {
       Item = item;
 
       // The number of characters in the query that hit a boundary
       int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.BoundariesLower);
 
-      BoundaryQueryRatio = boundaryMatchCount / queryLower.Length;
+      BoundaryQueryRatio = boundaryMatchCount / queryLen;
       BoundaryUtilization = boundaryMatchCount / Item.BoundariesLower.Length;
 
-      Name = Path.GetFileNameWithoutExtension(Item.Path);
-      NameLower = Name.ToLower();
-      NameBoundaries = HasteStringUtils.GetBoundaries(Name).ToLower();
+      Name = HasteStringUtils.GetFileNameWithoutExtension(Item.Path);
+      NameLower = Name.ToLowerInvariant();
+      NameBoundaries = HasteStringUtils.GetBoundaries(Name);
 
       IsFirstCharMatch = Item.PathLower[0] == queryLower[0];
       IsFirstCharNameMatch = Name[0] == queryLower[0];
 
-      IsPrefixMatch = Item.PathLower.StartsWith(queryLower);
-      IsNamePrefixMatch = NameLower.StartsWith(queryLower);
+      // Much faster than "StartsWith"
+      IsPrefixMatch = Item.PathLower.IndexOf(queryLower) == 0;
+      IsNamePrefixMatch = NameLower.IndexOf(queryLower) == 0;
+
+      IsExactMatch = Item.PathLower == queryLower;
+      IsExactNameMatch = NameLower == queryLower;
     }
 
     public virtual bool Validate() {

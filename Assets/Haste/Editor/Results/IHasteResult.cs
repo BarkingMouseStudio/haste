@@ -15,6 +15,9 @@ namespace Haste {
     bool IsPrefixMatch { get; }
     bool IsNamePrefixMatch { get; }
 
+    bool IsExactMatch { get; }
+    bool IsExactNameMatch { get; }
+
     float BoundaryQueryRatio { get; }
     float BoundaryUtilization { get; }
 

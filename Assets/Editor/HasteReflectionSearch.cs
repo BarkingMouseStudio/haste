@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Haste {
 
-  public static class ReflectionHelpers {
+  internal static class ReflectionHelpers {
 
     public static IEnumerable<Type> FindDerivedTypesInAssembly(Assembly assembly, string typeName) {
       Type derivedType = assembly.GetType(typeName, true);

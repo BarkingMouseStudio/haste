@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Haste {
 
@@ -48,10 +49,7 @@ namespace Haste {
       return (a & b) == b;
     }
 
-    public static bool ContainsSubsequence(this String str, string query) {
-      var queryLen = query.Length;
-      var strLen = str.Length;
-
+    public static bool ContainsSubsequence(string str, string query, int strLen, int queryLen) {
       if (queryLen > strLen) {
         return false;
       }
@@ -171,6 +169,22 @@ namespace Haste {
       return false;
     }
 
+    public static string GetFileNameWithoutExtension(string path) {
+      var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
+      var ext = path.LastIndexOf('.');
+      if (sep != -1 && ext != -1) {
+        sep = sep + 1;
+        return path.Substring(sep, ext - sep);
+      } else if (sep != -1) {
+        sep = sep + 1;
+        return path.Substring(sep);
+      } else if (ext != -1) {
+        return path.Substring(0, ext);
+      } else {
+        return path;
+      }
+    }
+
     public static int[] GetBoundaryIndices(string str) {
       int len = str.Length;
       List<int> indices = new List<int>();
@@ -210,9 +224,13 @@ namespace Haste {
       return indices.ToArray();
     }
 
+    // It's faster to lowercase each char during iteration rather
+    // than ToLowerInvariant at the end.
     public static string GetBoundaries(string str) {
       int len = str.Length;
-      StringBuilder matches = new StringBuilder();
+
+      // Initializing the string builder with some default capacity helps.
+      StringBuilder matches = new StringBuilder(len / 2, len);
 
       char c, _c;
       for (int i = 0; i < len; i++) {
@@ -220,27 +238,27 @@ namespace Haste {
 
         // Is it a word char at the beginning of the string?
         if (i == 0) {
-          if (!char.IsPunctuation(c)) {
-            matches.Append(c);
+          if (char.IsPunctuation(c)) {
+            matches.Append(char.ToLowerInvariant(c));
           }
         } else {
           _c = str[i - 1];
 
           // Include extensions
           if (c == '.') {
-            matches.Append(c);
+            matches.Append(char.ToLowerInvariant(c));
             continue;
           }
 
           // Is it an upper char proceeding a lowercase char or whitespace?
           if (char.IsUpper(c) && !char.IsUpper(_c)) {
-            matches.Append(c);
+            matches.Append(char.ToLowerInvariant(c));
             continue;
           }
 
           // Is it a post-boundary word char?
           if (char.IsLetter(c) && char.IsPunctuation(_c)) {
-            matches.Append(c);
+            matches.Append(char.ToLowerInvariant(c));
             continue;
           }
         }
@@ -250,32 +268,25 @@ namespace Haste {
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-      if (indices == null || indices.Length == 0) {
+      if (indices.Length == 0) {
         return str;
       }
 
-      StringBuilder bolded = new StringBuilder();
-      int j = 0;
-      for (int i = 0; i < str.Length; i++) {
-        if (j < indices.Length && i == indices[j]) {
-          bolded.Append(boldStart).Append(str[i]).Append(boldEnd);
-          j++;
-        } else {
-          bolded.Append(str[i]);
-        }
+      int indicesLen = indices.Length;
+      int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
+      StringBuilder bolded = new StringBuilder(str, maxCap);
+
+      int index;
+      int offset = 0;
+
+      for (int i = 0; i < indicesLen; i++) {
+        index = indices[i];
+        bolded.Insert(index + offset, boldStart);
+        offset += boldStart.Length;
+        bolded.Insert(index + offset + 1, boldEnd);
+        offset += boldEnd.Length + 1;
       }
 
-      // // Faster; may not work correctly?
-      // StringBuilder bolded = new StringBuilder(str);
-      // int index;
-      // int offset = 0;
-      // for (int i = 0; i < indices.Length; i++) {
-      //   index = indices[i];
-      //   bolded.Insert(index + offset, boldStart);
-      //   offset += boldStart.Length;
-      //   bolded.Insert(index + offset + 1, boldEnd);
-      //   offset += boldEnd.Length + 1;
-      // }
       return bolded.ToString();
     }
 

@@ -69,16 +69,16 @@ namespace Haste {
       Watchers = new HasteWatcherManager();
       Types = new HasteTypeManager();
 
-      Types.AddType(HasteProjectSource.NAME, (HasteItem item, string query) => {
-        return new HasteProjectResult(item, query);
+      Types.AddType(HasteProjectSource.NAME, (HasteItem item, string query, int queryLen) => {
+        return new HasteProjectResult(item, query, queryLen);
       });
 
-      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, string query) => {
-        return new HasteHierarchyResult(item, query);
+      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, string query, int queryLen) => {
+        return new HasteHierarchyResult(item, query, queryLen);
       });
 
-      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, string query) => {
-        return new HasteMenuItemResult(item, query);
+      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, string query, int queryLen) => {
+        return new HasteMenuItemResult(item, query, queryLen);
       });
 
       Watchers.AddSource(HasteProjectSource.NAME,

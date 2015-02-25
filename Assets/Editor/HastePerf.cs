@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Haste {
 
-  public static class HastePerf {
+  internal static class HastePerf {
 
     public static readonly string[] WORDS = new string[]{"Unicorn", "Ant", "Ape", "Bat", "Bear", "Bee", "Bison", "Boar", "Camel", "Cat", "Clam", "Cobra", "Cod", "Crab", "Crane", "Crow", "Deer", "Dog", "Dove", "Duck", "Eagle", "Eel", "Eland", "Elk", "Emu", "Finch", "Fish", "Fly", "Fox", "Frog", "Gaur", "Gnat", "Gnu", "Goat", "Goose", "Gull", "Hare", "Hawk", "Heron", "Horse", "Human", "Hyena", "Ibex", "Ibis", "Jay", "Koala", "Kudu", "Lark", "Lemur", "Lion", "Llama", "Loris", "Louse", "Mink", "Mole", "Moose", "Mouse", "Mule", "Newt", "Okapi", "Oryx", "Otter", "Owl", "Pig", "Pony", "Quail", "Rail", "Ram", "Rat", "Raven", "Rook", "Seal", "Shark", "Sheep", "Shrew", "Skunk", "Snail", "Snake", "Squid", "Stork", "Swan", "Tapir", "Tiger", "Toad", "Trout", "Viper", "Wasp", "Whale", "Wolf", "Worm", "Wren", "Yak", "Zebra"};
 
