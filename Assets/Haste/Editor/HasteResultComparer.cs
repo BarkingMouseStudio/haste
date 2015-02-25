@@ -28,9 +28,12 @@ namespace Haste {
       // - Favor first char matches
       // - Favor boundary matches
       // - Favor prefix matches
+      // - Favor small index sums for "near beginning"
       // - Penalize non-boundary match gaps
-      // - Favor index sums
       // - Favor exact matches
+
+      // Favor "ca" for Component/Add...
+      // Favor "rop" for Run on platform...
 
       #if !IS_HASTE_PRO
       // Force menu item matches to the bottom in free version
