@@ -116,15 +116,16 @@ namespace Haste {
             // No current boundary match, lookahead
             } else {
               bool couldMatchBoundary = false;
+              int nextBoundaryPosition = boundaryPosition;
               int nextBoundaryIndex;
 
-              while (boundaryPosition < boundaryLen) {
-                nextBoundaryIndex = boundaryIndices[boundaryPosition];
+              while (nextBoundaryPosition < boundaryLen) {
+                nextBoundaryIndex = boundaryIndices[nextBoundaryPosition];
                 if (pathLower[nextBoundaryIndex] == queryLower[queryIndex]) {
                   couldMatchBoundary = true;
                   break;
                 }
-                boundaryPosition++;
+                nextBoundaryPosition++;
               }
 
               // This query character couldn't be matched on a future boundary
