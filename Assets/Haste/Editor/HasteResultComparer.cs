@@ -33,9 +33,6 @@ namespace Haste {
       // - Favor exact matches
       // - Favor boundary ratios/utilization near 1.0
 
-      // Favor "ca" for Component/Add...
-      // Favor "rop" for Run on platform...
-
       #if !IS_HASTE_PRO
       // Force menu item matches to the bottom in free version
       if (a.Item.Source != b.Item.Source) {
@@ -45,6 +42,12 @@ namespace Haste {
 
       if (a.IsFirstCharMatch != b.IsFirstCharMatch || a.IsFirstCharNameMatch != b.IsFirstCharNameMatch) {
         return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
+      }
+
+      if (a.IsExactMatch != b.IsExactMatch) {
+        return a.IsExactMatch ? -1 : 1;
+      } else if (a.IsExactNameMatch != b.IsExactNameMatch) {
+        return a.IsExactNameMatch ? -1 : 1;
       }
 
       bool equalBoundaryRatios = Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
@@ -58,12 +61,10 @@ namespace Haste {
         }
       }
 
-      if (a.IsPrefixMatch != b.IsPrefixMatch || a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
-        return a.IsPrefixMatch || a.IsNamePrefixMatch ? -1 : 1;
-      }
-
-      if (a.IsExactMatch != b.IsExactMatch || a.IsExactNameMatch != b.IsExactNameMatch) {
-        return a.IsExactMatch || a.IsExactNameMatch ? -1 : 1;
+      if (a.IsPrefixMatch != b.IsPrefixMatch) {
+        return a.IsPrefixMatch ? -1 : 1;
+      } else if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
+        return a.IsNamePrefixMatch ? -1 : 1;
       }
 
       if (!equalBoundaryRatios) {
