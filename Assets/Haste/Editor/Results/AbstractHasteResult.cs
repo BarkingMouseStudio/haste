@@ -88,7 +88,7 @@ namespace Haste {
       NameBoundaries = HasteStringUtils.GetBoundaries(Name);
 
       IsFirstCharMatch = Item.PathLower[0] == queryLower[0];
-      IsFirstCharNameMatch = Name[0] == queryLower[0];
+      IsFirstCharNameMatch = NameLower[0] == queryLower[0];
 
       // Much faster than "StartsWith"
       IsPrefixMatch = Item.PathLower.IndexOf(queryLower) == 0;
