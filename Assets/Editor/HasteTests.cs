@@ -22,6 +22,7 @@ namespace Haste {
       Assert.That(HasteStringUtils.GetBoundaries("Yak"), Is.EqualTo("y"));
       Assert.That(HasteStringUtils.GetBoundaries("LlamaCrab"), Is.EqualTo("lc"));
       Assert.That(HasteStringUtils.GetBoundaries("ShrewRail/Wren"), Is.EqualTo("srw"));
+      Assert.That(HasteStringUtils.GetBoundaries("Unity Test Tools/Platform Runner/Run on platform"), Is.EqualTo("uttprrop"));
     }
 
     [Test]
