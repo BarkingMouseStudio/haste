@@ -163,7 +163,7 @@ namespace Haste {
       });
     }
 
-    // ~ 12
+    // ~ 13
     public void BenchGetBoundaries() {
       var str = "Apples/Bananas/Carrots";
       Benchmark("GetBoundaries", 10000, () => {
