@@ -10,6 +10,39 @@ namespace Haste {
   internal class HasteTests {
 
     [Test]
+    public void Comparer() {
+      HasteResultComparer comparer = new HasteResultComparer();
+
+      string queryLower = "rop";
+      IHasteResult a = new HasteResult(new HasteItem("Unity Test Tools/Platform Runner/Run on platform", 0, ""), queryLower, queryLower.Length);
+      IHasteResult b = new HasteResult(new HasteItem("Assets/UnityTestTools/Common/Editor/icons/rerun-darktheme.png", 0, ""), queryLower, queryLower.Length);
+      Assert.That(comparer.Compare(a, b), Is.EqualTo(-1));
+
+      queryLower = "ca";
+      IHasteResult c = new HasteResult(new HasteItem("Component/Add...", 0, ""), queryLower, queryLower.Length);
+      IHasteResult d = new HasteResult(new HasteItem("Component/Layout/Canvas", 0, ""), queryLower, queryLower.Length);
+      Assert.That(comparer.Compare(c, d), Is.EqualTo(-1));
+    }
+
+    [Test]
+    public void Filter() {
+      var index = new HasteIndex();
+      index.Add(new HasteItem("Path/MyFileWithExtension.cs", 0, ""));
+
+      // Test extensions
+      var results = index.Filter(".cs", 1);
+      Assert.That(results.Length, Is.EqualTo(1));
+
+      // Test boundaries
+      results = index.Filter("pm", 1);
+      Assert.That(results.Length, Is.EqualTo(1));
+
+      // Test name
+      results = index.Filter("m", 1);
+      Assert.That(results.Length, Is.EqualTo(1));
+    }
+
+    [Test]
     public void Approximately() {
       Assert.That(HasteResultComparer.Approximately(0.0f, 0.0f), Is.True);
       Assert.That(HasteResultComparer.Approximately(1.0f, 1.0f), Is.True);
