@@ -12,6 +12,7 @@ namespace Haste {
 
     static void Benchmark(string name, int iter, Action action) {
       long totalTicks = 0;
+      double totalMS = 0.0;
 
       Stopwatch timer = new Stopwatch();
       for (int i = 0; i < iter; i++) {
@@ -22,10 +23,12 @@ namespace Haste {
 
         timer.Stop();
         totalTicks += timer.ElapsedTicks;
+        totalMS += timer.Elapsed.TotalMilliseconds;
       }
 
       var avgTicks = (float)totalTicks / iter;
-      HasteDebug.Info("{0} ({1}) - Avg. Ticks: {2}", name, iter, avgTicks);
+      var avgTime = totalMS / iter;
+      HasteDebug.Info("{0} ({1}) - Avg. Ticks: {2}, Avg. Time: {3}ms", name, iter, avgTicks, avgTime);
     }
 
     [MenuItem("Window/Benchmarks")]
@@ -86,10 +89,10 @@ namespace Haste {
       });
     }
 
-    // ~ 15,000
+    // ~ 384ms
     public void BenchHasteResultComparer() {
       IList<HasteItem> items = new List<HasteItem>();
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 20000; i++) {
         items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
       }
 
@@ -102,30 +105,30 @@ namespace Haste {
 
       var comparer = new HasteResultComparer();
 
-      Benchmark("HasteResultComparer", 100, () => {
+      Benchmark("HasteResultComparer", 10, () => {
         results.OrderBy(r => r, comparer).ToArray();
       });
     }
 
-    // ~ 250,000
+    // ~ 248ms
     public void BenchHasteIndexFilter() {
       var index = new HasteIndex();
-      for (int i = 0; i < 10000; i++) {
+      for (int i = 0; i < 100000; i++) {
         index.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
       }
       Benchmark("HasteIndex#Filter", 10, () => {
-        index.Filter("s", 25);
+        index.Filter("s", 100);
       });
     }
 
-    // ~ 2.75
+    // ~ 1.75
     public void BenchLetterBitsetFromString() {
       Benchmark("LetterBitsetFromString", 100000, () => {
         HasteStringUtils.LetterBitsetFromString("this is a test");
       });
     }
 
-    // ~ 55
+    // ~ 25
     public void BenchHasteResult() {
       var item = new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       var query = "abc";
@@ -135,7 +138,7 @@ namespace Haste {
       });
     }
 
-    // ~ 35
+    // ~ 16
     public void BenchBoldLabel() {
       string str = "Apples/Bananas/Carrots";
       int[] indices = new int[]{0, 7, 15};
@@ -144,14 +147,14 @@ namespace Haste {
       });
     }
 
-    // ~ 50
+    // ~ 20
     public void BenchHasteItem() {
       Benchmark("HasteItem", 10000, () => {
         new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       });
     }
 
-    // ~ 4
+    // ~ 2.75
     public void BenchApproximately() {
       Benchmark("Approximately", 100000, () => {
         HasteResultComparer.Approximately(1.0f, 0.0f);
@@ -160,7 +163,7 @@ namespace Haste {
       });
     }
 
-    // ~ 30
+    // ~ 12
     public void BenchGetBoundaries() {
       var str = "Apples/Bananas/Carrots";
       Benchmark("GetBoundaries", 10000, () => {
@@ -168,14 +171,14 @@ namespace Haste {
       });
     }
 
-    // ~ 7.5
+    // ~ 4
     public void BenchGetFileNameWithoutExtension() {
       Benchmark("GetFileNameWithoutExtension", 100000, () => {
         HasteStringUtils.GetFileNameWithoutExtension("Apples/Bananas/Carrots.cs");
       });
     }
 
-    // ~ 7.5
+    // ~ 5-8.5
     public void BenchLongestCommonSubsequenceLength() {
       var testItem = new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       var testQuery = "abc";
