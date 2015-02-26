@@ -71,6 +71,12 @@ namespace Haste {
       if (GUILayout.Button(String.Format("Bench {0}", "LetterBitsetFromString"))) {
         BenchLetterBitsetFromString();
       }
+      if (GUILayout.Button(String.Format("Bench {0}", "StartsWith"))) {
+        BenchStartsWith();
+      }
+      if (GUILayout.Button(String.Format("Bench {0}", "IndexOfZero"))) {
+        BenchIndexOfZero();
+      }
     }
 
     // ~ 20
@@ -175,6 +181,20 @@ namespace Haste {
     public void BenchGetFileNameWithoutExtension() {
       Benchmark("GetFileNameWithoutExtension", 100000, () => {
         HasteStringUtils.GetFileNameWithoutExtension("Apples/Bananas/Carrots.cs");
+      });
+    }
+
+    // ~ 11
+    public void BenchStartsWith() {
+      Benchmark("StartsWith", 100000, () => {
+        ("Apples/Bananas/Carrots.cs").StartsWith("Apples");
+      });
+    }
+
+    // ~ 2
+    public void BenchIndexOfZero() {
+      Benchmark("IndexOfZero", 100000, () => {
+        ("Apples/Bananas/Carrots.cs").IndexOf("Apples");
       });
     }
 
