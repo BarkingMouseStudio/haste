@@ -247,7 +247,7 @@ namespace Haste {
           }
 
           // Is it a post-boundary word char?
-          if (char.IsLetter(c) && char.IsPunctuation(_c)) {
+          if (char.IsLetter(c) && (char.IsPunctuation(_c) || _c == ' ')) {
             matches.Append(char.ToLowerInvariant(c));
             continue;
           }
