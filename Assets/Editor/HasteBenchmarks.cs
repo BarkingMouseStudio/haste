@@ -79,7 +79,7 @@ namespace Haste {
       }
     }
 
-    // ~ 20
+    // ~ 13
     public void BenchHasteIndexAdd() {
       List<HasteItem> items = new List<HasteItem>();
       int i = 0;
@@ -95,18 +95,18 @@ namespace Haste {
       });
     }
 
-    // ~ 384ms
+    // ~ 187ms
     public void BenchHasteResultComparer() {
       IList<HasteItem> items = new List<HasteItem>();
-      for (int i = 0; i < 20000; i++) {
+      for (int i = 0; i < 10000; i++) {
         items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
       }
 
       string query = "abc";
       int queryLen = query.Length;
 
-      IEnumerable<HasteHierarchyResult> results = items.Select(m => {
-        return new HasteHierarchyResult(m, query, queryLen);
+      IEnumerable<HasteResult> results = items.Select(m => {
+        return new HasteResult(m, query, queryLen);
       });
 
       var comparer = new HasteResultComparer();
@@ -134,13 +134,13 @@ namespace Haste {
       });
     }
 
-    // ~ 25
+    // ~ 26
     public void BenchHasteResult() {
-      var item = new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
+      var item = new HasteItem("Apples/Bananas/Carrots", 0, "");
       var query = "abc";
       var queryLen = query.Length;
       Benchmark("HasteResult", 10000, () => {
-        new HasteHierarchyResult(item, query, queryLen);
+        new HasteResult(item, query, queryLen);
       });
     }
 
