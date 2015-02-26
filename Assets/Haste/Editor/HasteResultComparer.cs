@@ -31,6 +31,7 @@ namespace Haste {
       // - Favor small index sums for "near beginning"
       // - Penalize non-boundary match gaps
       // - Favor exact matches
+      // - Favor boundary ratios/utilization near 1.0
 
       // Favor "ca" for Component/Add...
       // Favor "rop" for Run on platform...
@@ -57,12 +58,12 @@ namespace Haste {
         }
       }
 
-      if (a.IsExactMatch != b.IsExactMatch || a.IsExactNameMatch != b.IsExactNameMatch) {
-        return a.IsExactMatch || a.IsExactNameMatch ? -1 : 1;
-      }
-
       if (a.IsPrefixMatch != b.IsPrefixMatch || a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
         return a.IsPrefixMatch || a.IsNamePrefixMatch ? -1 : 1;
+      }
+
+      if (a.IsExactMatch != b.IsExactMatch || a.IsExactNameMatch != b.IsExactNameMatch) {
+        return a.IsExactMatch || a.IsExactNameMatch ? -1 : 1;
       }
 
       if (!equalBoundaryRatios) {
