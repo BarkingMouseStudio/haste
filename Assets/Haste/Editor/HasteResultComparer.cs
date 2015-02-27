@@ -40,7 +40,7 @@ namespace Haste {
       }
       #endif
 
-      if (a.IsFirstCharMatch != b.IsFirstCharMatch || a.IsFirstCharNameMatch != b.IsFirstCharNameMatch) {
+      if (!(a.IsFirstCharMatch == b.IsFirstCharMatch || a.IsFirstCharNameMatch == b.IsFirstCharNameMatch)) {
         return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
       }
 

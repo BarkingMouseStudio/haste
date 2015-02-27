@@ -22,6 +22,11 @@ namespace Haste {
       IHasteResult c = new HasteResult(new HasteItem("Component/Add...", 0, ""), queryLower, queryLower.Length);
       IHasteResult d = new HasteResult(new HasteItem("Component/Layout/Canvas", 0, ""), queryLower, queryLower.Length);
       Assert.That(comparer.Compare(c, d), Is.EqualTo(-1));
+
+      queryLower = "cec";
+      IHasteResult e = new HasteResult(new HasteItem("GameObject/Create Empty Child", 0, ""), queryLower, queryLower.Length);
+      IHasteResult f = new HasteResult(new HasteItem("Component/Physics/Cloth Renderer", 0, ""), queryLower, queryLower.Length);
+      Assert.That(comparer.Compare(e, f), Is.EqualTo(-1));
     }
 
     [Test]
