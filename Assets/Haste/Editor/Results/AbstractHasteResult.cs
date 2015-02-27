@@ -50,7 +50,7 @@ namespace Haste {
     int[] GetIndices() {
       int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
       int[] indices;
-      HasteStringUtils.GetMatchIndices(Item.PathLower, QueryLower, 0, boundaryIndices, out indices);
+      HasteStringUtils.GetMatchIndices(Item.PathLower, QueryLower, boundaryIndices, out indices);
       return indices;
     }
 
