@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
+using System.Linq;
 
 namespace Haste {
 
@@ -10,7 +11,7 @@ namespace Haste {
   internal class HasteTests {
 
     [Test]
-    public void Comparer() {
+    public void TestResultComparer() {
       HasteResultComparer comparer = new HasteResultComparer();
 
       string queryLower = "rop";
@@ -30,7 +31,7 @@ namespace Haste {
     }
 
     [Test]
-    public void Filter() {
+    public void TestFilter() {
       var index = new HasteIndex();
       index.Add(new HasteItem("Path/MyFileWithExtension.cs", 0, ""));
 
@@ -48,7 +49,7 @@ namespace Haste {
     }
 
     [Test]
-    public void Approximately() {
+    public void TestApproximately() {
       Assert.That(HasteResultComparer.Approximately(0.0f, 0.0f), Is.True);
       Assert.That(HasteResultComparer.Approximately(1.0f, 1.0f), Is.True);
       Assert.That(HasteResultComparer.Approximately(1.0f, 0.0f), Is.False);
@@ -56,7 +57,16 @@ namespace Haste {
     }
 
     [Test]
-    public void GetBoundaries() {
+    public void TestGetBoundaryIndices() {
+      HasteItem item = new HasteItem("Unity Test Tools/Platform Runner/Run on platform.cs", 0, "");
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
+      string bolded = HasteStringUtils.BoldLabel(item.Path, boundaryIndices, "[", "]");
+      string expected = "[U]nity [T]est [T]ools/[P]latform [R]unner/[R]un [o]n [p]latform[.][c]s";
+      Assert.That(bolded, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void TestGetBoundaries() {
       Assert.That(HasteStringUtils.GetBoundaries("Yak"), Is.EqualTo("y"));
       Assert.That(HasteStringUtils.GetBoundaries("LlamaCrab"), Is.EqualTo("lc"));
       Assert.That(HasteStringUtils.GetBoundaries("ShrewRail/Wren"), Is.EqualTo("srw"));
@@ -64,16 +74,48 @@ namespace Haste {
     }
 
     [Test]
-    public void BoldLabel() {
-      string path = "Apples/Bananas/Carrots";
-      string query = "albncr";
+    [Category("BoldLabel")]
+    public void TestBoldLabel1() {
+      string queryLower = "albncr";
 
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(path);
+      HasteItem item = new HasteItem("Apples/Bananas/Carrots", 0, "");
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
       int[] indices;
-      HasteStringUtils.GetMatchIndices(path.ToLowerInvariant(), query.ToLowerInvariant(), 0, boundaryIndices, out indices);
+      HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices, out indices);
 
-      Assert.That(HasteStringUtils.BoldLabel(path, indices, "[", "]"),
-        Is.EqualTo("[A]pp[l]es/[B]a[n]anas/[C]a[r]rots"));
+      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
+      string expected = "[A]pp[l]es/[B]a[n]anas/[C]a[r]rots";
+      Assert.That(bolded, Is.EqualTo(expected));
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel2() {
+      string queryLower = "upr";
+
+      HasteItem item = new HasteItem("Unity Test Tools/Platform Runner/Run on platform", 0, "");
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
+      int[] indices;
+      HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices, out indices);
+
+      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
+      string expected = "[U]nity Test Tools/[P]latform [R]unner/Run on platform";
+      Assert.That(bolded, Is.EqualTo(expected));
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel3() {
+      string queryLower = "mc";
+
+      HasteItem item = new HasteItem("Component/Physics/Mesh Collider", 0, "");
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
+      int[] indices;
+      HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices, out indices);
+
+      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
+      string expected = "Component/Physics/[M]esh [C]ollider";
+      Assert.That(bolded, Is.EqualTo(expected));
     }
   }
 }
