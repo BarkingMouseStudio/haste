@@ -1,8 +1,11 @@
+using UnityEngine;
+using UnityEditor;
 using System;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Haste {
 
@@ -79,84 +82,59 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static bool GetMatchIndices(string pathLower, string queryLower, int offset, int[] boundaryIndices, out int[] indices) {
-      List<int> indices_ = new List<int>();
+    public static int[] GetMatchIndices(string pathLower, string queryLower, int[] boundaryIndices) {
+      Stack<int> results = new Stack<int>();
 
-      int pathLen = pathLower.Length;
-      int queryLen = queryLower.Length;
-
-      // Can't match if the string is too short
-      if (pathLen < queryLen) {
-        indices = indices_.ToArray();
-        return false;
-      }
-
-      int pathIndex = 0;
-      int queryIndex = 0;
-      int boundaryPosition = 0;
-      int boundaryLen = boundaryIndices.Length;
+      Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
       int boundaryIndex;
-      bool matchedChar = false;
-
-      while (pathIndex < pathLen && queryIndex < queryLen) {
-        matchedChar = false;
-
-        // We matched a query character
-        if (pathLower[pathIndex] == queryLower[queryIndex]) {
-
-          // We have boundaries to match
-          if (boundaryPosition < boundaryLen) {
-            boundaryIndex = boundaryIndices[boundaryPosition];
-
-            // Found a boundary match
-            if (pathIndex == boundaryIndex) {
-              boundaryPosition++;
-              matchedChar = true;
-
-            // No current boundary match, lookahead
-            } else {
-              bool couldMatchBoundary = false;
-              int nextBoundaryPosition = boundaryPosition;
-              int nextBoundaryIndex;
-
-              while (nextBoundaryPosition < boundaryLen) {
-                nextBoundaryIndex = boundaryIndices[nextBoundaryPosition];
-                if (pathLower[nextBoundaryIndex] == queryLower[queryIndex]) {
-                  couldMatchBoundary = true;
-                  break;
-                }
-                nextBoundaryPosition++;
-              }
-
-              // This query character couldn't be matched on a future boundary
-              if (!couldMatchBoundary) {
-                matchedChar = true;
-              }
-            }
-
-          // Just a regular match
-          } else {
-            matchedChar = true;
-          }
-        }
-
-        if (matchedChar) {
-          indices_.Add(pathIndex + offset);
-          queryIndex++;
-
-          if (queryIndex > queryLower.Length - 1) {
-            // We've reached the end of our query with successful matches
-            indices = indices_.ToArray();
-            return true;
-          }
-        }
-
-        // Advance to test next string
-        pathIndex++;
+      for (int i = 0; i < boundaryIndices.Length; i++) {
+        boundaryIndex = boundaryIndices[i];
+        boundaryCharIndices[boundaryIndex] = pathLower[boundaryIndex];
       }
 
-      indices = indices_.ToArray();
-      return false;
+      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(pathLower.Length);
+      List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
+      for (int i = 0; i < pathLower.Length; i++) {
+        if (boundaryCharIndices.ContainsKey(i)) {
+          orderedChars.Add(HasteTuple.Create(i, pathLower[i]));
+        } else {
+          nonBoundaryChars.Add(HasteTuple.Create(i, pathLower[i]));
+        }
+      }
+      orderedChars.AddRange(nonBoundaryChars);
+
+      var orderedCharsStr = string.Join("", orderedChars.Select(o => o.Second.ToString()).ToArray());
+
+      // int startAt = 0;
+
+      HasteDebug.Info("path: {0}, query: {1}, ordered: {2}", pathLower, queryLower, orderedCharsStr);
+
+    Outer:
+      for (int i = 0; i < queryLower.Length; i++) {
+        char q = queryLower[i];
+
+        for (int j = 0; j < orderedChars.Count; j++) {
+          var orderedChar = orderedChars[j];
+
+          if (q == orderedChar.Second) {
+            HasteDebug.Info("{0} {1}", orderedChar.First, orderedChar.Second);
+            // if (results.Count == 0 || orderedChar.First > results.Peek()) {
+              results.Push(orderedChar.First);
+              // startAt = 0;
+              break;
+            // } else {
+            //   startAt = results.Pop();
+            //   i--;
+            //   goto Outer;
+            // }
+          }
+        }
+
+        // startAt = 0;
+      }
+
+      Debug.Log(string.Join("", results.Reverse().Select(o => pathLower[o].ToString()).ToArray()));
+      return results.Reverse().ToArray();
     }
 
     public static string GetFileNameWithoutExtension(string path) {
@@ -204,7 +182,7 @@ namespace Haste {
           }
 
           // Is it a post-boundary word char?
-          if (char.IsLetter(c) && char.IsPunctuation(_c)) {
+          if (char.IsLetter(c) && (char.IsPunctuation(_c) || _c == ' ')) {
             indices.Add(i);
             continue;
           }
@@ -263,8 +241,8 @@ namespace Haste {
         return str;
       }
 
-      int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
-      StringBuilder bolded = new StringBuilder(str, maxCap);
+      // int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
+      StringBuilder bolded = new StringBuilder(str/*, maxCap*/);
 
       int index;
       int offset = 0;

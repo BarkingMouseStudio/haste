@@ -73,49 +73,78 @@ namespace Haste {
       Assert.That(HasteStringUtils.GetBoundaries("Unity Test Tools/Platform Runner/Run on platform"), Is.EqualTo("uttprrop"));
     }
 
+    void TestBoldLabel(string path, string query, string expected) {
+      string queryLower = query.ToLowerInvariant();
+
+      HasteItem item = new HasteItem(path, 0, "");
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
+      int[] indices = HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices);
+
+      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
+      Assert.That(bolded, Is.EqualTo(expected));
+    }
+
     [Test]
     [Category("BoldLabel")]
     public void TestBoldLabel1() {
-      string queryLower = "albncr";
-
-      HasteItem item = new HasteItem("Apples/Bananas/Carrots", 0, "");
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
-      int[] indices;
-      HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices, out indices);
-
-      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
-      string expected = "[A]pp[l]es/[B]a[n]anas/[C]a[r]rots";
-      Assert.That(bolded, Is.EqualTo(expected));
+      TestBoldLabel("Apples/Bananas/Carrots", "albncr",
+        "[A]pp[l]es/[B]a[n]anas/[C]a[r]rots");
     }
 
     [Test]
     [Category("BoldLabel")]
     public void TestBoldLabel2() {
-      string queryLower = "upr";
-
-      HasteItem item = new HasteItem("Unity Test Tools/Platform Runner/Run on platform", 0, "");
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
-      int[] indices;
-      HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices, out indices);
-
-      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
-      string expected = "[U]nity Test Tools/[P]latform [R]unner/Run on platform";
-      Assert.That(bolded, Is.EqualTo(expected));
+      TestBoldLabel("Unity Test Tools/Platform Runner/Run on platform", "upr",
+        "[U]nity Test Tools/[P]latform [R]unner/Run on platform");
     }
 
     [Test]
     [Category("BoldLabel")]
     public void TestBoldLabel3() {
-      string queryLower = "mc";
+      TestBoldLabel("Component/Physics/Mesh Collider", "mc",
+        "Component/Physics/[M]esh [C]ollider");
+    }
 
-      HasteItem item = new HasteItem("Component/Physics/Mesh Collider", 0, "");
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
-      int[] indices;
-      HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices, out indices);
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel4() {
+      TestBoldLabel("Apples/Bananas/Carrots", "albncr",
+        "[A]pp[l]es/[B]a[n]anas/[C]a[r]rots");
+    }
 
-      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
-      string expected = "Component/Physics/[M]esh [C]ollider";
-      Assert.That(bolded, Is.EqualTo(expected));
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel5() {
+      TestBoldLabel("Abples/Bananas/Cherribs", "abc",
+        "[A]bples/[B]ananas/[C]herribs");
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel6() {
+      TestBoldLabel("Abples/Bananas/Cherribs", "abbc",
+        "[A][b]ples/[B]ananas/[C]herribs");
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel7() {
+      TestBoldLabel("Abples/Bananas/Cherribs", "abac",
+        "[A]bples/[B][a]nanas/[C]herribs");
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel8() {
+      TestBoldLabel("Abples/Bananas/Cherribs", "bp",
+        "A[b][p]les/Bananas/Cherribs");
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel9() {
+      TestBoldLabel("Abcles/Abales/Cherries", "abac",
+        "[A][b]cles/[A]bales/[C]herries");
     }
   }
 }
