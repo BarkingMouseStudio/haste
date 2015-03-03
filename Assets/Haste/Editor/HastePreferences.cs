@@ -63,11 +63,7 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        if (Haste.IsIndexing) {
-          EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
-        } else {
-          EditorGUILayout.LabelField("Indexed Count", Haste.IndexedCount.ToString());
-        }
+        EditorGUILayout.LabelField("Indexed Count", Haste.IndexedCount.ToString());
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();

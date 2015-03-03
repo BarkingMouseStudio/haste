@@ -251,11 +251,15 @@ namespace Haste {
       }
     }
 
+    bool isIndexing = false;
+
     void Update() {
-      if (Haste.IsIndexing && this.windowState == HasteWindowState.Intro) {
+      if ((Haste.IsIndexing || isIndexing) && this.windowState == HasteWindowState.Intro) {
         // This is here to repaint the indexing count
         Repaint();
       }
+
+      isIndexing = !Haste.IsIndexing;
 
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
