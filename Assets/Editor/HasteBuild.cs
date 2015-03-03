@@ -67,6 +67,7 @@ namespace Haste {
 
     public static void ExportHasteFree(string rootPath, string[] source) {
       var exportPath = Path.Combine(rootPath, "HasteFree");
+      FileUtil.DeleteFileOrDirectory(exportPath);
 
       // Create folders
       var editorPath = CreateFolder(CreateFolder(exportPath, "Haste"), "Editor");
@@ -76,22 +77,35 @@ namespace Haste {
 
       // Copy internal resources folder
       var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
-      FileUtil.CopyFileOrDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
+      FileUtil.ReplaceDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
     }
 
     public static void ExportHastePro(string rootPath, string[] source, string sourcePackagePath) {
       var exportPath = Path.Combine(rootPath, "HastePro");
+      FileUtil.DeleteFileOrDirectory(exportPath);
 
       // Create folders
-      var editorPath = CreateFolder(CreateFolder(exportPath, "Haste"), "Editor");
+      var topPath = CreateFolder(exportPath, "Haste");
+      var editorPath = CreateFolder(topPath, "Editor");
 
       // Build dll
       BuildAssembly(source, Path.Combine(editorPath, "Haste.dll"), "/optimize /define:IS_HASTE_PRO").LogErrors();
 
       // Copy internal resources folder
       var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
-      FileUtil.CopyFileOrDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
-      FileUtil.CopyFileOrDirectory(sourcePackagePath, editorPath);
+      FileUtil.ReplaceDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
+
+      // Copy Haste Pro source
+      var destSourcePackagePath = Path.Combine(topPath, "HasteProSource.unitypackage");
+      FileUtil.ReplaceFile(sourcePackagePath, destSourcePackagePath);
+    }
+
+    public static string ExportHasteProSource(string rootPath) {
+      var sourcePackagePath = Path.Combine(rootPath, String.Format("HasteProSource.unitypackage"));
+      FileUtil.DeleteFileOrDirectory(sourcePackagePath);
+      AssetDatabase.ExportPackage("Assets/Haste", sourcePackagePath,
+        ExportPackageOptions.Recurse | ExportPackageOptions.IncludeDependencies);
+      return sourcePackagePath;
     }
 
     [MenuItem("Window/Export Haste")]
@@ -102,13 +116,12 @@ namespace Haste {
         return;
       }
 
-      var sourcePackagePath = Path.Combine(rootPath, String.Format("HasteProSource.unitypackage"));
-      AssetDatabase.ExportPackage("Assets/Haste", sourcePackagePath,
-        ExportPackageOptions.Recurse | ExportPackageOptions.IncludeDependencies);
-
+      var sourcePackagePath = ExportHasteProSource(rootPath);
       var source = GetSource(SOURCE_PATH);
       ExportHasteFree(rootPath, source);
       ExportHastePro(rootPath, source, sourcePackagePath);
+
+      Debug.Log("Done.");
     }
   }
 }
