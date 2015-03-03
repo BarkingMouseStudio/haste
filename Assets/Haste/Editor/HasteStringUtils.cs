@@ -83,58 +83,59 @@ namespace Haste {
     }
 
     public static int[] GetMatchIndices(string pathLower, string queryLower, int[] boundaryIndices) {
-      Stack<int> results = new Stack<int>();
+      return new int[0];
+    //   Stack<int> results = new Stack<int>();
 
-      Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
-      int boundaryIndex;
-      for (int i = 0; i < boundaryIndices.Length; i++) {
-        boundaryIndex = boundaryIndices[i];
-        boundaryCharIndices[boundaryIndex] = pathLower[boundaryIndex];
-      }
+    //   Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
+    //   int boundaryIndex;
+    //   for (int i = 0; i < boundaryIndices.Length; i++) {
+    //     boundaryIndex = boundaryIndices[i];
+    //     boundaryCharIndices[boundaryIndex] = pathLower[boundaryIndex];
+    //   }
 
-      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(pathLower.Length);
-      List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
-      for (int i = 0; i < pathLower.Length; i++) {
-        if (boundaryCharIndices.ContainsKey(i)) {
-          orderedChars.Add(HasteTuple.Create(i, pathLower[i]));
-        } else {
-          nonBoundaryChars.Add(HasteTuple.Create(i, pathLower[i]));
-        }
-      }
-      orderedChars.AddRange(nonBoundaryChars);
+    //   List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(pathLower.Length);
+    //   List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
+    //   for (int i = 0; i < pathLower.Length; i++) {
+    //     if (boundaryCharIndices.ContainsKey(i)) {
+    //       orderedChars.Add(HasteTuple.Create(i, pathLower[i]));
+    //     } else {
+    //       nonBoundaryChars.Add(HasteTuple.Create(i, pathLower[i]));
+    //     }
+    //   }
+    //   orderedChars.AddRange(nonBoundaryChars);
 
-      var orderedCharsStr = string.Join("", orderedChars.Select(o => o.Second.ToString()).ToArray());
+    //   var orderedCharsStr = string.Join("", orderedChars.Select(o => o.Second.ToString()).ToArray());
 
-      // int startAt = 0;
+    //   // int startAt = 0;
 
-      HasteDebug.Info("path: {0}, query: {1}, ordered: {2}", pathLower, queryLower, orderedCharsStr);
+    //   // HasteDebug.Info("path: {0}, query: {1}, ordered: {2}", pathLower, queryLower, orderedCharsStr);
 
-    Outer:
-      for (int i = 0; i < queryLower.Length; i++) {
-        char q = queryLower[i];
+    // // Outer:
+    //   for (int i = 0; i < queryLower.Length; i++) {
+    //     char q = queryLower[i];
 
-        for (int j = 0; j < orderedChars.Count; j++) {
-          var orderedChar = orderedChars[j];
+    //     for (int j = 0; j < orderedChars.Count; j++) {
+    //       var orderedChar = orderedChars[j];
 
-          if (q == orderedChar.Second) {
-            HasteDebug.Info("{0} {1}", orderedChar.First, orderedChar.Second);
-            // if (results.Count == 0 || orderedChar.First > results.Peek()) {
-              results.Push(orderedChar.First);
-              // startAt = 0;
-              break;
-            // } else {
-            //   startAt = results.Pop();
-            //   i--;
-            //   goto Outer;
-            // }
-          }
-        }
+    //       if (q == orderedChar.Second) {
+    //         // HasteDebug.Info("{0} {1}", orderedChar.First, orderedChar.Second);
+    //         // if (results.Count == 0 || orderedChar.First > results.Peek()) {
+    //           results.Push(orderedChar.First);
+    //           // startAt = 0;
+    //           break;
+    //         // } else {
+    //         //   startAt = results.Pop();
+    //         //   i--;
+    //         //   goto Outer;
+    //         // }
+    //       }
+    //     }
 
-        // startAt = 0;
-      }
+    //     // startAt = 0;
+    //   }
 
-      Debug.Log(string.Join("", results.Reverse().Select(o => pathLower[o].ToString()).ToArray()));
-      return results.Reverse().ToArray();
+    //   // Debug.Log(string.Join("", results.Reverse().Select(o => pathLower[o].ToString()).ToArray()));
+    //   return results.Reverse().ToArray();
     }
 
     public static string GetFileNameWithoutExtension(string path) {
