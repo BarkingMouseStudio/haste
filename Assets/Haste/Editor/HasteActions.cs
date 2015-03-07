@@ -232,6 +232,10 @@ namespace Haste {
         HasteReflection.Invoke(HasteReflection.EditorAssembly, "UnityEditor.BuildPlayerWindow", "BuildPlayerAndRun");
       } },
 
+      { "File/Build in Cloud...", () => {
+        Application.OpenURL("http://build.connect.unity3d.com/");
+      } },
+
       { "Edit/Undo", () => {
         Undo.PerformUndo();
       } },
@@ -270,6 +274,20 @@ namespace Haste {
 
       { "Edit/Select All", () => {
         EditorWindow.focusedWindow.SendEvent(EditorGUIUtility.CommandEvent("SelectAll"));
+      } },
+
+      { "Edit/Play", () => {
+        EditorApplication.isPaused = false;
+        EditorApplication.isPlaying = true;
+      } },
+
+      { "Edit/Pause", () => {
+        EditorApplication.isPlaying = false;
+        EditorApplication.isPaused = true;
+      } },
+
+      { "Edit/Step", () => {
+        EditorApplication.Step();
       } },
 
       // { "Edit/Project Settings/Input", () => {
