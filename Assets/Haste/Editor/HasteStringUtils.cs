@@ -82,59 +82,98 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static int[] GetMatchIndices(string pathLower, string queryLower, int[] boundaryIndices) {
-      Stack<int> results = new Stack<int>();
+    public static int[] GetMatchIndices(string path, string query, int[] boundaryIndices) {
 
       Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
       int boundaryIndex;
       for (int i = 0; i < boundaryIndices.Length; i++) {
         boundaryIndex = boundaryIndices[i];
-        boundaryCharIndices[boundaryIndex] = pathLower[boundaryIndex];
+        boundaryCharIndices[boundaryIndex] = path[boundaryIndex];
       }
 
-      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(pathLower.Length);
+      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(path.Length);
       List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
-      for (int i = 0; i < pathLower.Length; i++) {
+
+      for (int i = 0; i < path.Length; i++) {
         if (boundaryCharIndices.ContainsKey(i)) {
-          orderedChars.Add(HasteTuple.Create(i, pathLower[i]));
+          orderedChars.Add(HasteTuple.Create(i, path[i]));
         } else {
-          nonBoundaryChars.Add(HasteTuple.Create(i, pathLower[i]));
+          nonBoundaryChars.Add(HasteTuple.Create(i, path[i]));
         }
       }
+
       orderedChars.AddRange(nonBoundaryChars);
+      Stack<int> results = GetIndicesA(query, orderedChars);
 
-      var orderedCharsStr = string.Join("", orderedChars.Select(o => o.Second.ToString()).ToArray());
+      if (results.Count < query.Length) {
+        results = GetIndicesB(query, orderedChars);
+      }
 
-      // int startAt = 0;
 
-      HasteDebug.Info("path: {0}, query: {1}, ordered: {2}", pathLower, queryLower, orderedCharsStr);
+      return results.OrderBy(o => o).ToArray();
+    }
 
-    Outer:
-      for (int i = 0; i < queryLower.Length; i++) {
-        char q = queryLower[i];
+    public static Stack<int> GetIndicesA(string query, List<HasteTuple<int, char>> orderedChars) {
+      Stack<int> results = new Stack<int>();
+      var orderedChar = orderedChars[0];
+      var queryChar = query[0];
+      int prevResult = 0;
+
+      for (int i = 0; i < query.Length; i++) {
+        queryChar = query[i];
+        prevResult = (results.Count > 0) ? results.Peek() : 0;
 
         for (int j = 0; j < orderedChars.Count; j++) {
-          var orderedChar = orderedChars[j];
-
-          if (q == orderedChar.Second) {
-            HasteDebug.Info("{0} {1}", orderedChar.First, orderedChar.Second);
-            // if (results.Count == 0 || orderedChar.First > results.Peek()) {
-              results.Push(orderedChar.First);
-              // startAt = 0;
-              break;
-            // } else {
-            //   startAt = results.Pop();
-            //   i--;
-            //   goto Outer;
-            // }
+          orderedChar = orderedChars[j];
+          if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First) && (orderedChar.First >= prevResult)) {
+            results.Push(orderedChar.First);
+            break;
           }
         }
-
-        // startAt = 0;
       }
+      return results;
+    }
 
-      Debug.Log(string.Join("", results.Reverse().Select(o => pathLower[o].ToString()).ToArray()));
-      return results.Reverse().ToArray();
+    public static Stack<int> GetIndicesB(string query, List<HasteTuple<int, char>> orderedChars) {
+      Stack<int> results = new Stack<int>();
+      var orderedChar = orderedChars[0];
+      var queryChar = query[0];
+      int prevResult = 0;
+      int charStart = 0;
+      int queryStart = 0;
+      int limit = 10;
+
+      Outer:
+      for (int i = queryStart; i < query.Length; i++) {
+        prevResult = (results.Count > 0) ? results.Peek() : 0;
+        queryChar = query[i];
+
+        for (int j = charStart; j < orderedChars.Count; j++) {
+          orderedChar = orderedChars[j];
+
+          if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First)) {
+
+            if (orderedChar.First >= prevResult) {
+              results.Push(orderedChar.First);
+              charStart = 0;
+              break;
+
+            } else if (limit > 0) {
+              results.Pop();
+
+              for (var k = 0; k < orderedChars.Count; k++) {
+                if (prevResult == orderedChars[k].First) {
+                  charStart = k + 1;
+                  limit--;
+                  queryStart = results.Count;
+                  goto Outer;
+                }
+              }
+            }
+          }
+        }
+      }
+      return results;
     }
 
     public static string GetFileNameWithoutExtension(string path) {
@@ -236,7 +275,7 @@ namespace Haste {
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-      int indicesLen = indices.Length;
+	  int indicesLen = indices.Length;
       if (indicesLen == 0) {
         return str;
       }
@@ -245,11 +284,15 @@ namespace Haste {
       StringBuilder bolded = new StringBuilder(str/*, maxCap*/);
 
       int index;
-      int offset = 0;
+      int offset;
 
       for (int i = 0; i < indicesLen; i++) {
         index = indices[i];
-        bolded.Insert(index + offset, boldStart);
+        offset = i * 2;
+
+        // Debug.Log (i + ", " + index + ", " + bolded.Length);
+
+		    bolded.Insert(index + offset, boldStart);
         offset += boldStart.Length;
         bolded.Insert(index + offset + 1, boldEnd);
         offset += boldEnd.Length;
