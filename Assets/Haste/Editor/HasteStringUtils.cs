@@ -162,48 +162,6 @@ namespace Haste {
       return results.OrderBy(o => o).ToArray();
     }
 
-    public static Stack<int> GetIndicesB(string query, List<HasteTuple<int, char>> orderedChars) {
-      Stack<int> results = new Stack<int>();
-      var orderedChar = orderedChars[0];
-      var queryChar = query[0];
-      int prevResult = 0;
-      int charStart = 0;
-      int queryStart = 0;
-      int limit = 10;
-
-      Outer:
-      for (int i = queryStart; i < query.Length; i++) {
-        prevResult = (results.Count > 0) ? results.Peek() : 0;
-        queryChar = query[i];
-
-        for (int j = charStart; j < orderedChars.Count; j++) {
-          orderedChar = orderedChars[j];
-
-          if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First)) {
-
-            if (orderedChar.First >= prevResult) {
-              results.Push(orderedChar.First);
-              charStart = 0;
-              break;
-
-            } else if (limit > 0) {
-              results.Pop();
-
-              for (var k = 0; k < orderedChars.Count; k++) {
-                if (prevResult == orderedChars[k].First) {
-                  charStart = k + 1;
-                  limit--;
-                  queryStart = results.Count;
-                  goto Outer;
-                }
-              }
-            }
-          }
-        }
-      }
-      return results;
-    }
-
     public static string GetFileNameWithoutExtension(string path) {
       var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
       var ext = path.LastIndexOf('.');
