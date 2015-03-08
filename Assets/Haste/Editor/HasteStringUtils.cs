@@ -83,9 +83,19 @@ namespace Haste {
     }
 
     public static int[] GetMatchIndices(string path, string query, int[] boundaryIndices) {
-
       Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
+      Stack<int> results = new Stack<int>();
+      HasteTuple<int, char> orderedChar;
+
+      char queryChar;
+
+      int prevResult;
       int boundaryIndex;
+      int charStart = 0;
+      int queryStart = 0;
+      int limit = 10;
+
+      // reorder the string so the boundries match first
       for (int i = 0; i < boundaryIndices.Length; i++) {
         boundaryIndex = boundaryIndices[i];
         boundaryCharIndices[boundaryIndex] = path[boundaryIndex];
@@ -101,33 +111,25 @@ namespace Haste {
           nonBoundaryChars.Add(HasteTuple.Create(i, path[i]));
         }
       }
-
       orderedChars.AddRange(nonBoundaryChars);
 
-      Stack<int> results = new Stack<int>();
-      var orderedChar = orderedChars[0];
-      var queryChar = query[0];
-      int prevResult = 0;
-
+      // try matching the easy way first
       for (int i = 0; i < query.Length; i++) {
         queryChar = query[i];
         prevResult = (results.Count > 0) ? results.Peek() : 0;
 
         for (int j = 0; j < orderedChars.Count; j++) {
           orderedChar = orderedChars[j];
-          if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First) && (orderedChar.First >= prevResult)) {
+          if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First) && orderedChar.First >= prevResult) {
             results.Push(orderedChar.First);
             break;
           }
         }
       }
 
+      // if the easy way didn't work, clear the results and try the hard way
       if (results.Count < query.Length) {
         results.Clear();
-        int charStart = 0;
-        int queryStart = 0;
-        int limit = 10;
-
         Outer:
         for (int i = queryStart; i < query.Length; i++) {
           prevResult = (results.Count > 0) ? results.Peek() : 0;
@@ -143,6 +145,7 @@ namespace Haste {
                 charStart = 0;
                 break;
 
+              // not sure if the limit is needed or not. prevents hypothetical 8-loop
               } else if (limit > 0) {
                 results.Pop();
 
