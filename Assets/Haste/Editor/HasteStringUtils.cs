@@ -264,7 +264,7 @@ namespace Haste {
     }
 
     public static string BoldLabel(string str, int[] indices, string boldStart = "<color=\"white\">", string boldEnd = "</color>") {
-	  int indicesLen = indices.Length;
+      int indicesLen = indices.Length;
       if (indicesLen == 0) {
         return str;
       }
@@ -273,15 +273,11 @@ namespace Haste {
       StringBuilder bolded = new StringBuilder(str/*, maxCap*/);
 
       int index;
-      int offset;
+      int offset = 0;
 
       for (int i = 0; i < indicesLen; i++) {
         index = indices[i];
-        offset = i * 2;
-
-        // Debug.Log (i + ", " + index + ", " + bolded.Length);
-
-		    bolded.Insert(index + offset, boldStart);
+        bolded.Insert(index + offset, boldStart);
         offset += boldStart.Length;
         bolded.Insert(index + offset + 1, boldEnd);
         offset += boldEnd.Length;
