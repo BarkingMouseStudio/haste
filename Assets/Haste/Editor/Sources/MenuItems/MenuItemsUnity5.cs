@@ -310,7 +310,7 @@ namespace Haste {
       "Component/UI/Toggle",
       "Component/UI/Toggle Group",
       // ---
-      "Component/UI/Selectable"
+      "Component/UI/Selectable",
 
       "Component/Scripts/Editor Label",
       "Component/Scripts/Enable Camera Depth In Forward"

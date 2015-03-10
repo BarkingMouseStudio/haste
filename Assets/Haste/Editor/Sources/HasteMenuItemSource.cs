@@ -43,8 +43,8 @@ namespace Haste {
       "GameObject/Reconnect to Prefab"
     };
 
-    // Menu items found in the currently loaded assembly
-    public static IEnumerator<HasteItem> GetAssemblyMenuItems() {
+    public IEnumerator<HasteItem> GetEnumerator() {
+      // Menu items found in the currently loaded assembly
       foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies()) {
         // Exclude built-in assemblies for performance reasons
         if (assembly.FullName.StartsWith("Mono")) continue;
@@ -71,10 +71,8 @@ namespace Haste {
           yield return new HasteItem(path, menuItem.priority, NAME);
         }
       }
-    }
 
-    // Platform-specific menu items
-    public IEnumerator<HasteItem> GetPlatformMenuItems() {
+      // Platform-specific menu items
       switch (Application.platform) {
         case RuntimePlatform.OSXEditor:
           foreach (string path in MacPlatformMenuItems) {
@@ -87,10 +85,24 @@ namespace Haste {
           }
           break;
       }
-    }
 
-    // User-defined layout menu items
-    public IEnumerator<HasteItem> GetLayoutMenuItems() {
+      // Menu items for the running version of Unity
+      if (HasteVersionUtils.IsUnity5) {
+        foreach (string path in new MenuItemsUnity5()) {
+          yield return new HasteItem(path, 0, NAME);
+        }
+      } else {
+        foreach (string path in new MenuItemsUnity4()) {
+          yield return new HasteItem(path, 0, NAME);
+        }
+      }
+
+      // Custom menu items that don't really exist in Unity
+      foreach (string path in CustomMenuItems) {
+        yield return new HasteItem(path, 0, NAME);
+      }
+
+      // User-defined layout menu items
       var layouts = HasteUtils.Layouts.Select((layout) => {
         return String.Format("Window/Layouts/{0}", layout);
       });
@@ -98,34 +110,6 @@ namespace Haste {
       foreach (string path in layouts) {
         yield return new HasteItem(path, 0, NAME);
       }
-    }
-
-    // Custom menu items that don't really exist in Unity
-    public IEnumerator<HasteItem> GetCustomMenuItems() {
-      foreach (string path in CustomMenuItems) {
-        yield return new HasteItem(path, 0, NAME);
-      }
-    }
-
-    // Menu items for the running version of Unity
-    public IEnumerator<HasteItem> GetVersionMenuItems() {
-      if (HasteVersionUtils.IsUnity5) {
-        foreach (string path in MenuItemsUnity5) {
-          yield return new HasteItem(path, 0, NAME);
-        }
-      } else {
-        foreach (string path in MenuItemsUnity4) {
-          yield return new HasteItem(path, 0, NAME);
-        }
-      }
-    }
-
-    public IEnumerator<HasteItem> GetEnumerator() {
-      yield return GetAssemblyMenuItems();
-      yield return GetPlatformMenuItems();
-      yield return GetVersionMenuItems();
-      yield return GetCustomMenuItems();
-      yield return GetLayoutMenuItems();
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
