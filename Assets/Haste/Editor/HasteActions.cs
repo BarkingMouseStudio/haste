@@ -309,20 +309,24 @@ namespace Haste {
 
       { "Edit/Project Settings/Player", () => {
         Selection.activeObject = Resources.FindObjectsOfTypeAll<PlayerSettings>().First();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } },
 
       { "Edit/Project Settings/Physics", () => {
         Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.PhysicsManager");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } },
 
       { "Edit/Project Settings/Physics 2D", () => {
         Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.Physics2DSettings");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } },
 
       { "Edit/Project Settings/Quality", () => {
         Selection.activeObject = Resources.FindObjectsOfTypeAll<QualitySettings>().First();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } },
 
       // { "Edit/Project Settings/Graphics", () => {
@@ -335,15 +339,18 @@ namespace Haste {
 
       { "Edit/Project Settings/Editor", () => {
         Selection.activeObject = Resources.FindObjectsOfTypeAll<EditorSettings>().First();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } },
 
       { "Edit/Project Settings/Script Execution Order", () => {
         Type type = HasteReflection.EditorAssembly.GetType("UnityEditor.MonoManager");
         Selection.activeObject = Resources.FindObjectsOfTypeAll(type).First();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } },
 
       { "Edit/Render Settings", () => {
         Selection.activeObject = UnityEngine.Object.FindObjectOfType<RenderSettings>();
+        EditorApplication.ExecuteMenuItem("Window/Inspector");
       } }
     };
   }
