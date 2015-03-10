@@ -146,5 +146,12 @@ namespace Haste {
       TestBoldLabel("Abcles/Abales/Cherries", "abac",
         "[A][b]cles/[A]bales/[C]herries");
     }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel10() {
+      TestBoldLabel("Assets/UnityTestTools/Common/Editor/icons/rerun-lighttheme.png", "rop",
+        "Assets/UnityTestTools/Common/Edito[r]/ic[o]ns/rerun-lighttheme.[p]ng");
+    }
   }
 }

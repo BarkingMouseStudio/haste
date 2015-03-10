@@ -130,7 +130,7 @@ namespace Haste {
       // if the easy way didn't work, clear the results and try the hard way
       if (results.Count < query.Length) {
         results.Clear();
-        Outer:
+      Outer:
         for (int i = queryStart; i < query.Length; i++) {
           prevResult = (results.Count > 0) ? results.Peek() : 0;
           queryChar = query[i];
