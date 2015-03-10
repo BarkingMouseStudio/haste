@@ -28,6 +28,11 @@ namespace Haste {
       IHasteResult e = new HasteResult(new HasteItem("GameObject/Create Empty Child", 0, ""), queryLower, queryLower.Length);
       IHasteResult f = new HasteResult(new HasteItem("Component/Physics/Cloth Renderer", 0, ""), queryLower, queryLower.Length);
       Assert.That(comparer.Compare(e, f), Is.EqualTo(-1));
+
+      queryLower = "acl";
+      IHasteResult g = new HasteResult(new HasteItem("Assets/Create/Lens Flare", 0, ""), queryLower, queryLower.Length);
+      IHasteResult h = new HasteResult(new HasteItem("GameObject/Align With View", 0, ""), queryLower, queryLower.Length);
+      Assert.That(comparer.Compare(g, h), Is.EqualTo(-1));
     }
 
     [Test]
