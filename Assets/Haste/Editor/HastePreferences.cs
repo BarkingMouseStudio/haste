@@ -10,7 +10,7 @@ namespace Haste {
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
-      using (var scrollView = new HasteScrollView(scrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))) {
+      using (var scrollView = new HasteScrollView(scrollPosition)) {
         scrollPosition = scrollView.ScrollPosition;
 
         EditorGUILayout.Space();
@@ -35,10 +35,7 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        using (new HasteHorizontal()) {
-          EditorGUILayout.PrefixLabel("Current Version");
-          EditorGUILayout.LabelField(Haste.VERSION);
-        }
+        EditorGUILayout.LabelField("Current Version", Haste.VERSION);
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();
