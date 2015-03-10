@@ -40,10 +40,6 @@ namespace Haste {
       }
       #endif
 
-      if (!(a.IsFirstCharMatch == b.IsFirstCharMatch || a.IsFirstCharNameMatch == b.IsFirstCharNameMatch)) {
-        return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
-      }
-
       if (a.IsExactMatch != b.IsExactMatch) {
         return a.IsExactMatch ? -1 : 1;
       } else if (a.IsExactNameMatch != b.IsExactNameMatch) {
@@ -59,6 +55,10 @@ namespace Haste {
         } else if (!equalBoundaryUtilization) {
           return a.BoundaryUtilization > b.BoundaryUtilization ? -1 : 1;
         }
+      }
+
+      if (a.IsFirstCharNameMatch != b.IsFirstCharNameMatch || a.IsFirstCharMatch != b.IsFirstCharMatch) {
+        return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
       }
 
       if (a.IsPrefixMatch != b.IsPrefixMatch) {
