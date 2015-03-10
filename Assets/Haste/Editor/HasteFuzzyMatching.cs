@@ -50,12 +50,11 @@ namespace Haste {
       return false;
     }
 
-    public static bool FuzzyMatch(string str, string query, out List<int> indices, out float score) {
+    public static bool FuzzyMatch(string str, string query, out List<int> indices) {
       string queryLower = query.ToLower();
       string strLower = str.ToLower();
 
       indices = new List<int>();
-      score = 0;
 
       if (strLower.Length < queryLower.Length) {
         // Can't match if the string is too short
@@ -64,7 +63,6 @@ namespace Haste {
 
       int strIndex = 0;
       int queryIndex = 0;
-      int gap = 0;
 
       while (strIndex < strLower.Length) {
         if (strLower.Length - strIndex < queryLower.Length - queryIndex) {
@@ -78,14 +76,11 @@ namespace Haste {
 
           // Word Boundary
           if (boundaryRegex.Match(str, strIndex, 1).Success) {
-            score += 2;
             matchedChar = true;
 
           // Try to match this query char on a boundary in the future,
           // otherwise we fall back to a sequential character match.
-          // XXX: This lookahead isn't necessary if we traverse backwards.
           } else if (!BoundaryMatch(str.Substring(strIndex + 1), query.Substring(queryIndex))) {
-            score += (1 / (gap + 1));
             matchedChar = true;
           }
         }
@@ -96,19 +91,9 @@ namespace Haste {
           queryIndex++;
 
           if (queryIndex > queryLower.Length - 1) {
-            // If we have an exact match
-            if (strLower == queryLower) {
-              // Bump the score by an extra point for each char
-              score += queryLower.Length;
-            }
-
             // We've reached the end of our query with successful matches
             return true;
           }
-
-          gap = 0;
-        } else {
-          gap++;
         }
 
         strIndex++;
