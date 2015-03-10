@@ -82,60 +82,87 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static int[] GetMatchIndices(string pathLower, string queryLower, int[] boundaryIndices) {
-      return new int[0];
-    //   Stack<int> results = new Stack<int>();
+    public static int[] GetMatchIndices(string path, string query, int[] boundaryIndices) {
+      Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
+      Stack<int> results = new Stack<int>();
+      HasteTuple<int, char> orderedChar;
 
-    //   Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
-    //   int boundaryIndex;
-    //   for (int i = 0; i < boundaryIndices.Length; i++) {
-    //     boundaryIndex = boundaryIndices[i];
-    //     boundaryCharIndices[boundaryIndex] = pathLower[boundaryIndex];
-    //   }
+      char queryChar;
 
-    //   List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(pathLower.Length);
-    //   List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
-    //   for (int i = 0; i < pathLower.Length; i++) {
-    //     if (boundaryCharIndices.ContainsKey(i)) {
-    //       orderedChars.Add(HasteTuple.Create(i, pathLower[i]));
-    //     } else {
-    //       nonBoundaryChars.Add(HasteTuple.Create(i, pathLower[i]));
-    //     }
-    //   }
-    //   orderedChars.AddRange(nonBoundaryChars);
+      int prevResult;
+      int boundaryIndex;
+      int charStart = 0;
+      int queryStart = 0;
+      int limit = 10;
 
-    //   var orderedCharsStr = string.Join("", orderedChars.Select(o => o.Second.ToString()).ToArray());
+      // reorder the string so the boundries match first
+      for (int i = 0; i < boundaryIndices.Length; i++) {
+        boundaryIndex = boundaryIndices[i];
+        boundaryCharIndices[boundaryIndex] = path[boundaryIndex];
+      }
 
-    //   // int startAt = 0;
+      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(path.Length);
+      List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
 
-    //   // HasteDebug.Info("path: {0}, query: {1}, ordered: {2}", pathLower, queryLower, orderedCharsStr);
+      for (int i = 0; i < path.Length; i++) {
+        if (boundaryCharIndices.ContainsKey(i)) {
+          orderedChars.Add(HasteTuple.Create(i, path[i]));
+        } else {
+          nonBoundaryChars.Add(HasteTuple.Create(i, path[i]));
+        }
+      }
+      orderedChars.AddRange(nonBoundaryChars);
 
-    // // Outer:
-    //   for (int i = 0; i < queryLower.Length; i++) {
-    //     char q = queryLower[i];
+      // try matching the easy way first
+      for (int i = 0; i < query.Length; i++) {
+        queryChar = query[i];
+        prevResult = (results.Count > 0) ? results.Peek() : 0;
 
-    //     for (int j = 0; j < orderedChars.Count; j++) {
-    //       var orderedChar = orderedChars[j];
+        for (int j = 0; j < orderedChars.Count; j++) {
+          orderedChar = orderedChars[j];
+          if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First) && orderedChar.First >= prevResult) {
+            results.Push(orderedChar.First);
+            break;
+          }
+        }
+      }
 
-    //       if (q == orderedChar.Second) {
-    //         // HasteDebug.Info("{0} {1}", orderedChar.First, orderedChar.Second);
-    //         // if (results.Count == 0 || orderedChar.First > results.Peek()) {
-    //           results.Push(orderedChar.First);
-    //           // startAt = 0;
-    //           break;
-    //         // } else {
-    //         //   startAt = results.Pop();
-    //         //   i--;
-    //         //   goto Outer;
-    //         // }
-    //       }
-    //     }
+      // if the easy way didn't work, clear the results and try the hard way
+      if (results.Count < query.Length) {
+        results.Clear();
+        Outer:
+        for (int i = queryStart; i < query.Length; i++) {
+          prevResult = (results.Count > 0) ? results.Peek() : 0;
+          queryChar = query[i];
 
-    //     // startAt = 0;
-    //   }
+          for (int j = charStart; j < orderedChars.Count; j++) {
+            orderedChar = orderedChars[j];
 
-    //   // Debug.Log(string.Join("", results.Reverse().Select(o => pathLower[o].ToString()).ToArray()));
-    //   return results.Reverse().ToArray();
+            if (queryChar == orderedChar.Second && !results.Contains(orderedChar.First)) {
+
+              if (orderedChar.First >= prevResult) {
+                results.Push(orderedChar.First);
+                charStart = 0;
+                break;
+
+              // not sure if the limit is needed or not. prevents hypothetical 8-loop
+              } else if (limit > 0) {
+                results.Pop();
+
+                for (var k = 0; k < orderedChars.Count; k++) {
+                  if (prevResult == orderedChars[k].First) {
+                    charStart = k + 1;
+                    limit--;
+                    queryStart = results.Count;
+                    goto Outer;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return results.OrderBy(o => o).ToArray();
     }
 
     public static string GetFileNameWithoutExtension(string path) {
