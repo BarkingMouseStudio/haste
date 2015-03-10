@@ -277,13 +277,11 @@ namespace Haste {
       } },
 
       { "Edit/Play", () => {
-        EditorApplication.isPaused = false;
-        EditorApplication.isPlaying = true;
+        EditorApplication.isPlaying = !EditorApplication.isPlaying;
       } },
 
       { "Edit/Pause", () => {
-        EditorApplication.isPlaying = false;
-        EditorApplication.isPaused = true;
+        EditorApplication.isPaused = !EditorApplication.isPaused;
       } },
 
       { "Edit/Step", () => {

@@ -39,6 +39,10 @@ namespace Haste {
       "Edit/Lock View To Selected",
       "Edit/Select All",
       // ---
+      "Edit/Play",
+      "Edit/Pause",
+      "Edit/Step",
+      // ---
       // TODO: "Edit/Project Settings/Input",
       "Edit/Project Settings/Tags and Layers",
       // TODO: "Edit/Project Settings/Audio",
