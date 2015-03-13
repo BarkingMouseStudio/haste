@@ -83,7 +83,7 @@ namespace Haste {
 
       HasteItem item = new HasteItem(path, 0, "");
       int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
-      int[] indices = HasteStringUtils.GetMatchIndices(item.PathLower, queryLower, boundaryIndices);
+      int[] indices = HasteStringUtils.GetWeightedSubsequence(item.PathLower, queryLower, boundaryIndices);
 
       string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
       Assert.That(bolded, Is.EqualTo(expected));
@@ -157,6 +157,13 @@ namespace Haste {
     public void TestBoldLabel10() {
       TestBoldLabel("Assets/UnityTestTools/Common/Editor/icons/rerun-lighttheme.png", "rop",
         "Assets/UnityTestTools/Common/Edito[r]/ic[o]ns/rerun-lighttheme.[p]ng");
+    }
+
+    [Test]
+    [Category("BoldLabel")]
+    public void TestBoldLabel11() {
+      TestBoldLabel("Assets/Haste/Editor/Extensions/ArrayExtensions.cs", "A/E.cs",
+        "[A]ssets[/]Haste/[E]ditor/Extensions/ArrayExtensions[.][c][s]");
     }
   }
 }

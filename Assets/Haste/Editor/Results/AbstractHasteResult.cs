@@ -49,7 +49,7 @@ namespace Haste {
 
     int[] GetIndices() {
       int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
-      int[] indices = HasteStringUtils.GetMatchIndices(Item.PathLower, QueryLower, boundaryIndices);
+      int[] indices = HasteStringUtils.GetWeightedSubsequence(Item.PathLower, QueryLower, boundaryIndices);
       return indices;
     }
 

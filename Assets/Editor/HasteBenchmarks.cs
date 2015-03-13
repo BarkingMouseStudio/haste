@@ -77,6 +77,9 @@ namespace Haste {
       if (GUILayout.Button(String.Format("Bench {0}", "IndexOfZero"))) {
         BenchIndexOfZero();
       }
+      if (GUILayout.Button(String.Format("Bench {0}", "GetWeightedSubsequence"))) {
+        BenchGetWeightedSubsequence();
+      }
     }
 
     // ~ 13
@@ -174,6 +177,20 @@ namespace Haste {
       var str = "Apples/Bananas/Carrots";
       Benchmark("GetBoundaries", 10000, () => {
         HasteStringUtils.GetBoundaries(str);
+      });
+    }
+
+    // ~ ?
+    public void BenchGetWeightedSubsequence() {
+      string query = "ropr";
+      string path = "Unity Test Tools/Platform Runner/Run on platform";
+
+      string queryLower = query.ToLowerInvariant();
+      string pathLower = path.ToLowerInvariant();
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(path);
+
+      Benchmark("GetWeightedSubsequence", 10000, () => {
+        HasteStringUtils.GetWeightedSubsequence(pathLower, queryLower, boundaryIndices);
       });
     }
 

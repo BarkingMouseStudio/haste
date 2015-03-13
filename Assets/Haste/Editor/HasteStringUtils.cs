@@ -82,10 +82,98 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    public static int[] GetMatchIndices(string path, string query, int[] boundaryIndices) {
-      List<int> indices;
-      HasteFuzzyMatching.FuzzyMatch(path, query, out indices);
-      return indices.ToArray();
+    // public static Dictionary<char, List<int>> GetSkipList(List<HasteTuple<int, char>> sorted) {
+    //   var skips = new Dictionary<char, List<int>>();
+    //   foreach (var tp in sorted) {
+    //     List<int> list;
+    //     if (!skips.TryGetValue(tp.Second, out list)) {
+    //       list = new List<int>();
+    //       skips.Add(tp.Second, list);
+    //     }
+    //     list.Add(tp.First);
+    //   }
+    //   return skips;
+    // }
+
+    public static List<HasteTuple<int, char>> GetSortedMatchChars(string path, string query, int[] boundaryIndices) {
+      Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
+
+      // reorder the string so the boundries match first
+      foreach (int boundaryIndex in boundaryIndices) {
+        boundaryCharIndices[boundaryIndex] = path[boundaryIndex];
+      }
+
+      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(path.Length);
+      List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
+
+      for (int i = 0; i < path.Length; i++) {
+        if (query.Contains(path[i])) { // TODO: Use Dictionary for char lookup
+          if (boundaryCharIndices.ContainsKey(i)) {
+            orderedChars.Add(HasteTuple.Create(i, path[i]));
+          } else {
+            nonBoundaryChars.Add(HasteTuple.Create(i, path[i]));
+          }
+        }
+      }
+
+      orderedChars.AddRange(nonBoundaryChars);
+      return orderedChars;
+    }
+
+    public static List<List<int>> GetQueryMatchIndices(List<HasteTuple<int, char>> orderedChars, string query) {
+      var queryMatchIndices = new List<List<int>>();
+      foreach (char c in query) {
+        var indexList = new List<int>();
+        foreach (var tp in orderedChars) {
+          if (tp.Second == c) {
+            indexList.Add(tp.First);
+          }
+        }
+        queryMatchIndices.Add(indexList);
+      }
+      return queryMatchIndices;
+    }
+
+    public static int[] GetWeightedSubsequence(string path, string query, int[] boundaryIndices) {
+      Stack<int> results = new Stack<int>(query.Length);
+
+      var orderedChars = GetSortedMatchChars(path, query, boundaryIndices);
+      var queryIndices = GetQueryMatchIndices(orderedChars, query);
+
+      int invalidResult = -1;
+
+      int i = 0;
+      while (results.Count < query.Length) {
+        List<int> charIndices = queryIndices[i];
+
+        if (invalidResult != -1) {
+          queryIndices[i] = charIndices = charIndices.Where(x => x < invalidResult).ToList();
+        }
+
+        bool matchedSomething = false;
+        int greatestResult = -1;
+        for (int j = 0; j < charIndices.Count; j++) {
+          if (charIndices[j] > greatestResult) {
+            greatestResult = charIndices[j];
+            if (results.Count == 0 || greatestResult > results.Peek()) {
+              matchedSomething = true;
+              break;
+            }
+          }
+        }
+
+        if (matchedSomething) {
+          results.Push(greatestResult);
+          i++;
+          invalidResult = -1;
+        } else {
+          results.Pop();
+          i--;
+          invalidResult = greatestResult;
+        }
+      }
+
+      return results.Reverse().ToArray();
     }
 
     public static string GetFileNameWithoutExtension(string path) {
