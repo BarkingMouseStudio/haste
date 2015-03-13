@@ -82,19 +82,6 @@ namespace Haste {
       return queryIndex == queryLen;
     }
 
-    // public static Dictionary<char, List<int>> GetSkipList(List<HasteTuple<int, char>> sorted) {
-    //   var skips = new Dictionary<char, List<int>>();
-    //   foreach (var tp in sorted) {
-    //     List<int> list;
-    //     if (!skips.TryGetValue(tp.Second, out list)) {
-    //       list = new List<int>();
-    //       skips.Add(tp.Second, list);
-    //     }
-    //     list.Add(tp.First);
-    //   }
-    //   return skips;
-    // }
-
     public static List<List<int>> GetQueryMatchIndices(string path, string query, int[] boundaryIndices) {
       List<List<int>> queryMatchIndices = new List<List<int>>();
 
