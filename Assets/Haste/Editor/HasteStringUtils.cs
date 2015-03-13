@@ -95,50 +95,37 @@ namespace Haste {
     //   return skips;
     // }
 
-    public static List<HasteTuple<int, char>> GetSortedMatchChars(string path, string query, int[] boundaryIndices) {
-      Dictionary<int, char> boundaryCharIndices = new Dictionary<int, char>();
+    public static List<List<int>> GetQueryMatchIndices(string path, string query, int[] boundaryIndices) {
+      List<List<int>> queryMatchIndices = new List<List<int>>();
 
-      // reorder the string so the boundries match first
-      foreach (int boundaryIndex in boundaryIndices) {
-        boundaryCharIndices[boundaryIndex] = path[boundaryIndex];
-      }
+      char c;
+      for (int queryIndex = 0; queryIndex < query.Length; queryIndex++) {
+        c = query[queryIndex];
 
-      List<HasteTuple<int, char>> orderedChars = new List<HasteTuple<int, char>>(path.Length);
-      List<HasteTuple<int, char>> nonBoundaryChars = new List<HasteTuple<int, char>>();
+        List<int> orderedChars = new List<int>(path.Length);
+        List<int> nonBoundaryChars = new List<int>();
 
-      for (int i = 0; i < path.Length; i++) {
-        if (query.Contains(path[i])) { // TODO: Use Dictionary for char lookup
-          if (boundaryCharIndices.ContainsKey(i)) {
-            orderedChars.Add(HasteTuple.Create(i, path[i]));
-          } else {
-            nonBoundaryChars.Add(HasteTuple.Create(i, path[i]));
+        for (int pathIndex = 0; pathIndex < path.Length; pathIndex++) {
+          if (c == path[pathIndex]) {
+            if (Array.IndexOf(boundaryIndices, pathIndex) != -1) {
+              orderedChars.Add(pathIndex);
+            } else {
+              nonBoundaryChars.Add(pathIndex);
+            }
           }
         }
+
+        orderedChars.AddRange(nonBoundaryChars);
+        queryMatchIndices.Add(orderedChars);
       }
 
-      orderedChars.AddRange(nonBoundaryChars);
-      return orderedChars;
-    }
-
-    public static List<List<int>> GetQueryMatchIndices(List<HasteTuple<int, char>> orderedChars, string query) {
-      var queryMatchIndices = new List<List<int>>();
-      foreach (char c in query) {
-        var indexList = new List<int>();
-        foreach (var tp in orderedChars) {
-          if (tp.Second == c) {
-            indexList.Add(tp.First);
-          }
-        }
-        queryMatchIndices.Add(indexList);
-      }
       return queryMatchIndices;
     }
 
     public static int[] GetWeightedSubsequence(string path, string query, int[] boundaryIndices) {
       Stack<int> results = new Stack<int>(query.Length);
 
-      var orderedChars = GetSortedMatchChars(path, query, boundaryIndices);
-      var queryIndices = GetQueryMatchIndices(orderedChars, query);
+      List<List<int>> queryIndices = GetQueryMatchIndices(path, query, boundaryIndices);
 
       int invalidResult = -1;
 

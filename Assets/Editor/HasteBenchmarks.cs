@@ -180,7 +180,7 @@ namespace Haste {
       });
     }
 
-    // ~ ?
+    // ~ 150
     public void BenchGetWeightedSubsequence() {
       string query = "ropr";
       string path = "Unity Test Tools/Platform Runner/Run on platform";
