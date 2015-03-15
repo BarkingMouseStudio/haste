@@ -9,7 +9,7 @@ namespace Haste {
   // Contains everything necessary to index
   // the item and filter them. Features required
   // during sorting are omitted.
-  public class HasteItem : IEquatable<HasteItem> {
+  public class HasteItem<T> : IEquatable<HasteItem> {
 
     public string Path { get; private set; }
     public string PathLower { get; private set; }
@@ -25,6 +25,10 @@ namespace Haste {
       PathLower = path.ToLowerInvariant();
       Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
       BoundariesLower = HasteStringUtils.GetBoundaries(Path);
+    }
+
+    public IHasteResult GetResult(string queryLower, int queryLen) {
+      return new T(this, queryLower, queryLen);
     }
 
     public bool Equals(HasteItem other) {

@@ -25,7 +25,6 @@ namespace Haste {
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
     public static HasteWatcherManager Watchers;
-    public static HasteTypeManager Types;
 
     internal static event HasteWindowAction WindowAction;
 
@@ -67,19 +66,6 @@ namespace Haste {
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
       Watchers = new HasteWatcherManager();
-      Types = new HasteTypeManager();
-
-      Types.AddType(HasteProjectSource.NAME, (HasteItem item, string query, int queryLen) => {
-        return new HasteProjectResult(item, query, queryLen);
-      });
-
-      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, string query, int queryLen) => {
-        return new HasteHierarchyResult(item, query, queryLen);
-      });
-
-      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, string query, int queryLen) => {
-        return new HasteMenuItemResult(item, query, queryLen);
-      });
 
       Watchers.AddSource(HasteProjectSource.NAME,
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME), true),

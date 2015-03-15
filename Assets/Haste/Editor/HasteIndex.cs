@@ -90,7 +90,7 @@ namespace Haste {
       });
 
       // Score, sort then take (otherwise we loose good results)
-      return matches.Select(m => Haste.Types.GetType(m, queryLower, queryLen))
+      return matches.Select(m => m.GetResult(queryLower, queryLen))
         .OrderBy(r => r, comparer)
         .Take(resultCount)
         .ToArray();

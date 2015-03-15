@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public interface IHasteResult {
-    HasteItem Item { get; }
+  public interface IHasteResult<T> {
+    T Item { get; }
 
     string Name { get; }
     string NameBoundaries { get; }
