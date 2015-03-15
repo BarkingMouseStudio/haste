@@ -25,8 +25,10 @@ namespace Haste {
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
         case KeyCode.Backspace:
-          e.Use();
-          OnBackspace();
+          if (HasteSettings.BackspaceClears) {
+            e.Use();
+            OnBackspace();
+          }
           break;
       }
     }

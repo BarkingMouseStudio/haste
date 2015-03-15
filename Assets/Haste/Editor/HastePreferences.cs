@@ -40,6 +40,14 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
+        bool enabled = EditorGUILayout.Toggle("Should backspace clear the search?", HasteSettings.BackspaceClears);
+        if (enabled != HasteSettings.BackspaceClears) {
+          HasteSettings.BackspaceClears = enabled;
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
         EditorGUILayout.LabelField("Available Sources");
         EditorGUILayout.Space();
 
