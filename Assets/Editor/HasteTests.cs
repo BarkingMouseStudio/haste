@@ -62,6 +62,13 @@ namespace Haste {
     }
 
     [Test]
+    public void TestGetFileNameWithoutExtension() {
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("my/file/is/a/test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("my/file/is/a/test.cs"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("te.mp/test"), Is.EqualTo("test"));
+    }
+
+    [Test]
     public void TestGetBoundaryIndices() {
       HasteItem item = new HasteItem("Unity Test Tools/Platform Runner/Run on platform.cs", 0, "");
       int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
