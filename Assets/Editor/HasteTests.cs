@@ -66,6 +66,7 @@ namespace Haste {
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("my/file/is/a/test"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("my/file/is/a/test.cs"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("te.mp/test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test"), Is.EqualTo("test"));
     }
 
     [Test]
