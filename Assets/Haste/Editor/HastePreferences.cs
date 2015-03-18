@@ -40,10 +40,11 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        bool enabled = EditorGUILayout.Toggle("Should backspace clear the search?", HasteSettings.BackspaceClears);
-        if (enabled != HasteSettings.BackspaceClears) {
-          HasteSettings.BackspaceClears = enabled;
+        bool backspaceEnabled = EditorGUILayout.Toggle("Should backspace clear?", HasteSettings.BackspaceClears);
+        if (backspaceEnabled != HasteSettings.BackspaceClears) {
+          HasteSettings.BackspaceClears = backspaceEnabled;
         }
+        EditorGUILayout.HelpBox("When enabled (default) pressing backspace will clear the entire query inside the search box instead of one character at a time.", MessageType.Info);
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();
@@ -57,10 +58,10 @@ namespace Haste {
 
           foreach (var watcher in Haste.Watchers) {
             string label = System.String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
-            bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
-            if (enabled != watcher.Value.Enabled) {
-              EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), enabled);
-              Haste.Watchers.ToggleSource(watcher.Key, enabled);
+            bool watchedEnabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
+            if (watchedEnabled != watcher.Value.Enabled) {
+              EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), watchedEnabled);
+              Haste.Watchers.ToggleSource(watcher.Key, watchedEnabled);
             }
           }
         }
