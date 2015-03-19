@@ -12,8 +12,7 @@ namespace Haste {
     IgnorePaths,
     UsageCount,
     UsageSince,
-    Source,
-    BackspaceClears
+    Source
   }
 
   public delegate void SettingChangedHandler<T>(HasteSetting setting, T before, T after);
@@ -59,15 +58,6 @@ namespace Haste {
       }
       set {
         HasteSettings.SetBool(HasteSetting.Enabled, value);
-      }
-    }
-
-    public static bool BackspaceClears {
-      get {
-        return HasteSettings.GetBool(HasteSetting.BackspaceClears, true);
-      }
-      set {
-        HasteSettings.SetBool(HasteSetting.BackspaceClears, value);
       }
     }
 

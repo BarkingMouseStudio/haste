@@ -40,15 +40,6 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        bool backspaceEnabled = EditorGUILayout.Toggle("Should backspace clear?", HasteSettings.BackspaceClears);
-        if (backspaceEnabled != HasteSettings.BackspaceClears) {
-          HasteSettings.BackspaceClears = backspaceEnabled;
-        }
-        EditorGUILayout.HelpBox("When enabled (default) pressing backspace will clear the entire query inside the search box instead of one character at a time.", MessageType.Info);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
-
         EditorGUILayout.LabelField("Available Sources");
         EditorGUILayout.Space();
 
