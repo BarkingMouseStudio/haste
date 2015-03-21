@@ -90,8 +90,8 @@ namespace Haste {
       IsFirstCharNameMatch = NameLower[0] == queryLower[0];
 
       // Much faster than "StartsWith"
-      IsPrefixMatch = Item.PathLower.IndexOf(queryLower) == 0;
-      IsNamePrefixMatch = NameLower.IndexOf(queryLower) == 0;
+      IsPrefixMatch = queryLen > 2 && Item.PathLower.IndexOf(queryLower) == 0;
+      IsNamePrefixMatch = queryLen > 2 && NameLower.IndexOf(queryLower) == 0;
 
       IsExactMatch = Item.PathLower == queryLower;
       IsExactNameMatch = NameLower == queryLower;

@@ -46,6 +46,12 @@ namespace Haste {
         return a.IsExactNameMatch ? -1 : 1;
       }
 
+      if (a.IsPrefixMatch != b.IsPrefixMatch) {
+        return a.IsPrefixMatch ? -1 : 1;
+      } else if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
+        return a.IsNamePrefixMatch ? -1 : 1;
+      }
+
       bool equalBoundaryRatios = Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
       bool equalBoundaryUtilization = Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
 
@@ -59,12 +65,6 @@ namespace Haste {
 
       if (a.IsFirstCharNameMatch != b.IsFirstCharNameMatch || a.IsFirstCharMatch != b.IsFirstCharMatch) {
         return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
-      }
-
-      if (a.IsPrefixMatch != b.IsPrefixMatch) {
-        return a.IsPrefixMatch ? -1 : 1;
-      } else if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
-        return a.IsNamePrefixMatch ? -1 : 1;
       }
 
       if (!equalBoundaryRatios) {
