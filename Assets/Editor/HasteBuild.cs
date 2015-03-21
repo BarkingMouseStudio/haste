@@ -116,6 +116,8 @@ namespace Haste {
         return;
       }
 
+      // TODO: Copy file in "Ancillary" into Haste root.
+
       var sourcePackagePath = ExportHasteProSource(rootPath);
       var source = GetSource(SOURCE_PATH);
       ExportHasteFree(rootPath, source);
