@@ -22,9 +22,6 @@ namespace Haste {
 
     HasteWindowState windowState = HasteWindowState.Intro;
 
-    // [SerializeField]
-    // HasteBackground background;
-
     [SerializeField]
     UnityEngine.Object[] prevSelection;
 
@@ -47,12 +44,6 @@ namespace Haste {
 
     public static HasteWindow Instance { get; protected set; }
 
-    [MenuItem("Window/Haste %k", true)]
-    public static bool IsHasteEnabled() {
-      return HasteSettings.Enabled;
-    }
-
-    [MenuItem("Window/Haste %k")]
     public static void Open() {
       if (HasteWindow.Instance == null) {
         HasteWindow.Init();
@@ -71,6 +62,8 @@ namespace Haste {
       HasteWindow.Instance.InitializeInstance();
 
       HasteWindow.Instance.ShowPopup();
+
+      // TODO: Check if this is necessary (slow?)
       HasteWindow.Instance.Focus();
     }
 
@@ -98,10 +91,6 @@ namespace Haste {
 
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
-
-      // this.background = ScriptableObject.CreateInstance<HasteBackground>()
-      //   .Init(new Rect(0, 0, this.position.width, this.position.height));
-      // this.background.Capture(this.position);
 
       this.resultList = ScriptableObject.CreateInstance<HasteList>();
       this.resultList.ItemDrag += OnItemDrag;
@@ -262,11 +251,15 @@ namespace Haste {
       }
     }
 
+    bool isIndexing = false;
+
     void Update() {
-      if (Haste.IsIndexing && this.windowState == HasteWindowState.Intro) {
+      if ((Haste.IsIndexing || isIndexing) && this.windowState == HasteWindowState.Intro) {
         // This is here to repaint the indexing count
         Repaint();
       }
+
+      isIndexing = !Haste.IsIndexing;
 
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
@@ -287,7 +280,6 @@ namespace Haste {
     void OnGUI() {
       OnEvent(Event.current);
 
-      // this.background.OnGUI();
       this.queryInput.OnGUI();
 
       HasteSelection.Draw(selectionPosition, nextSelection);

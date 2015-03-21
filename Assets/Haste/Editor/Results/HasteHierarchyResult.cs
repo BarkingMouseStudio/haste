@@ -34,12 +34,20 @@ namespace Haste {
     }
 
     public override string DragLabel {
-      get { return Object.name; }
+      get {
+        if (Object == null) {
+          return "<destroyed>";
+        }
+        return Object.name;
+      }
     }
 
-    public HasteHierarchyResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
+    public HasteHierarchyResult(HasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
     GUIStyle GetLabelStyle(GameObject go) {
+      if (go == null) {
+        return HasteStyles.DisabledNameStyle;
+      }
       switch (PrefabUtility.GetPrefabType(go)) {
         case PrefabType.PrefabInstance:
         case PrefabType.ModelPrefabInstance:
@@ -63,21 +71,33 @@ namespace Haste {
       }
     }
 
-    public override void Draw(bool isHighlighted) {
-      var go = (GameObject)Object;
+    public override void Draw(bool isHighlighted, bool highlightMatches) {
+      GameObject go = (GameObject)Object;
 
       var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
       rect.y += 5; // center the icon vertically
       GUI.DrawTexture(rect, GameObjectIcon);
 
       using (new HasteVertical()) {
-        var childCount = go.transform != null ? go.transform.childCount : 0;
+        var childCount = 0;
+        if (go != null && go.transform != null) {
+          childCount = go.transform.childCount;
+        }
+
         if (childCount > 0) {
           EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
         } else {
-          EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+          if (go == null) {
+            EditorGUILayout.LabelField(String.Format("{0} <destroyed>", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+          } else {
+            EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+          }
         }
-        EditorGUILayout.LabelField(HasteUtils.BoldLabel(Item.Path, Indices.ToArray(), isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        if (highlightMatches) {
+          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        } else {
+          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+        }
       }
     }
 

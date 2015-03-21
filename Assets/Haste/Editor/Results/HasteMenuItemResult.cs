@@ -9,14 +9,14 @@ namespace Haste {
 
   public class HasteMenuItemResult : AbstractHasteResult {
 
-    public HasteMenuItemResult(HasteItem item, float score, List<int> indices) : base(item, score, indices) {}
+    public HasteMenuItemResult(HasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
-    public override void Draw(bool isHighlighted) {
+    public override void Draw(bool isHighlighted, bool highlightMatches) {
       #if IS_HASTE_PRO
-        base.Draw(isHighlighted);
+        base.Draw(isHighlighted, highlightMatches);
       #else
         using (new HasteVertical()) {
-          EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedDisabledNameStyle : HasteStyles.DisabledNameStyle);
+          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.HighlightedDisabledNameStyle : HasteStyles.DisabledNameStyle);
           EditorGUILayout.LabelField("Upgrade to Haste Pro to enable", isHighlighted ? HasteStyles.HighlightedDisabledDescriptionStyle : HasteStyles.DisabledDescriptionStyle);
         }
       #endif

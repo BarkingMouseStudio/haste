@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    private static readonly string VERSION = "1.5.1";
+    public static readonly string VERSION = "1.6.1";
 
     private static Version version;
     public static Version Version {
@@ -81,26 +81,26 @@ namespace Haste {
       Watchers = new HasteWatcherManager();
       Types = new HasteTypeManager();
 
-      Types.AddType(HasteProjectSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteProjectResult(item, score, indices);
+      Types.AddType(HasteProjectSource.NAME, (HasteItem item, string query, int queryLen) => {
+        return new HasteProjectResult(item, query, queryLen);
       });
 
-      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteHierarchyResult(item, score, indices);
+      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, string query, int queryLen) => {
+        return new HasteHierarchyResult(item, query, queryLen);
       });
 
-      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, float score, List<int> indices) => {
-        return new HasteMenuItemResult(item, score, indices);
+      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, string query, int queryLen) => {
+        return new HasteMenuItemResult(item, query, queryLen);
       });
 
       Watchers.AddSource(HasteProjectSource.NAME,
-        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME)),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME), true),
         () => new HasteProjectSource());
       Watchers.AddSource(HasteHierarchySource.NAME,
-        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteHierarchySource.NAME)),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteHierarchySource.NAME), true),
         () => new HasteHierarchySource());
       Watchers.AddSource(HasteMenuItemSource.NAME,
-        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME)),
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME), true),
         () => new HasteMenuItemSource());
 
       HasteSettings.ChangedBool += BoolSettingChanged;
@@ -134,7 +134,11 @@ namespace Haste {
     static void BoolSettingChanged(HasteSetting setting, bool before, bool after) {
       switch (setting) {
         case HasteSetting.Enabled:
-          Rebuild();
+          if (after) {
+            Rebuild();
+          } else {
+            Stop();
+          }
           break;
       }
     }
@@ -164,6 +168,11 @@ namespace Haste {
     public static void Rebuild() {
       Index.Clear();
       Watchers.Rebuild();
+    }
+
+    public static void Stop() {
+      Index.Clear();
+      Watchers.Stop();
     }
 
     static void OnSceneChanged(string currentScene, string previousScene) {

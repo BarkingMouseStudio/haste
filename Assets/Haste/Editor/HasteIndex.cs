@@ -10,23 +10,23 @@ namespace Haste {
 
   public class HasteIndex {
 
-    readonly Regex boundaryRegex = new Regex(@"\b(?<char>\w)|\w(?<char>[A-Z])|\.(?<char>\w)");
+    private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
-    IDictionary<char, HashSet<HasteItem>> index = new Dictionary<char, HashSet<HasteItem>>();
+    IDictionary<char, HashSet<HasteItem>> index =
+      new Dictionary<char, HashSet<HasteItem>>();
+
+    HasteResultComparer comparer = new HasteResultComparer();
 
     // The number of unique items in the index
     public int Count { get; protected set; }
 
-    // The total size of the indexing including each indexed reference
+    // The total size of the index including each indexed reference
     public int Size { get; protected set; }
 
     public void Add(HasteItem item) {
-      MatchCollection matches = boundaryRegex.Matches(item.Path);
       Count++;
 
-      foreach (Match match in matches) {
-        char c = Char.ToLower(match.Groups["char"].Value[0]);
-
+      foreach (char c in item.BoundariesLower) {
         if (!index.ContainsKey(c)) {
           index.Add(c, new HashSet<HasteItem>());
         }
@@ -37,12 +37,9 @@ namespace Haste {
     }
 
     public void Remove(HasteItem item) {
-      MatchCollection matches = boundaryRegex.Matches(item.Path);
       Count--;
 
-      foreach (Match match in matches) {
-        char c = Char.ToLower(match.Groups["char"].Value[0]);
-
+      foreach (char c in item.BoundariesLower) {
         if (index.ContainsKey(c)) {
           index[c].Remove(item);
           Size--;
@@ -57,56 +54,44 @@ namespace Haste {
     }
 
     public IHasteResult[] Filter(string query, int resultCount) {
-      if (query.Length == 0) {
-        return new IHasteResult[0];
+      int queryLen = query.Length;
+      if (queryLen == 0) {
+        return emptyResults;
       }
 
-      char c = Char.ToLower(query[0]);
+      string queryLower = query.ToLowerInvariant();
 
-      if (!index.ContainsKey(c)) {
-        return new IHasteResult[0];
+      // Lookup bucket by first char
+      HashSet<HasteItem> bucket;
+      if (!index.TryGetValue(queryLower[0], out bucket)) {
+        return emptyResults;
       }
 
-      IList<IHasteResult> matches = new List<IHasteResult>();
-      foreach (HasteItem item in index[c]) {
-        List<int> indices;
-        float score;
+      int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
+      // TODO: Require first char of name or path to match query?
 
-        string name = Path.GetFileNameWithoutExtension(item.Path);
-        string path = Path.GetDirectoryName(item.Path); // Path excluding name
-
-        // Try to match just the name
-        if (HasteFuzzyMatching.FuzzyMatch(name, query, out indices, out score)) {
-          // Increment indices to account for being only the name
-          if (path.Length > 0) {
-            for (int i = 0; i < indices.Count; i++) {
-              indices[i] += path.Length + 1; // Add 1 to account for slash
-            }
-          }
-
-          matches.Add(Haste.Types.GetType(item, score * 2, indices));
-          continue;
+      // Perform fast subsequence filtering
+      var matches = bucket.Where(m => {
+        if (m.PathLower.Length < queryLen) {
+          return false;
         }
 
-        // Then try to match the whole path
-        if (HasteFuzzyMatching.FuzzyMatch(item.Path, query, out indices, out score)) {
-          matches.Add(Haste.Types.GetType(item, score, indices));
-          continue;
+        var contains = HasteStringUtils.ContainsChars(m.Bitset, queryBits);
+        if (!contains) {
+          return false;
         }
-      }
 
-      // Sort then take, otherwise we loose good results
-      return matches.OrderByDescending(r => {
-          #if !IS_HASTE_PRO
-          // Force menu item matches to the bottom in free version
-          if (r.Item.Source == HasteMenuItemSource.NAME) {
-            return 0;
-          }
-          #endif
+        var subsequence = HasteStringUtils.ContainsSubsequence(m.PathLower, queryLower, m.PathLower.Length, queryLen);
+        if (!subsequence) {
+          return false;
+        }
 
-          return r.Score;
-        })
-        .ThenBy(r => Path.GetFileNameWithoutExtension(r.Item.Path))
+        return true;
+      });
+
+      // Score, sort then take (otherwise we loose good results)
+      return matches.Select(m => Haste.Types.GetType(m, queryLower, queryLen))
+        .OrderBy(r => r, comparer)
         .Take(resultCount)
         .ToArray();
     }

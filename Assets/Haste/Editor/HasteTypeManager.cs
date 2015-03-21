@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public delegate IHasteResult HasteTypeFactory(HasteItem item, float score, List<int> indices);
+  public delegate IHasteResult HasteTypeFactory(HasteItem item, string query, int queryLen);
 
   // Factory manager for converting between sources and results.
-  // TODO: Have HasteItem<T> provide result factory.
+  // TODO: Have HasteItem<T> provide result factory. Even better: since HasteItems shouldn't be structs (too big) generalize HasteItems and have them return their result directly for the concrete type. IHasteItem => HasteHierarchyItem => HasteHierarchyResult
   public class HasteTypeManager {
 
     static IDictionary<string, HasteTypeFactory> types =
@@ -24,10 +24,10 @@ namespace Haste {
       types.Remove(name);
     }
 
-    public IHasteResult GetType(HasteItem item, float score, List<int> indices) {
+    public IHasteResult GetType(HasteItem item, string query, int queryLen) {
       HasteTypeFactory factory;
       if (types.TryGetValue(item.Source, out factory)) {
-        return factory(item, score, indices);
+        return factory(item, query, queryLen);
       } else {
         return null;
       }

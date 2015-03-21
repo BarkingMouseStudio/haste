@@ -13,11 +13,15 @@ namespace Haste {
 
     static bool IsIgnored(string[] ignorePaths, string path) {
       foreach (var ignorePath in ignorePaths) {
-        if (path.StartsWith(ignorePath)) {
+        if (path.IndexOf(ignorePath) == 0) {
           return true;
         }
       }
       return false;
+    }
+
+    static string GetRelativeAssetPath(string assetPath) {
+      return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + Path.DirectorySeparatorChar));
     }
 
     public IEnumerator<HasteItem> GetEnumerator() {
@@ -44,7 +48,7 @@ namespace Haste {
             continue; // Ignore hidden files
           }
 
-          string path = HasteUtils.GetRelativeAssetPath(filePath);
+          string path = GetRelativeAssetPath(filePath);
           if (IsIgnored(ignorePaths, path)) {
             continue;
           }
@@ -57,7 +61,7 @@ namespace Haste {
             continue; // Ignore hidden files
           }
 
-          string path = HasteUtils.GetRelativeAssetPath(directoryPath);
+          string path = GetRelativeAssetPath(directoryPath);
           if (IsIgnored(ignorePaths, path)) {
             continue;
           }

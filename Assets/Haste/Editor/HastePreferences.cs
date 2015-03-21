@@ -10,7 +10,7 @@ namespace Haste {
 
     [PreferenceItem("Haste")]
     public static void PreferencesGUI() {
-      using (var scrollView = new HasteScrollView(scrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))) {
+      using (var scrollView = new HasteScrollView(scrollPosition)) {
         scrollPosition = scrollView.ScrollPosition;
 
         EditorGUILayout.Space();
@@ -35,6 +35,11 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
+        EditorGUILayout.LabelField("Current Version", Haste.VERSION);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
         EditorGUILayout.LabelField("Available Sources");
         EditorGUILayout.Space();
 
@@ -44,20 +49,18 @@ namespace Haste {
 
           foreach (var watcher in Haste.Watchers) {
             string label = System.String.Format("{0} ({1})", watcher.Key, watcher.Value.IndexedCount);
-            bool enabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
-            EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), enabled);
-            Haste.Watchers.ToggleSource(watcher.Key, enabled);
+            bool watchedEnabled = EditorGUILayout.Toggle(label, watcher.Value.Enabled);
+            if (watchedEnabled != watcher.Value.Enabled) {
+              EditorPrefs.SetBool(HasteSettings.GetPrefKey(HasteSetting.Source, watcher.Key), watchedEnabled);
+              Haste.Watchers.ToggleSource(watcher.Key, watchedEnabled);
+            }
           }
         }
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        if (Haste.IsIndexing) {
-          EditorGUILayout.LabelField("Indexing...", Haste.IndexingCount.ToString());
-        } else {
-          EditorGUILayout.LabelField("Indexed Count", Haste.IndexedCount.ToString());
-        }
+        EditorGUILayout.LabelField("Indexed Count", Haste.IndexedCount.ToString());
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();

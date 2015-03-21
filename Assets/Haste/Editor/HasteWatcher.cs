@@ -30,6 +30,9 @@ namespace Haste {
 
     // The maximum time an iteration can spend indexing
     // before a yield so we don't stall the editor.
+
+    // NOTE: Watchers are run sequentially so this is
+    // effectively global but can change for each iterator.
     const float MAX_ITER_TIME = 4.0f / 1000.0f; // 4ms
 
     public event CreatedHandler Created;
@@ -77,6 +80,7 @@ namespace Haste {
     public void Stop() {
       if (IsIndexing) {
         node.Stop();
+        node = null;
       }
 
       // Clear both to free memory
@@ -87,6 +91,7 @@ namespace Haste {
     public void Restart() {
       if (IsIndexing) {
         node.Stop();
+        node = null;
       }
 
       // Don't clear current so we can collect change events
