@@ -40,21 +40,24 @@ namespace Haste {
       }
       #endif
 
-      if (a.IsExactMatch != b.IsExactMatch) {
-        return a.IsExactMatch ? -1 : 1;
-      } else if (a.IsExactNameMatch != b.IsExactNameMatch) {
+      // Favor exact path / name matches
+      if (a.IsExactNameMatch != b.IsExactNameMatch) {
         return a.IsExactNameMatch ? -1 : 1;
+      } else if (a.IsExactMatch != b.IsExactMatch) {
+        return a.IsExactMatch ? -1 : 1;
       }
 
-      if (a.IsPrefixMatch != b.IsPrefixMatch) {
-        return a.IsPrefixMatch ? -1 : 1;
-      } else if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
+      // Favor prefix path / name matches
+      if (a.IsNamePrefixMatch != b.IsNamePrefixMatch) {
         return a.IsNamePrefixMatch ? -1 : 1;
+      } else if (a.IsPrefixMatch != b.IsPrefixMatch) {
+        return a.IsPrefixMatch ? -1 : 1;
       }
 
       bool equalBoundaryRatios = Approximately(a.BoundaryQueryRatio, b.BoundaryQueryRatio);
       bool equalBoundaryUtilization = Approximately(a.BoundaryUtilization, b.BoundaryUtilization);
 
+      // If boundary ratio / utilization approach 1:1, order by highest (favors full-matches)
       if (Approximately(a.BoundaryQueryRatio, 1.0f) || Approximately(b.BoundaryQueryRatio, 1.0f)) {
         if (!equalBoundaryRatios) {
           return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
@@ -63,10 +66,14 @@ namespace Haste {
         }
       }
 
-      if (a.IsFirstCharNameMatch != b.IsFirstCharNameMatch || a.IsFirstCharMatch != b.IsFirstCharMatch) {
-        return a.IsFirstCharMatch || a.IsFirstCharNameMatch ? -1 : 1;
+      // Favor name matches by checking if the first char matches
+      if (a.IsFirstCharNameMatch != b.IsFirstCharNameMatch) {
+        return a.IsFirstCharNameMatch ? -1 : 1;
+      } else if (a.IsFirstCharMatch != b.IsFirstCharMatch) {
+        return a.IsFirstCharMatch ? -1 : 1;
       }
 
+      // If boundary ratio / utilization don't match, order by highest (favors highest)
       if (!equalBoundaryRatios) {
         return a.BoundaryQueryRatio > b.BoundaryQueryRatio ? -1 : 1;
       } else if (!equalBoundaryUtilization) {
