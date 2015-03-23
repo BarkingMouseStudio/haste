@@ -31,6 +31,8 @@ namespace Haste {
         EditorGUILayout.LabelField(tip, HasteStyles.TipStyle);
       }
 
+      Haste.Updates.OnGUI();
+
       #if !IS_HASTE_PRO
       if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.UpgradeStyle)) {
         UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);

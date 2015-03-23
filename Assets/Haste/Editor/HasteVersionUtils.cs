@@ -9,6 +9,17 @@ namespace Haste {
 
   public static class HasteVersionUtils {
 
+    public static bool TryParse(string str, out Version version) {
+      try {
+        var data = (Dictionary<string, object>)JSON.Deserialize(str);
+        version = new Version((string)data["version"]);
+        return true;
+      } catch {
+        version = new Version();
+        return false;
+      }
+    }
+
     private static Version unityVersion;
     public static Version UnityVersion {
       get {

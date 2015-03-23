@@ -13,6 +13,7 @@ namespace Haste {
 
     public static HasteUpdateWindow Instance { get; protected set; }
 
+    HasteUpdateChecker updateChecker;
     HasteUpdateStatus status;
     float progress;
 
@@ -46,21 +47,22 @@ namespace Haste {
       this.minSize = this.maxSize =
         new Vector2(this.position.width, this.position.height);
 
+      this.updateChecker = new HasteUpdateChecker();
       this.progress = 0.0f;
 
-      Haste.Scheduler.Start(HasteUpdate.CheckForUpdates());
+      Haste.Scheduler.Start(this.updateChecker.Check());
     }
 
     void Update() {
       bool repaint = false;
-      if (status != HasteUpdate.Status) {
-        status = HasteUpdate.Status;
+      if (status != updateChecker.Status) {
+        status = updateChecker.Status;
         repaint = true;
       }
 
       if (status == HasteUpdateStatus.InProgress) {
-        if (progress != HasteUpdate.Progress) {
-          progress = HasteUpdate.Progress;
+        if (progress != updateChecker.Progress) {
+          progress = updateChecker.Progress;
           repaint = true;
         }
       }
@@ -71,7 +73,7 @@ namespace Haste {
     }
 
     void OnGUI() {
-      switch (HasteUpdate.Status) {
+      switch (updateChecker.Status) {
         case HasteUpdateStatus.Available:
           if (GUILayout.Button("An update is available. Open the Asset Store to update.", HasteStyles.UpgradeStyle)) {
             #if IS_HASTE_PRO

@@ -39,6 +39,8 @@ namespace Haste {
     public static HasteWatcherManager Watchers;
     public static HasteTypeManager Types;
 
+    public static HasteUpdateChecker Updates;
+
     internal static event HasteWindowAction WindowAction;
 
     static string currentScene;
@@ -103,6 +105,9 @@ namespace Haste {
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME), true),
         () => new HasteMenuItemSource());
 
+      Updates = new HasteUpdateChecker();
+      Scheduler.Start(Updates.Check());
+
       HasteSettings.ChangedBool += BoolSettingChanged;
       HasteSettings.ChangedString += StringSettingChanged;
       EditorApplication.projectWindowChanged += ProjectWindowChanged;
@@ -117,7 +122,7 @@ namespace Haste {
         HasteSettings.UsageSince = DateTime.Now.Ticks;
       }
 
-      HasteSettings.Version = Version.ToString();
+      HasteSettings.Version = VERSION;
     }
 
     // static void AddGlobalEventHandler() {
@@ -206,6 +211,12 @@ namespace Haste {
 
     // Main update loop in Haste—run's scheduler
     static void Update() {
+      if (HasteSettings.CheckForUpdates) {
+        if (DateTime.Now >= HasteSettings.LastUpdateCheckDate.Add(Updates.Interval)) {
+          Scheduler.Start(Updates.Check());
+        }
+      }
+
       // We must delay the window action to handle actions
       // that affect layout state to prevent bugs in Unity.
       if (WindowAction != null && HasteWindow.Instance == null) {
