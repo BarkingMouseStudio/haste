@@ -33,6 +33,9 @@ namespace Haste {
     static int activeInstanceID;
     // static object prefKey;
 
+    static double layoutInterval = 30.0;
+    static double lastLayoutCheck = 0.0;
+
     public static bool IsApplicationBusy {
       get {
         var willPlay = EditorApplication.isPlayingOrWillChangePlaymode &&
@@ -76,6 +79,11 @@ namespace Haste {
       Watchers.AddSource(HasteMenuItemSource.NAME,
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME), true),
         () => new HasteMenuItemSource());
+      Watchers.AddSource(HasteLayoutSource.NAME,
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteLayoutSource.NAME), true),
+        () => new HasteLayoutSource());
+
+      lastLayoutCheck = EditorApplication.timeSinceStartup;
 
       HasteSettings.ChangedBool += BoolSettingChanged;
       HasteSettings.ChangedString += StringSettingChanged;
@@ -209,6 +217,14 @@ namespace Haste {
       }
 
       if (!IsApplicationBusy) {
+        // Check layouts folder every so often
+        double now = EditorApplication.timeSinceStartup;
+        if (now - lastLayoutCheck > layoutInterval) {
+          Debug.Log("Checking for layouts...");
+          lastLayoutCheck = now;
+          Watchers.RestartSource(HasteLayoutSource.NAME);
+        }
+
         Scheduler.Tick();
       }
     }

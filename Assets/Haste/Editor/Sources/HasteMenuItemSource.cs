@@ -16,18 +16,6 @@ namespace Haste {
 
     public static readonly string NAME = "Menu Item";
 
-    static string[] Layouts {
-      get {
-        var WindowLayout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");
-        var layoutsPreferencesPath = (string)WindowLayout.GetProperty("layoutsPreferencesPath", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(WindowLayout, null);
-        return Directory.GetFiles(layoutsPreferencesPath).Select((path) => {
-          return Path.GetFileNameWithoutExtension(path);
-        }).Where((path) => {
-          return !path.Contains("LastLayout");
-        }).ToArray();
-      }
-    }
-
     static string[] MacPlatformMenuItems = new string[]{
       "Unity/About Unity...",
       "Unity/Preferences...",
@@ -114,11 +102,6 @@ namespace Haste {
       // Custom menu items that don't really exist in Unity
       foreach (string path in CustomMenuItems) {
         yield return new HasteMenuItem(path, 0, NAME);
-      }
-
-      // User-defined layout menu items
-      foreach (string layout in Layouts) {
-        yield return new HasteMenuItem(String.Format("Window/Layouts/{0}", layout), 0, NAME);
       }
     }
 
