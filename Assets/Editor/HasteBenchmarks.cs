@@ -158,7 +158,7 @@ namespace Haste {
 
     // ~ 20
     public void BenchHasteItem() {
-      Benchmark("IHasteItem", 10000, () => {
+      Benchmark("HasteItem", 100000, () => {
         new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       });
     }

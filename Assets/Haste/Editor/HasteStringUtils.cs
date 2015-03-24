@@ -259,8 +259,9 @@ namespace Haste {
         return str;
       }
 
-      // int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
-      StringBuilder bolded = new StringBuilder(str/*, maxCap*/);
+      // Initialize StringBuilder with maximum new length.
+      int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
+      StringBuilder bolded = new StringBuilder(str, maxCap);
 
       int index;
       int offset = 0;
