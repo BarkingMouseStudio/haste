@@ -9,6 +9,9 @@ namespace Haste {
 
     static readonly string NAME = "query";
 
+    static readonly float BACKSPACE_DELAY = 0.2f;
+    double backspaceTime = 0.0f;
+
     public event QueryChangedHandler Changed;
 
     private string query = "";
@@ -17,7 +20,8 @@ namespace Haste {
       protected set { query = value; }
     }
 
-    void OnBackspace() {
+    void OnBackspace(Event e) {
+      e.Use();
       Query = "";
       OnGUIChanged();
     }
@@ -25,8 +29,25 @@ namespace Haste {
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
         case KeyCode.Backspace:
-          e.Use();
-          OnBackspace();
+          if (Query.Length > 0) {
+            if (backspaceTime == 0) {
+              backspaceTime = EditorApplication.timeSinceStartup;
+            }
+
+            var delta = EditorApplication.timeSinceStartup - backspaceTime;
+            if (delta >= BACKSPACE_DELAY) {
+              backspaceTime = 0;
+              OnBackspace(e);
+            }
+          }
+          break;
+      }
+    }
+
+    void OnKeyUp(Event e) {
+      switch (e.keyCode) {
+        case KeyCode.Backspace:
+          backspaceTime = 0;
           break;
       }
     }
@@ -35,6 +56,9 @@ namespace Haste {
       switch (e.type) {
         case EventType.KeyDown:
           OnKeyDown(e);
+          break;
+        case EventType.KeyUp:
+          OnKeyUp(e);
           break;
       }
     }

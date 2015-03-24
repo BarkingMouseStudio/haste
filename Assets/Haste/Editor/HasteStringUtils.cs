@@ -154,8 +154,13 @@ namespace Haste {
       var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
       var ext = path.LastIndexOf('.');
       if (sep != -1 && ext != -1) {
-        sep = sep + 1;
-        return path.Substring(sep, ext - sep);
+        if (ext < sep) {
+          sep = sep + 1;
+          return path.Substring(sep);
+        } else {
+          sep = sep + 1;
+          return path.Substring(sep, ext - sep);
+        }
       } else if (sep != -1) {
         sep = sep + 1;
         return path.Substring(sep);
