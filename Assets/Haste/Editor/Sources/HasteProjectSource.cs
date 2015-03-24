@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Haste {
 
-  public class HasteProjectSource : IEnumerable<HasteItem> {
+  public class HasteProjectSource : IEnumerable<IHasteItem> {
 
     public static readonly string NAME = "Project";
 
@@ -24,7 +24,7 @@ namespace Haste {
       return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + Path.DirectorySeparatorChar));
     }
 
-    public IEnumerator<HasteItem> GetEnumerator() {
+    public IEnumerator<IHasteItem> GetEnumerator() {
       var ignorePaths = HasteSettings.IgnorePaths.Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries).Select((s) => {
         return s.Trim();
       }).ToArray();
@@ -53,7 +53,7 @@ namespace Haste {
             continue;
           }
 
-          yield return new HasteItem(path, 0, NAME);
+          yield return new HasteProjectItem(path, 0, NAME);
         }
 
         foreach (string directoryPath in Directory.GetDirectories(currentPath)) {
@@ -68,7 +68,7 @@ namespace Haste {
 
           directories.Enqueue(directoryPath);
 
-          yield return new HasteItem(path, 0, NAME);
+          yield return new HasteProjectItem(path, 0, NAME);
         }
       }
     }

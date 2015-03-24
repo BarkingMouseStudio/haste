@@ -12,8 +12,8 @@ namespace Haste {
 
     private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
-    IDictionary<char, HashSet<HasteItem>> index =
-      new Dictionary<char, HashSet<HasteItem>>();
+    IDictionary<char, HashSet<IHasteItem>> index =
+      new Dictionary<char, HashSet<IHasteItem>>();
 
     HasteResultComparer comparer = new HasteResultComparer();
 
@@ -23,12 +23,12 @@ namespace Haste {
     // The total size of the index including each indexed reference
     public int Size { get; protected set; }
 
-    public void Add(HasteItem item) {
+    public void Add(IHasteItem item) {
       Count++;
 
       foreach (char c in item.BoundariesLower) {
         if (!index.ContainsKey(c)) {
-          index.Add(c, new HashSet<HasteItem>());
+          index.Add(c, new HashSet<IHasteItem>());
         }
 
         index[c].Add(item);
@@ -36,7 +36,7 @@ namespace Haste {
       }
     }
 
-    public void Remove(HasteItem item) {
+    public void Remove(IHasteItem item) {
       Count--;
 
       foreach (char c in item.BoundariesLower) {
@@ -62,7 +62,7 @@ namespace Haste {
       string queryLower = query.ToLowerInvariant();
 
       // Lookup bucket by first char
-      HashSet<HasteItem> bucket;
+      HashSet<IHasteItem> bucket;
       if (!index.TryGetValue(queryLower[0], out bucket)) {
         return emptyResults;
       }

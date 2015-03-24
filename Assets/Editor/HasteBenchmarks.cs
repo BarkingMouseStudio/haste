@@ -84,7 +84,7 @@ namespace Haste {
 
     // ~ 13
     public void BenchHasteIndexAdd() {
-      List<HasteItem> items = new List<HasteItem>();
+      List<IHasteItem> items = new List<IHasteItem>();
       int i = 0;
       for (; i < 10000; i++) {
         items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
@@ -100,7 +100,7 @@ namespace Haste {
 
     // ~ 187ms
     public void BenchHasteResultComparer() {
-      IList<HasteItem> items = new List<HasteItem>();
+      IList<IHasteItem> items = new List<IHasteItem>();
       for (int i = 0; i < 10000; i++) {
         items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
       }
@@ -158,7 +158,7 @@ namespace Haste {
 
     // ~ 20
     public void BenchHasteItem() {
-      Benchmark("HasteItem", 10000, () => {
+      Benchmark("IHasteItem", 10000, () => {
         new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       });
     }

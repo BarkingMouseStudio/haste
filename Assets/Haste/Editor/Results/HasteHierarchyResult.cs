@@ -42,7 +42,7 @@ namespace Haste {
       }
     }
 
-    public HasteHierarchyResult(HasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
+    public HasteHierarchyResult(IHasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
     GUIStyle GetLabelStyle(GameObject go) {
       if (go == null) {

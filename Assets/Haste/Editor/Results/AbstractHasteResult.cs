@@ -10,7 +10,7 @@ namespace Haste {
 
   public abstract class AbstractHasteResult : IHasteResult {
 
-    public HasteItem Item { get; private set; }
+    public IHasteItem Item { get; private set; }
     public string Name { get; private set; }
     public string NameLower { get; private set; }
     public string NameBoundaries { get; private set; }
@@ -67,7 +67,7 @@ namespace Haste {
 
     string QueryLower { get; set; }
 
-    public AbstractHasteResult(HasteItem item, string queryLower, int queryLen) {
+    public AbstractHasteResult(IHasteItem item, string queryLower, int queryLen) {
       QueryLower = queryLower;
       Item = item;
 

@@ -6,8 +6,8 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public delegate void CreatedHandler(HasteItem item);
-  public delegate void DeletedHandled(HasteItem item);
+  public delegate void CreatedHandler(IHasteItem item);
+  public delegate void DeletedHandled(IHasteItem item);
 
   public interface IHasteWatcher {
     event CreatedHandler Created;
@@ -38,8 +38,8 @@ namespace Haste {
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
-    HashSet<HasteItem> currentCollection = new HashSet<HasteItem>();
-    HashSet<HasteItem> nextCollection = new HashSet<HasteItem>();
+    HashSet<IHasteItem> currentCollection = new HashSet<IHasteItem>();
+    HashSet<IHasteItem> nextCollection = new HashSet<IHasteItem>();
 
     HasteSchedulerNode node;
     HasteSourceFactory factory;
@@ -70,7 +70,7 @@ namespace Haste {
     }
 
     public void Purge() {
-      foreach (HasteItem item in currentCollection) {
+      foreach (IHasteItem item in currentCollection) {
         OnDeleted(item);
       }
 
@@ -107,13 +107,13 @@ namespace Haste {
       node = Haste.Scheduler.Start(this);
     }
 
-    void OnCreated(HasteItem item) {
+    void OnCreated(IHasteItem item) {
       if (Created != null) {
         Created(item);
       }
     }
 
-    void OnDeleted(HasteItem item) {
+    void OnDeleted(IHasteItem item) {
       if (Deleted != null) {
         Deleted(item);
       }
@@ -122,7 +122,7 @@ namespace Haste {
     public IEnumerator GetEnumerator() {
       float iterTime = 0.0f;
 
-      foreach (HasteItem item in factory()) {
+      foreach (IHasteItem item in factory()) {
         if (!currentCollection.Contains(item)) {
           OnCreated(item);
         }
@@ -138,7 +138,7 @@ namespace Haste {
       }
 
       // Check for deleted paths
-      foreach (HasteItem item in currentCollection) {
+      foreach (IHasteItem item in currentCollection) {
         // If an item from our original collection is not found
         // in our new collection, it has been removed.
         if (!nextCollection.Contains(item)) {

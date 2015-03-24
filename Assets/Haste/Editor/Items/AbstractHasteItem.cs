@@ -5,11 +5,7 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  // Unique object to exist in Haste's index.
-  // Contains everything necessary to index
-  // the item and filter them. Features required
-  // during sorting are omitted.
-  public class HasteItem<T> : IEquatable<HasteItem> {
+  public class AbstractHasteItem : IHasteItem {
 
     public string Path { get; private set; }
     public string PathLower { get; private set; }
@@ -18,7 +14,7 @@ namespace Haste {
     public int Bitset { get; private set; }
     public string BoundariesLower { get; private set; }
 
-    public HasteItem(string path, int id, string source) {
+    public AbstractHasteItem(string path, int id, string source) {
       Path = path;
       Id = id;
       Source = source;
@@ -27,11 +23,11 @@ namespace Haste {
       BoundariesLower = HasteStringUtils.GetBoundaries(Path);
     }
 
-    public IHasteResult GetResult(string queryLower, int queryLen) {
-      return new T(this, queryLower, queryLen);
+    public virtual IHasteResult GetResult(string queryLower, int queryLen) {
+      return new HasteResult(this, queryLower, queryLen);
     }
 
-    public bool Equals(HasteItem other) {
+    public bool Equals(IHasteItem other) {
       if (other == null) {
         return false;
       }
