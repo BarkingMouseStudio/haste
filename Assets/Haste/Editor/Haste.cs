@@ -220,7 +220,6 @@ namespace Haste {
         // Check layouts folder every so often
         double now = EditorApplication.timeSinceStartup;
         if (now - lastLayoutCheck > layoutInterval) {
-          Debug.Log("Checking for layouts...");
           lastLayoutCheck = now;
           Watchers.RestartSource(HasteLayoutSource.NAME);
         }
