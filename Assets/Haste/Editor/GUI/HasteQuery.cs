@@ -9,7 +9,7 @@ namespace Haste {
 
     static readonly string NAME = "query";
 
-    static readonly float BACKSPACE_DELAY = 0.2f;
+    static readonly float BACKSPACE_DELAY = 0.1f;
     double backspaceTime = 0.0f;
 
     public event QueryChangedHandler Changed;

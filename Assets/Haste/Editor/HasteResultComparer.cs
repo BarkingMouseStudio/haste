@@ -67,10 +67,8 @@ namespace Haste {
       }
 
       // Favor name matches by checking if the first char matches
-      if (a.IsFirstCharNameMatch != b.IsFirstCharNameMatch) {
-        return a.IsFirstCharNameMatch ? -1 : 1;
-      } else if (a.IsFirstCharMatch != b.IsFirstCharMatch) {
-        return a.IsFirstCharMatch ? -1 : 1;
+      if (a.IsFirstCharNameMatch != b.IsFirstCharNameMatch || a.IsFirstCharMatch != b.IsFirstCharMatch) {
+        return a.IsFirstCharNameMatch || a.IsFirstCharMatch ? -1 : 1;
       }
 
       // If boundary ratio / utilization don't match, order by highest (favors highest)

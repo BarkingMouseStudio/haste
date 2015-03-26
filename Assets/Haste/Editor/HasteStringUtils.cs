@@ -200,7 +200,7 @@ namespace Haste {
           }
 
           // Is it a post-boundary word char?
-          if (char.IsLetter(c) && (char.IsPunctuation(_c) || _c == ' ')) {
+          if (char.IsLetterOrDigit(c) && (char.IsPunctuation(_c) || _c == ' ')) {
             indices.Add(i);
             continue;
           }
@@ -243,7 +243,7 @@ namespace Haste {
           }
 
           // Is it a post-boundary word char?
-          if (char.IsLetter(c) && (char.IsPunctuation(_c) || _c == ' ')) {
+          if (char.IsLetterOrDigit(c) && (char.IsPunctuation(_c) || _c == ' ')) {
             matches.Append(char.ToLowerInvariant(c));
             continue;
           }
