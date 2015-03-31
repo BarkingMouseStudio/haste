@@ -25,7 +25,6 @@ namespace Haste {
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
     public static HasteWatcherManager Watchers;
-    public static HasteTypeManager Types;
 
     internal static event HasteWindowAction WindowAction;
 
@@ -33,6 +32,9 @@ namespace Haste {
     static bool isCompiling = false;
     static int activeInstanceID;
     // static object prefKey;
+
+    static double layoutInterval = 30.0;
+    static double lastLayoutCheck = 0.0;
 
     public static bool IsApplicationBusy {
       get {
@@ -67,19 +69,6 @@ namespace Haste {
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
       Watchers = new HasteWatcherManager();
-      Types = new HasteTypeManager();
-
-      Types.AddType(HasteProjectSource.NAME, (HasteItem item, string query, int queryLen) => {
-        return new HasteProjectResult(item, query, queryLen);
-      });
-
-      Types.AddType(HasteHierarchySource.NAME, (HasteItem item, string query, int queryLen) => {
-        return new HasteHierarchyResult(item, query, queryLen);
-      });
-
-      Types.AddType(HasteMenuItemSource.NAME, (HasteItem item, string query, int queryLen) => {
-        return new HasteMenuItemResult(item, query, queryLen);
-      });
 
       Watchers.AddSource(HasteProjectSource.NAME,
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME), true),
@@ -90,6 +79,11 @@ namespace Haste {
       Watchers.AddSource(HasteMenuItemSource.NAME,
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteMenuItemSource.NAME), true),
         () => new HasteMenuItemSource());
+      Watchers.AddSource(HasteLayoutSource.NAME,
+        EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteLayoutSource.NAME), true),
+        () => new HasteLayoutSource());
+
+      lastLayoutCheck = EditorApplication.timeSinceStartup;
 
       HasteSettings.ChangedBool += BoolSettingChanged;
       HasteSettings.ChangedString += StringSettingChanged;
@@ -223,6 +217,13 @@ namespace Haste {
       }
 
       if (!IsApplicationBusy) {
+        // Check layouts folder every so often
+        double now = EditorApplication.timeSinceStartup;
+        if (now - lastLayoutCheck > layoutInterval) {
+          lastLayoutCheck = now;
+          Watchers.RestartSource(HasteLayoutSource.NAME);
+        }
+
         Scheduler.Tick();
       }
     }

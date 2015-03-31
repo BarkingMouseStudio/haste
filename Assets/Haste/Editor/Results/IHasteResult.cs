@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Haste {
 
   public interface IHasteResult {
-    HasteItem Item { get; }
+    IHasteItem Item { get; }
 
     string Name { get; }
     string NameBoundaries { get; }

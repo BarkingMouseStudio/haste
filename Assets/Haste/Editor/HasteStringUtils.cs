@@ -200,7 +200,7 @@ namespace Haste {
           }
 
           // Is it a post-boundary word char?
-          if (char.IsLetter(c) && (char.IsPunctuation(_c) || _c == ' ')) {
+          if (char.IsLetterOrDigit(c) && (char.IsPunctuation(_c) || _c == ' ')) {
             indices.Add(i);
             continue;
           }
@@ -243,7 +243,7 @@ namespace Haste {
           }
 
           // Is it a post-boundary word char?
-          if (char.IsLetter(c) && (char.IsPunctuation(_c) || _c == ' ')) {
+          if (char.IsLetterOrDigit(c) && (char.IsPunctuation(_c) || _c == ' ')) {
             matches.Append(char.ToLowerInvariant(c));
             continue;
           }
@@ -259,8 +259,9 @@ namespace Haste {
         return str;
       }
 
-      // int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
-      StringBuilder bolded = new StringBuilder(str/*, maxCap*/);
+      // Initialize StringBuilder with maximum new length.
+      int maxCap = str.Length + ((boldStart.Length + boldEnd.Length) * indicesLen);
+      StringBuilder bolded = new StringBuilder(str, maxCap);
 
       int index;
       int offset = 0;

@@ -9,6 +9,6 @@ namespace Haste {
 
   public class HasteResult : AbstractHasteResult {
 
-    public HasteResult(HasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
+    public HasteResult(IHasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
   }
 }
