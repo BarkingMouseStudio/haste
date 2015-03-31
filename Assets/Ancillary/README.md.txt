@@ -87,3 +87,16 @@ This brings up the `TutorialPrefab.prefab` in the project's assets.
 ##### Step 11. Now search for `Instantiate Prefab` (or `ip`) in Haste and press Enter (↵).
 
 Haste Pro provides access to as many built-in MenuItems as possible with Unity's exposed APIs. Haste Pro also indexes custom MenuItems from other editor extensions making it easy to extend Haste's capabilities.
+
+Missing Menu Items
+---
+
+Due to limitations in the current Unity editor APIs the following menu items are not available through Haste:
+
+  - File/New Project...
+  - File/Open Project...
+  - Edit/Project Settings/Input
+  - Edit/Project Settings/Audio
+  - Edit/Project Settings/Time
+  - Edit/Project Settings/Graphics
+  - Edit/Project Settings/Network
