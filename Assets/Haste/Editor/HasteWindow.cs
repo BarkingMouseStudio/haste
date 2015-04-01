@@ -62,8 +62,6 @@ namespace Haste {
       HasteWindow.Instance.InitializeInstance();
 
       HasteWindow.Instance.ShowPopup();
-
-      // TODO: Check if this is necessary (slow?)
       HasteWindow.Instance.Focus();
     }
 
