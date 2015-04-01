@@ -8,13 +8,13 @@ namespace Haste {
 
   public class HasteProjectResult : AbstractHasteResult {
 
-    private UnityEngine.Object object_;
+    private UnityEngine.Object unityObject;
     public override UnityEngine.Object Object {
       get {
-        if (object_ == null) {
-          object_ = AssetDatabase.LoadMainAssetAtPath(Item.Path);
+        if (unityObject == null) {
+          unityObject = AssetDatabase.LoadMainAssetAtPath(Item.Path);
         }
-        return object_;
+        return unityObject;
       }
     }
 
@@ -28,7 +28,7 @@ namespace Haste {
 
     public HasteProjectResult(IHasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
-    public override void Draw(bool isHighlighted, bool highlightMatches) {
+    public override void Draw(bool isHighlighted) {
       var icon = AssetDatabase.GetCachedIcon(Item.Path);
       if (icon != null) {
         var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
@@ -36,7 +36,7 @@ namespace Haste {
         UnityEngine.GUI.DrawTexture(rect, icon);
       }
 
-      base.Draw(isHighlighted, highlightMatches);
+      base.Draw(isHighlighted);
     }
 
     public override void Action() {
