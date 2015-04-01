@@ -31,7 +31,7 @@ namespace Haste {
         EditorGUILayout.LabelField(tip, HasteStyles.Skin.GetStyle("Tip"));
       }
 
-      Haste.Updates.OnGUI();
+      HasteUpdates.DrawIntro();
 
       #if !IS_HASTE_PRO
       if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.Skin.GetStyle("Upgrade"))) {
