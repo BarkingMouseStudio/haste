@@ -48,34 +48,41 @@ namespace Haste {
 
     public HasteHierarchyResult(IHasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
-    GUIStyle GetLabelStyle(GameObject go) {
+    GUIStyle GetLabelStyle(GameObject go, bool isHighlighted) {
       if (go == null) {
-        return HasteStyles.Skin.GetStyle("DisabledName");
+        return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") :
+          HasteStyles.Skin.GetStyle("DisabledName");
       }
       switch (PrefabUtility.GetPrefabType(go)) {
         case PrefabType.PrefabInstance:
         case PrefabType.ModelPrefabInstance:
           if (go.activeInHierarchy) {
-            return HasteStyles.Skin.GetStyle("Prefab");
+            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedPrefabName") :
+              HasteStyles.Skin.GetStyle("PrefabName");
           } else {
-            return HasteStyles.Skin.GetStyle("DisabledPrefab");
+            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledPrefabName") :
+              HasteStyles.Skin.GetStyle("DisabledPrefabName");
           }
         case PrefabType.MissingPrefabInstance:
           if (go.activeInHierarchy) {
-            return HasteStyles.Skin.GetStyle("BrokenPrefab");
+            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedBrokenPrefabName") :
+              HasteStyles.Skin.GetStyle("BrokenPrefabName");
           } else {
-            return HasteStyles.Skin.GetStyle("DisabledBrokenPrefab");
+            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledBrokenPrefabName") :
+              HasteStyles.Skin.GetStyle("DisabledBrokenPrefabName");
           }
         default:
           if (go.activeInHierarchy) {
-            return HasteStyles.Skin.GetStyle("Name");
+            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") :
+              HasteStyles.Skin.GetStyle("Name");
           } else {
-            return HasteStyles.Skin.GetStyle("DisabledName");
+            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") :
+              HasteStyles.Skin.GetStyle("DisabledName");
           }
       }
     }
 
-    public override void Draw(bool isHighlighted, bool highlightMatches) {
+    public override void Draw(bool isHighlighted) {
       GameObject go = (GameObject)Object;
 
       var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
@@ -88,20 +95,22 @@ namespace Haste {
           childCount = go.transform.childCount;
         }
 
+        // Name
+        GUIStyle nameStyle = GetLabelStyle(go, isHighlighted || IsSelected);
+        string name;
         if (childCount > 0) {
-          EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : GetLabelStyle(go));
+          name = String.Format("{0} ({1}) {2}", Path.GetFileName(Item.Path), childCount, IsSelected ? HasteStyles.SelectionSymbol : "");
+        } else if (go == null) {
+          name = String.Format("{0} <destroyed>", Path.GetFileName(Item.Path), childCount);
         } else {
-          if (go == null) {
-            EditorGUILayout.LabelField(String.Format("{0} <destroyed>", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : GetLabelStyle(go));
-          } else {
-            EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : GetLabelStyle(go));
-          }
+          name = String.Format("{0} {1}", Path.GetFileName(Item.Path), IsSelected ? HasteStyles.SelectionSymbol : "");
         }
-        if (highlightMatches) {
-          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
-        } else {
-          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
-        }
+        EditorGUILayout.LabelField(name, nameStyle);
+
+        // Description
+        string boldStart = isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart;
+        GUIStyle descriptionStyle = isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description");
+        EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, boldStart, HasteStyles.BoldEnd), descriptionStyle);
       }
     }
 
