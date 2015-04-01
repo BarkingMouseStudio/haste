@@ -20,23 +20,16 @@ namespace Haste {
       }
     }
 
-    // Less than 0: a is less than b
-    // Equals 0: a equals b
-    // Greater than 0: a greater than b
+    // -1: a is before than b
+    // 0: a is around b
+    // 1: a is after than b
     public int Compare(IHasteResult a, IHasteResult b) {
-      // - Favor name first
-      // - Favor first char matches
-      // - Favor boundary matches
-      // - Favor prefix matches
-      // - Favor small index sums for "near beginning"
-      // - Penalize non-boundary match gaps
-      // - Favor exact matches
-      // - Favor boundary ratios/utilization near 1.0
-
       #if !IS_HASTE_PRO
       // Force menu item matches to the bottom in free version
-      if (a.Item.Source != b.Item.Source) {
-        return a.Item.Source == HasteMenuItemSource.NAME ? 1 : -1;
+      if (a.Item.Source == HasteMenuItemSource.NAME || a.Item.Source == HasteLayoutSource.NAME) {
+        return 1;
+      } else if (b.Item.Source == HasteMenuItemSource.NAME || b.Item.Source == HasteLayoutSource.NAME) {
+        return -1;
       }
       #endif
 
