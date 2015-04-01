@@ -19,17 +19,17 @@ namespace Haste {
     public void OnGUI() {
       EditorGUILayout.Space();
 
-      EditorGUILayout.LabelField("No results found.", HasteStyles.EmptyStyle);
+      EditorGUILayout.LabelField("No results found.", HasteStyles.Skin.GetStyle("Empty"));
 
       EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
       EditorGUILayout.EndVertical();
 
       if (!string.IsNullOrEmpty(tip)) {
-        EditorGUILayout.LabelField(tip, HasteStyles.TipStyle);
+        EditorGUILayout.LabelField(tip, HasteStyles.Skin.GetStyle("Tip"));
       }
 
       #if !IS_HASTE_PRO
-      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.UpgradeStyle)) {
+      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.Skin.GetStyle("Upgrade"))) {
         UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
       }
       #endif

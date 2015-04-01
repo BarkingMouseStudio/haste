@@ -103,11 +103,11 @@ namespace Haste {
 
     public virtual void Draw(bool isHighlighted, bool highlightMatches) {
       using (new HasteVertical()) {
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : HasteStyles.NameStyle);
+        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : HasteStyles.Skin.GetStyle("Name"));
         if (highlightMatches) {
-          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
         } else {
-          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
         }
       }
     }

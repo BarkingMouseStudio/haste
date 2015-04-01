@@ -10,11 +10,11 @@ namespace Haste {
     public static void Draw(IHasteResult result, int index, bool isHighlighted, bool highlightMatches, Action<Event, int> MouseDown, Action<Event, int> Click, Action<Event, int> DoubleClick, Action<Event, int> MouseDrag) {
       GUIStyle resultStyle;
       if (result.IsSelected) {
-        resultStyle = HasteStyles.SelectionStyle;
+        resultStyle = HasteStyles.Skin.GetStyle("Selection");
       } else if (isHighlighted) {
-        resultStyle = HasteStyles.HighlightStyle;
+        resultStyle = HasteStyles.Skin.GetStyle("Highlight");
       } else {
-        resultStyle = HasteStyles.NonHighlightStyle;
+        resultStyle = HasteStyles.Skin.GetStyle("NonHighlight");
       }
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
