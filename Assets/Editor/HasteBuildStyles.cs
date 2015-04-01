@@ -99,15 +99,15 @@ namespace Haste {
       builder.AddStyle(new Style() { name = "Upgrade", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, fontStyle = FontStyle.Bold, textColor = palette.SelectionColor });
       builder.AddStyle(new Style() { name = "Indexing", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleCenter, fontSize = 14, textColor = palette.SecondaryColor });
 
-      builder.AddStyle(new Style() { name = "Prefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrefabColor });
-      builder.AddStyle(new Style() { name = "BrokenPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.BrokenPrefabColor });
-      builder.AddStyle(new Style() { name = "DisabledPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledPrefabColor });
-      builder.AddStyle(new Style() { name = "DisabledBrokenPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledBrokenPrefabColor });
-
       builder.AddStyle(new Style() { name = "Name", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrimaryColor });
       builder.AddStyle(new Style() { name = "DisabledName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledColor });
       builder.AddStyle(new Style() { name = "HighlightedName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrimaryHighlightedColor });
       builder.AddStyle(new Style() { name = "HighlightedDisabledName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.SecondaryHighlightedColor });
+
+      builder.AddStyle(new Style() { name = "Prefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrefabColor });
+      builder.AddStyle(new Style() { name = "BrokenPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.BrokenPrefabColor });
+      builder.AddStyle(new Style() { name = "DisabledPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledPrefabColor });
+      builder.AddStyle(new Style() { name = "DisabledBrokenPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledBrokenPrefabColor });
 
       builder.AddStyle(new Style() { name = "Description", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = palette.SecondaryColor });
       builder.AddStyle(new Style() { name = "DisabledDescription", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = palette.DisabledColor });
