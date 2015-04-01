@@ -36,6 +36,16 @@ namespace Haste {
         EditorGUILayout.Space();
 
         EditorGUILayout.LabelField("Current Version", Haste.VERSION);
+        bool checkForUpdates = EditorGUILayout.Toggle("Check For Updates", HasteSettings.CheckForUpdates);
+        if (checkForUpdates != HasteSettings.CheckForUpdates) {
+          HasteSettings.CheckForUpdates = checkForUpdates;
+          HasteSettings.LastUpdateCheck = 0L;
+          if (checkForUpdates) {
+            Haste.Scheduler.Start(Haste.UpdateChecker.Check());
+          }
+        }
+        EditorGUILayout.Space();
+        HasteUpdates.DrawPreferences();
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();
