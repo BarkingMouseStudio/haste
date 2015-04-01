@@ -14,6 +14,7 @@ namespace Haste {
 
     // Impacts performance
     const int HIGHLIGHT_RESULT_COUNT = 25;
+    const float TOTAL_HEIGHT = 200.0f;
 
     Vector2 scrollPosition = Vector2.zero;
 
@@ -126,10 +127,28 @@ namespace Haste {
         scrollPosition = scrollView.ScrollPosition;
 
         bool isHighlighted, highlightMatches;
+        IHasteResult result;
+        float currentY = 0.0f;
+        float resultHeight;
+        bool isVisible;
+
         for (var i = 0; i < Items.Length; i++) {
           isHighlighted = i == HighlightedIndex;
-          highlightMatches = i < HIGHLIGHT_RESULT_COUNT;
-          HasteListItem.Draw(Items[i], i, isHighlighted, highlightMatches, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
+
+          result = Items[i];
+          resultHeight = result.Height(isHighlighted);
+
+          isVisible = currentY >= scrollPosition.y - resultHeight && currentY < scrollPosition.y + TOTAL_HEIGHT + resultHeight;
+          if (isVisible) {
+            highlightMatches = i < HIGHLIGHT_RESULT_COUNT;
+            HasteListItem.Draw(result, i, isHighlighted, highlightMatches, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
+          } else {
+            EditorGUILayout.BeginVertical(GUILayout.Height(resultHeight));
+            EditorGUILayout.Space();
+            EditorGUILayout.EndVertical();
+          }
+
+          currentY += resultHeight;
         }
       }
     }
