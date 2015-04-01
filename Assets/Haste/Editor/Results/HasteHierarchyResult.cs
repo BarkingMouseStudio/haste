@@ -9,13 +9,17 @@ namespace Haste {
 
   public class HasteHierarchyResult : AbstractHasteResult {
 
-    private static Texture _GameObjectIcon;
+    public static void LoadGameObjectIcon() {
+      gameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
+    }
+
+    private static Texture gameObjectIcon;
     public static Texture GameObjectIcon {
       get {
-        if (_GameObjectIcon == null) {
-          _GameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
+        if (gameObjectIcon == null) {
+          LoadGameObjectIcon();
         }
-        return _GameObjectIcon;
+        return gameObjectIcon;
       }
     }
 
