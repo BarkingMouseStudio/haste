@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.Collections;
 
 namespace Haste {
 
@@ -72,19 +73,37 @@ namespace Haste {
       }
     }
 
+    public static void LoadSkin() {
+      if (EditorGUIUtility.isProSkin) {
+        skin = HasteResources.Load<GUISkin>("Skins/Pro.guiskin");
+        skin.hideFlags = HideFlags.HideAndDontSave;
+      } else {
+        skin = HasteResources.Load<GUISkin>("Skins/Personal.guiskin");
+        skin.hideFlags = HideFlags.HideAndDontSave;
+      }
+    }
+
     private static GUISkin skin;
     public static GUISkin Skin {
       get {
         if (skin == null) {
-          if (EditorGUIUtility.isProSkin) {
-            skin = HasteResources.Load<GUISkin>("Skins/Pro.guiskin");
-            skin.hideFlags = HideFlags.HideAndDontSave;
-          } else {
-            skin = HasteResources.Load<GUISkin>("Skins/Personal.guiskin");
-            skin.hideFlags = HideFlags.HideAndDontSave;
-          }
+          LoadSkin();
         }
         return skin;
+      }
+    }
+
+    private static readonly string glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_+=~`[]{}|\\:;\"'<>,.?/ ";
+    public static IEnumerator PreCacheDynamicFonts() {
+      GUISkin inspectorSkin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
+      foreach (GUIStyle style in Skin.customStyles) {
+        Font font = style.font != null ? style.font : inspectorSkin.font;
+        if (style.richText) {
+          foreach (char glyph in glyphs) {
+            font.RequestCharactersInTexture(glyph.ToString(), style.fontSize, FontStyle.Bold);
+          }
+          yield return null;
+        }
       }
     }
   }
