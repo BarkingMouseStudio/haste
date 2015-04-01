@@ -44,7 +44,8 @@ namespace Haste {
         return !HasteSettings.Enabled ||
                willPlay ||
                EditorApplication.isCompiling ||
-               EditorApplication.isUpdating;
+               EditorApplication.isUpdating ||
+               Lightmapping.isRunning;
       }
     }
 
