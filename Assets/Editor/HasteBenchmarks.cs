@@ -31,7 +31,7 @@ namespace Haste {
       HasteDebug.Info("{0} ({1}) - Avg. Ticks: {2}, Avg. Time: {3}ms", name, iter, avgTicks, avgTime);
     }
 
-    [MenuItem("Window/Benchmarks")]
+    [MenuItem("Window/Haste/Benchmarks")]
     public static void Open() {
       var window = EditorWindow.GetWindow<HasteBenchmarks>();
       window.title = "Haste Benchmarks";

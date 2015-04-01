@@ -146,7 +146,7 @@ namespace Haste {
       return sourcePackagePath;
     }
 
-    [MenuItem("Window/Export Haste")]
+    [MenuItem("Window/Haste/Export")]
     public static void ExportHaste() {
       var rootPath = EditorUtility.SaveFolderPanel("Export Haste", "", "");
       if (string.IsNullOrEmpty(rootPath)) {

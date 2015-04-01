@@ -24,7 +24,7 @@ namespace Haste {
       return pathBuilder.ToString();
     }
 
-    [MenuItem("Window/Populate GameObjects")]
+    [MenuItem("Window/Haste/Populate GameObjects")]
     public static void PopulateGameObjects() {
       Stack<GameObject> parents = new Stack<GameObject>();
       parents.Push(new GameObject(GetRandomName()));
@@ -49,7 +49,7 @@ namespace Haste {
       return AssetDatabase.GUIDToAssetPath(AssetDatabase.CreateFolder(parent, name));
     }
 
-    [MenuItem("Window/Populate Assets")]
+    [MenuItem("Window/Haste/Populate Assets")]
     public static void PopulateAssets() {
       Stack<string> folders = new Stack<string>();
       folders.Push(CreateFolder(GetRandomName(), "Assets"));
