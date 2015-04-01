@@ -11,13 +11,18 @@ namespace Haste {
 
     public HasteMenuItemResult(IHasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
-    public override void Draw(bool isHighlighted, bool highlightMatches) {
+    public override void Draw(bool isHighlighted) {
       #if IS_HASTE_PRO
-        base.Draw(isHighlighted, highlightMatches);
+        base.Draw(isHighlighted);
       #else
         using (new HasteVertical()) {
-          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") : HasteStyles.Skin.GetStyle("DisabledName"));
-          EditorGUILayout.LabelField("Upgrade to Haste Pro to enable", isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledDescription") : HasteStyles.Skin.GetStyle("DisabledDescription"));
+          var nameStyle = isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") :
+            HasteStyles.Skin.GetStyle("DisabledName");
+          EditorGUILayout.LabelField(Item.Path, nameStyle);
+
+          var descriptionStyle = isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledDescription") :
+            HasteStyles.Skin.GetStyle("DisabledDescription");
+          EditorGUILayout.LabelField("Upgrade to Haste Pro to enable", descriptionStyle);
         }
       #endif
     }

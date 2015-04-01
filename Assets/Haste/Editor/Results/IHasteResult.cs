@@ -28,7 +28,7 @@ namespace Haste {
     UnityEngine.Object Object { get; }
     string DragLabel { get; }
 
-    void Draw(bool isHighlighted, bool highlightMatches);
+    void Draw(bool isHighlighted);
     float Height(bool isHighlighted);
     bool Validate();
     void Action();
