@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    public static readonly string VERSION = "1.6.1";
+    public static readonly string VERSION = "1.7.0";
 
     private static Version version;
     public static Version Version {
@@ -38,7 +38,7 @@ namespace Haste {
     public static HasteIndex Index;
     public static HasteWatcherManager Watchers;
 
-    public static HasteUpdateChecker Updates;
+    public static HasteUpdateChecker UpdateChecker;
 
     internal static event HasteWindowAction WindowAction;
 
@@ -100,8 +100,10 @@ namespace Haste {
 
       lastLayoutCheck = EditorApplication.timeSinceStartup;
 
-      Updates = new HasteUpdateChecker();
-      Scheduler.Start(Updates.Check());
+      UpdateChecker = new HasteUpdateChecker();
+      if (HasteSettings.CheckForUpdates) {
+        Scheduler.Start(UpdateChecker.Check());
+      }
 
       HasteSettings.ChangedBool += BoolSettingChanged;
       HasteSettings.ChangedString += StringSettingChanged;
@@ -210,8 +212,8 @@ namespace Haste {
     // Main update loop in Haste—run's scheduler
     static void Update() {
       if (HasteSettings.CheckForUpdates) {
-        if (DateTime.Now >= HasteSettings.LastUpdateCheckDate.Add(Updates.Interval)) {
-          Scheduler.Start(Updates.Check());
+        if (DateTime.Now >= HasteSettings.LastUpdateCheckDate.Add(UpdateChecker.Interval)) {
+          Scheduler.Start(UpdateChecker.Check());
         }
       }
 
