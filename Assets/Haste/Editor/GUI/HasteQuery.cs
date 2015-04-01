@@ -9,7 +9,7 @@ namespace Haste {
 
     static readonly string NAME = "query";
 
-    static readonly float BACKSPACE_DELAY = 0.1f;
+    static readonly float BACKSPACE_DELAY = 0.15f;
     double backspaceTime = 0.0f;
 
     public event QueryChangedHandler Changed;
@@ -20,25 +20,17 @@ namespace Haste {
       protected set { query = value; }
     }
 
-    void OnBackspace(Event e) {
-      e.Use();
-      Query = "";
-      OnGUIChanged();
-    }
-
     void OnKeyDown(Event e) {
       switch (e.keyCode) {
         case KeyCode.Backspace:
-          if (Query.Length > 0) {
-            if (backspaceTime == 0) {
-              backspaceTime = EditorApplication.timeSinceStartup;
-            }
+          if (backspaceTime == 0) {
+            backspaceTime = EditorApplication.timeSinceStartup;
+          }
 
-            var delta = EditorApplication.timeSinceStartup - backspaceTime;
-            if (delta >= BACKSPACE_DELAY) {
-              backspaceTime = 0;
-              OnBackspace(e);
-            }
+          var delta = EditorApplication.timeSinceStartup - backspaceTime;
+          if (delta >= BACKSPACE_DELAY) {
+            // Consume backspace events while we're holding the key down
+            e.Use();
           }
           break;
       }
@@ -47,6 +39,13 @@ namespace Haste {
     void OnKeyUp(Event e) {
       switch (e.keyCode) {
         case KeyCode.Backspace:
+          var delta = EditorApplication.timeSinceStartup - backspaceTime;
+          if (delta >= BACKSPACE_DELAY) {
+            // Consume backspace events while we're holding the key down
+            e.Use();
+          }
+
+          // Always clear backspace time
           backspaceTime = 0;
           break;
       }
@@ -65,7 +64,7 @@ namespace Haste {
 
     void OnGUIChanged() {
       if (Changed != null) {
-        Changed(Query);
+        Changed(query);
       }
     }
 
@@ -81,6 +80,19 @@ namespace Haste {
     //   EditorGUI.FocusTextInControl("");
     // }
 
+    public void UpdateHandler(EditorWindow window) {
+      if (backspaceTime > 0) { // Quick check that backspace key is down
+        var delta = EditorApplication.timeSinceStartup - backspaceTime;
+
+        // If we have a query and our backspace has been held long enough,
+        // clear the query:
+        if (delta >= BACKSPACE_DELAY && query.Length > 0) {
+          query = "";
+          OnGUIChanged();
+        }
+      }
+    }
+
     public void OnGUI() {
       OnEvent(Event.current);
 
@@ -90,9 +102,9 @@ namespace Haste {
 
       using (new HasteFocusText(NAME)) {
         var queryStyle = HasteStyles.Skin.GetStyle("Query");
-        Query = EditorGUILayout.TextField(Query, queryStyle,
+        query = EditorGUILayout.TextField(query, queryStyle,
           GUILayout.Height(queryStyle.fixedHeight));
-        Query = Query.Trim();
+        query = query.Trim();
       }
 
       if (GUI.changed) {
