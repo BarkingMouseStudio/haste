@@ -257,7 +257,7 @@ namespace Haste {
         Repaint();
       }
 
-      isIndexing = !Haste.IsIndexing;
+      isIndexing = Haste.IsIndexing;
 
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
