@@ -19,22 +19,22 @@ namespace Haste {
     public void OnGUI() {
       EditorGUILayout.Space();
 
-      EditorGUILayout.LabelField("Just type.", HasteStyles.IntroStyle,
-        GUILayout.Height(HasteStyles.IntroStyle.fixedHeight));
+      var introStyle = HasteStyles.Skin.GetStyle("Intro");
+      EditorGUILayout.LabelField("Just type.", introStyle, GUILayout.Height(introStyle.fixedHeight));
 
       EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
       EditorGUILayout.EndVertical();
 
       if (Haste.IsIndexing) {
-        EditorGUILayout.LabelField(string.Format("(Indexing {0}...)", Haste.IndexingCount), HasteStyles.IndexingStyle);
+        EditorGUILayout.LabelField(string.Format("(Indexing {0}...)", Haste.IndexingCount), HasteStyles.Skin.GetStyle("Indexing"));
       } else if (!string.IsNullOrEmpty(tip)) {
-        EditorGUILayout.LabelField(tip, HasteStyles.TipStyle);
+        EditorGUILayout.LabelField(tip, HasteStyles.Skin.GetStyle("Tip"));
       }
 
       Haste.Updates.OnGUI();
 
       #if !IS_HASTE_PRO
-      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.UpgradeStyle)) {
+      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.Skin.GetStyle("Upgrade"))) {
         UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
       }
       #endif

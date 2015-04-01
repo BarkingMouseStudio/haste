@@ -11,7 +11,7 @@ namespace Haste {
     public static void Draw(Rect position, HashSet<UnityEngine.Object> selection) {
       if (selection.Count > 0) {
         var labelRect = new Rect(position.x, position.y, 48, 16);
-        EditorGUI.LabelField(labelRect, selection.Count.ToString(), HasteStyles.CountStyle);
+        EditorGUI.LabelField(labelRect, selection.Count.ToString(), HasteStyles.Skin.GetStyle("Count"));
 
         Rect textureRect;
         int offset = 0;

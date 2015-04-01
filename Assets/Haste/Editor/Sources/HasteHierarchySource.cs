@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Haste {
 
-  public class HasteHierarchySource : IEnumerable<HasteItem> {
+  public class HasteHierarchySource : IEnumerable<IHasteItem> {
 
     public static readonly string NAME = "Hierarchy";
 
@@ -32,7 +32,7 @@ namespace Haste {
       return path;
     }
 
-    public IEnumerator<HasteItem> GetEnumerator() {
+    public IEnumerator<IHasteItem> GetEnumerator() {
       var allFlags = HideFlags.NotEditable |
         HideFlags.DontSave |
         HideFlags.HideAndDontSave |
@@ -57,7 +57,7 @@ namespace Haste {
 
         string path = GetTransformPath(go.transform);
         int id = go.GetInstanceID();
-        yield return new HasteItem(path, id, NAME);
+        yield return new HasteHierarchyItem(path, id, NAME);
       }
     }
 

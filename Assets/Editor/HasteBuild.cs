@@ -13,6 +13,7 @@ namespace Haste {
 
     public static readonly string SOURCE_PATH = "Assets/Haste/Editor/";
     public static readonly string INTERNAL_RESOURCES_PATH = "Assets/Haste/Editor/InternalResources";
+    public static readonly string ANCILLARY_PATH = "Assets/Ancillary";
 
     public static string UnityEnginePath {
       get {
@@ -61,8 +62,36 @@ namespace Haste {
       return codeProvider.CompileAssemblyFromSource(compileParams, sources);
     }
 
-    public static string CreateFolder(string parent, string path) {
+    public static string CreateDirectory(string parent, string path) {
       return Directory.CreateDirectory(Path.Combine(parent, path)).FullName;
+    }
+
+    public static void CopyContentsRecursively(string src, string dest) {
+      DirectoryInfo dir = new DirectoryInfo(src);
+
+      if (!Directory.Exists(dest)) {
+        Directory.CreateDirectory(dest);
+      }
+
+      foreach (FileInfo file in dir.GetFiles()) {
+        if (file.Extension == ".meta") {
+          continue; // Ignore meta files
+        }
+
+        if (file.Name.StartsWith(".")) {
+          continue; // Ignore hidden files
+        }
+
+        file.CopyTo(Path.Combine(dest, file.Name));
+      }
+
+      foreach (DirectoryInfo subdir in dir.GetDirectories()) {
+        if (subdir.Name.StartsWith(".")) {
+          continue; // Ignore hidden files
+        }
+
+        CopyContentsRecursively(subdir.FullName, Path.Combine(dest, subdir.Name));
+      }
     }
 
     public static void ExportHasteFree(string rootPath, string[] source) {
@@ -70,10 +99,14 @@ namespace Haste {
       FileUtil.DeleteFileOrDirectory(exportPath);
 
       // Create folders
-      var editorPath = CreateFolder(CreateFolder(exportPath, "Haste"), "Editor");
+      var topPath = CreateDirectory(exportPath, "Haste");
+      var editorPath = CreateDirectory(topPath, "Editor");
 
       // Build dll
       BuildAssembly(source, Path.Combine(editorPath, "Haste.dll")).LogErrors();
+
+      // Copy ancillary folder
+      CopyContentsRecursively(ANCILLARY_PATH, topPath);
 
       // Copy internal resources folder
       var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
@@ -85,11 +118,14 @@ namespace Haste {
       FileUtil.DeleteFileOrDirectory(exportPath);
 
       // Create folders
-      var topPath = CreateFolder(exportPath, "Haste");
-      var editorPath = CreateFolder(topPath, "Editor");
+      var topPath = CreateDirectory(exportPath, "Haste");
+      var editorPath = CreateDirectory(topPath, "Editor");
 
       // Build dll
       BuildAssembly(source, Path.Combine(editorPath, "Haste.dll"), "/optimize /define:IS_HASTE_PRO").LogErrors();
+
+      // Copy ancillary folder
+      CopyContentsRecursively(ANCILLARY_PATH, topPath);
 
       // Copy internal resources folder
       var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
@@ -101,14 +137,16 @@ namespace Haste {
     }
 
     public static string ExportHasteProSource(string rootPath) {
-      var sourcePackagePath = Path.Combine(rootPath, String.Format("HasteProSource.unitypackage"));
+      var sourcePackagePath = Path.Combine(rootPath, "HasteProSource.unitypackage");
       FileUtil.DeleteFileOrDirectory(sourcePackagePath);
+
       AssetDatabase.ExportPackage("Assets/Haste", sourcePackagePath,
         ExportPackageOptions.Recurse | ExportPackageOptions.IncludeDependencies);
+
       return sourcePackagePath;
     }
 
-    [MenuItem("Window/Export Haste")]
+    [MenuItem("Window/Haste/Export")]
     public static void ExportHaste() {
       var rootPath = EditorUtility.SaveFolderPanel("Export Haste", "", "");
       if (string.IsNullOrEmpty(rootPath)) {

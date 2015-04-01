@@ -1,0 +1,48 @@
+v1.7.0
+===
+
+v1.6.1
+===
+
+- Fixed: some filenames would cause exceptions.
+- Fixed: deleted objects would cause exceptions when accessed.
+
+v1.6.0
+===
+
+- Now 20x faster and handles large projects.
+- Fixed a bug where sources were not enabled by default.
+- Search by asset type using ".cs" or ".material".
+- Keyboard shortcut now configurable (see README).
+- Unity 5 support!
+- PRO Source code is now bundled directly instead of the manual email process.
+
+v1.5.1
+===
+
+- Fixing bug when selecting project assets due to Windows paths.
+
+v1.5
+===
+
+- Drag and drop support directly in Haste.
+- Multi-select search results.
+- Adding a few more tips for Haste.
+- Fixing fuzzy matching for middle-boundary characters.
+- Haste's preferences now displays average usage.
+- Removing old blur shader from package.
+
+v1.4
+===
+
+- PRO Updated menu items for Unity 4.6.
+- PRO Add component menu items now available.
+- You can search inactive game objects as well.
+- Haste displays tips on things you can do with Haste.
+- Game objects are color coded with their active and prefab states, just like the hierarchy.
+- Disabled upgrade menu items should now be less annoying and always fall to the bottom of your search results.
+- Tighter design shows more results.
+- Removed search result groupings since in practice it buried relevant results.
+- More robust indexing and filtering.
+- Fixed a bug when accessing game objects that have been deleted.
+- Fixed a memory leak.

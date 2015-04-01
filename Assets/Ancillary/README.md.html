@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>README.md</title>
+      <style>.markdown-preview { font-family: 'Helvetica Neue', Helvetica, sans-serif; font-size: 14px; line-height: 1.6; overflow: scroll; box-sizing: border-box; padding: 20px; background-color: rgb(255, 255, 255); }
+.markdown-preview code { color: rgb(51, 51, 51); }
+.markdown-preview code, .markdown-preview tt, .markdown-preview pre.editor-colors { font-size: 12px; font-family: Consolas, 'Liberation Mono', Courier, monospace; }
+.markdown-preview a, .markdown-preview a code { color: rgb(65, 131, 196); }
+.markdown-preview ol > li { list-style-type: decimal; }
+.markdown-preview ul > li { list-style-type: disc; }
+.markdown-preview li > pre.editor-colors { display: inline-block; vertical-align: top; width: 100%; }
+.markdown-preview li:last-child > pre.editor-colors { margin-bottom: 0px; }
+.markdown-preview > :first-child { margin-top: 0px !important; }
+.markdown-preview > :last-child { margin-bottom: 0px !important; }
+.markdown-preview a.absent { color: rgb(204, 0, 0); }
+.markdown-preview a.anchor { display: block; padding-left: 30px; margin-left: -30px; cursor: pointer; position: absolute; top: 0px; left: 0px; bottom: 0px; }
+.markdown-preview h1, .markdown-preview h2, .markdown-preview h3, .markdown-preview h4, .markdown-preview h5, .markdown-preview h6 { font-family: 'Helvetica Neue', Helvetica, sans-serif; margin: 20px 0px 10px; padding: 0px 0px 10px; font-weight: bold; -webkit-font-smoothing: antialiased; cursor: text; position: relative; }
+.markdown-preview h1 .octicon-link, .markdown-preview h2 .octicon-link, .markdown-preview h3 .octicon-link, .markdown-preview h4 .octicon-link, .markdown-preview h5 .octicon-link, .markdown-preview h6 .octicon-link { display: none; color: rgb(0, 0, 0); }
+.markdown-preview h1:hover a.anchor, .markdown-preview h2:hover a.anchor, .markdown-preview h3:hover a.anchor, .markdown-preview h4:hover a.anchor, .markdown-preview h5:hover a.anchor, .markdown-preview h6:hover a.anchor { text-decoration: none; line-height: 1; padding-left: 0px; margin-left: -22px; top: 15%; }
+.markdown-preview h1:hover a.anchor .octicon-link, .markdown-preview h2:hover a.anchor .octicon-link, .markdown-preview h3:hover a.anchor .octicon-link, .markdown-preview h4:hover a.anchor .octicon-link, .markdown-preview h5:hover a.anchor .octicon-link, .markdown-preview h6:hover a.anchor .octicon-link { display: inline-block; }
+.markdown-preview h1 tt, .markdown-preview h2 tt, .markdown-preview h3 tt, .markdown-preview h4 tt, .markdown-preview h5 tt, .markdown-preview h6 tt, .markdown-preview h1 code, .markdown-preview h2 code, .markdown-preview h3 code, .markdown-preview h4 code, .markdown-preview h5 code, .markdown-preview h6 code { font-size: inherit; }
+.markdown-preview h1 { font-size: 28px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(221, 221, 221); color: rgb(0, 0, 0); }
+.markdown-preview h2 { font-size: 24px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(238, 238, 238); color: rgb(0, 0, 0); }
+.markdown-preview h3 { font-size: 18px; }
+.markdown-preview h4 { font-size: 16px; }
+.markdown-preview h5 { font-size: 14px; }
+.markdown-preview h6 { color: rgb(119, 119, 119); font-size: 14px; }
+.markdown-preview p, .markdown-preview blockquote, .markdown-preview ul, .markdown-preview ol, .markdown-preview dl, .markdown-preview table, .markdown-preview pre.editor-colors { margin: 15px 0px; }
+.markdown-preview hr { border: 0px none; color: rgb(204, 204, 204); height: 4px; padding: 0px; margin: 15px 0px; background: url('data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC') 0px 0px repeat-x transparent; }
+.markdown-preview > h2:first-child, .markdown-preview > h1:first-child, .markdown-preview > h1:first-child + h2, .markdown-preview > h3:first-child, .markdown-preview > h4:first-child, .markdown-preview > h5:first-child, .markdown-preview > h6:first-child { margin-top: 0px; padding-top: 0px; }
+.markdown-preview a:first-child h1, .markdown-preview a:first-child h2, .markdown-preview a:first-child h3, .markdown-preview a:first-child h4, .markdown-preview a:first-child h5, .markdown-preview a:first-child h6 { margin-top: 0px; padding-top: 0px; }
+.markdown-preview h1 + p, .markdown-preview h2 + p, .markdown-preview h3 + p, .markdown-preview h4 + p, .markdown-preview h5 + p, .markdown-preview h6 + p { margin-top: 0px; }
+.markdown-preview li p.first { display: inline-block; }
+.markdown-preview ul, .markdown-preview ol { padding-left: 30px; }
+.markdown-preview ul.no-list, .markdown-preview ol.no-list { list-style-type: none; padding: 0px; }
+.markdown-preview ul li > :first-child, .markdown-preview ol li > :first-child, .markdown-preview ul li ul:first-of-type, .markdown-preview ol li ul:first-of-type { margin-top: 0px; }
+.markdown-preview ul ul, .markdown-preview ul ol, .markdown-preview ol ol, .markdown-preview ol ul { margin-bottom: 0px; }
+.markdown-preview dl { padding: 0px; }
+.markdown-preview dl dt { font-size: 14px; font-weight: bold; font-style: italic; padding: 0px; margin: 15px 0px 5px; }
+.markdown-preview dl dt:first-child { padding: 0px; }
+.markdown-preview dl dt > :first-child { margin-top: 0px; }
+.markdown-preview dl dt > :last-child { margin-bottom: 0px; }
+.markdown-preview dl dd { margin: 0px 0px 15px; padding: 0px 15px; }
+.markdown-preview dl dd > :first-child { margin-top: 0px; }
+.markdown-preview dl dd > :last-child { margin-bottom: 0px; }
+.markdown-preview blockquote { border-left-width: 4px; border-left-style: solid; border-left-color: rgb(221, 221, 221); padding: 0px 15px; color: rgb(119, 119, 119); }
+.markdown-preview blockquote > :first-child { margin-top: 0px; }
+.markdown-preview blockquote > :last-child { margin-bottom: 0px; }
+.markdown-preview blockquote p { font-size: 16px; line-height: 1.5; }
+.markdown-preview table th { font-weight: bold; }
+.markdown-preview table th, .markdown-preview table td { border: 1px solid rgb(204, 204, 204); padding: 6px 13px; }
+.markdown-preview table tr { border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(255, 255, 255); }
+.markdown-preview table tr:nth-child(2n) { background-color: rgb(248, 248, 248); }
+.markdown-preview img { max-width: 100%; }
+.markdown-preview span.frame { display: block; overflow: hidden; }
+.markdown-preview span.frame > span { border: 1px solid rgb(221, 221, 221); display: block; float: left; overflow: hidden; margin: 13px 0px 0px; padding: 7px; width: auto; }
+.markdown-preview span.frame span img { display: block; float: left; }
+.markdown-preview span.frame span span { clear: both; color: rgb(51, 51, 51); display: block; padding: 5px 0px 0px; }
+.markdown-preview span.align-center { display: block; overflow: hidden; clear: both; }
+.markdown-preview span.align-center > span { display: block; overflow: hidden; margin: 13px auto 0px; text-align: center; }
+.markdown-preview span.align-center span img { margin: 0px auto; text-align: center; }
+.markdown-preview span.align-right { display: block; overflow: hidden; clear: both; }
+.markdown-preview span.align-right > span { display: block; overflow: hidden; margin: 13px 0px 0px; text-align: right; }
+.markdown-preview span.align-right span img { margin: 0px; text-align: right; }
+.markdown-preview span.float-left { display: block; margin-right: 13px; overflow: hidden; float: left; }
+.markdown-preview span.float-left span { margin: 13px 0px 0px; }
+.markdown-preview span.float-right { display: block; margin-left: 13px; overflow: hidden; float: right; }
+.markdown-preview span.float-right > span { display: block; overflow: hidden; margin: 13px auto 0px; text-align: right; }
+.markdown-preview code, .markdown-preview tt { margin: 0px 2px; padding: 0px 5px; border: 1px solid rgb(234, 234, 234); border-radius: 3px; text-shadow: none; background-color: rgb(248, 248, 248); }
+.markdown-preview code { white-space: nowrap; }
+.markdown-preview pre.editor-colors { font-size: 13px; line-height: 19px; overflow: auto; padding: 6px 10px; border-radius: 3px; border: 1px solid rgb(0, 2, 3); background: rgb(0, 43, 54); }
+.markdown-preview kbd { border-radius: 2px; border-width: 1px; border-style: solid; border-color: rgb(221, 221, 221) rgb(204, 204, 204) rgb(204, 204, 204) rgb(221, 221, 221); padding: 1px 4px; line-height: 10px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-image: linear-gradient(rgb(241, 241, 241), rgb(221, 221, 221)); background-color: rgb(221, 221, 221); background-repeat: repeat-x; }
+.markdown-preview .emoji { height: 20px; width: 20px; }
+.bracket-matcher .region {
+  border-bottom: 1px dotted lime;
+  position: absolute;
+}
+
+.spell-check-misspelling .region {
+  border-bottom: 1px dashed rgba(250, 128, 114, 0.5);
+}
+
+pre.editor-colors,
+.host {
+  background-color: #002b36;
+  color: #839496;
+}
+pre.editor-colors .invisible-character,
+.host .invisible-character {
+  color: rgba(101, 123, 131, 0.2);
+}
+pre.editor-colors .indent-guide,
+.host .indent-guide {
+  color: rgba(101, 123, 131, 0.2);
+}
+pre.editor-colors .gutter,
+.host .gutter {
+  background-color: #073642;
+  color: #839496;
+}
+pre.editor-colors .gutter .line-number,
+.host .gutter .line-number {
+  opacity: 1;
+}
+pre.editor-colors .gutter .line-number.folded,
+.host .gutter .line-number.folded,
+pre.editor-colors .gutter .line-number:after,
+.host .gutter .line-number:after,
+pre.editor-colors .fold-marker:after,
+.host .fold-marker:after {
+  color: #d33682;
+}
+pre.editor-colors .cursor,
+.host .cursor {
+  border-color: #fdf6e3;
+}
+pre.editor-colors .selection .region,
+.host .selection .region {
+  background-color: #073a47;
+}
+pre.editor-colors .line-number.cursor-line-no-selection,
+.host .line-number.cursor-line-no-selection {
+  background-color: #0a4d5e;
+}
+.bracket-matcher .region {
+  background-color: rgba(88, 110, 117, 0.8);
+  opacity: 0.3;
+}
+.comment {
+  color: #586e75;
+  font-style: italic;
+}
+.entity {
+  color: #839496;
+}
+.entity .punctuation {
+  color: #dc322f;
+}
+.entity.name {
+  color: #cb4b16;
+}
+.entity.name.tag {
+  color: #268bd2;
+}
+.entity.constant {
+  color: #dc322f;
+}
+.entity.attribute-name {
+  color: #586e75;
+}
+.keyword {
+  color: #859900;
+}
+.keyword.other.special-method {
+  color: #cb4b16;
+}
+.storage.type {
+  color: #268bd2;
+}
+.storage.class.type {
+  color: #d33682;
+}
+.storage.modifier {
+  color: #268bd2;
+}
+.constant {
+  color: #b58900;
+}
+.constant.numeric,
+.constant.boolean,
+.constant.symbol,
+.constant.symbol .punctuation {
+  color: #2aa198;
+}
+.constant.symbol.hashkey {
+  color: #dc322f;
+}
+.constant.symbol.hashkey .punctuation {
+  color: #dc322f;
+}
+.delimiter,
+.brace {
+  color: #268bd2;
+}
+.delimiter,
+.round {
+  color: #859900;
+}
+.delimiter.period {
+  color: #859900;
+}
+.invalid.deprecated {
+  text-decoration: underline;
+  color: #dc322f;
+}
+.invalid.illegal {
+  color: #dc322f;
+}
+.method .name {
+  color: #268bd2;
+}
+.operator.assignment {
+  color: #93a1a1;
+}
+.parameter {
+  color: #dc322f;
+}
+.property-name {
+  color: #859900;
+}
+.property-value .unit {
+  color: #839496;
+}
+.string {
+  color: #2aa198;
+}
+.string .constant.character.escape {
+  color: #dc322f;
+  font-weight: bold;
+}
+.string .punctuation.string {
+  color: #2aa198;
+}
+.string.regexp {
+  color: #2aa198;
+}
+.string.regexp .string.regexp.arbitrary-repetition {
+  color: #2aa198;
+}
+.variable {
+  color: #2aa198;
+}
+.variable.instance {
+  color: #268bd2;
+}
+.variable.constant {
+  color: #586e75;
+}
+.variable.parameter {
+  color: #dc322f;
+}
+.support {
+  color: #cb4b16;
+}
+.support.class {
+  color: #dc322f;
+}
+.terminator {
+  color: #859900;
+}
+pre.editor-colors .gfm .markup.italic,
+.host .gfm .markup.italic {
+  font-style: italic;
+}
+pre.editor-colors .gfm .markup.bold,
+.host .gfm .markup.bold {
+  font-weight: bold;
+}
+pre.editor-colors .gfm .markup.heading,
+.host .gfm .markup.heading {
+  color: #cb4b16;
+}
+pre.editor-colors .gfm .link,
+.host .gfm .link {
+  color: #2aa198;
+}
+pre.editor-colors .gfm .link .entity,
+.host .gfm .link .entity {
+  color: #6c71c4;
+}
+pre.editor-colors .gfm .raw,
+.host .gfm .raw {
+  font-style: italic;
+}
+pre.editor-colors .gfm.support,
+.host .gfm.support {
+  color: #dc322f;
+}
+.source.css .entity.name {
+  color: #859900;
+}
+.source.css .punctuation.section {
+  color: #268bd2;
+}
+.source.css .punctuation.separator {
+  color: #839496;
+}
+.source.css .punctuation.terminator {
+  color: #839496;
+}
+.source.css .punctuation.definition.entity {
+  color: #268bd2;
+}
+.source.css .punctuation.definition.constant {
+  color: #839496;
+}
+.source.css .brace {
+  color: #268bd2;
+}
+.source.css .variable {
+  color: #268bd2;
+}
+.source.css .attribute-name.class {
+  color: #268bd2;
+}
+.source.css .property-name {
+  color: #b58900;
+}
+.source.css .property-value {
+  color: #2aa198;
+}
+.source.css .unit {
+  color: #2aa198;
+}
+.source.css .support.function {
+  color: #268bd2;
+}
+.source.css .rgb-value {
+  color: #2aa198;
+}
+.source.css .id {
+  color: #268bd2;
+}
+.source.css .pseudo-element {
+  color: #cb4b16;
+}
+.source.css .pseudo-class {
+  color: #cb4b16;
+}
+.source.css .pseudo-class.attribute-name {
+  color: #cb4b16;
+}
+.source.ruby .meta.embedded .punctuation.section {
+  color: #dc322f;
+}
+.source.ruby .punctuation.definition {
+  color: #839496;
+}
+.source.ruby .punctuation.definition.string {
+  color: #dc322f;
+}
+.source.ruby .punctuation.definition.comment {
+  color: #586e75;
+}
+.source.ruby .entity.inherited-class {
+  color: #b58900;
+}
+.source.ruby .variable.parameter {
+  color: #839496;
+}
+.source.ruby .variable.constant {
+  color: #b58900;
+}
+.source.ruby .instance .punctuation.definition {
+  color: #268bd2;
+}
+.source.ruby .class {
+  color: #b58900;
+}
+.source.ruby .class.control {
+  color: #839496;
+}
+.source.ruby .module {
+  color: #b58900;
+}
+.source.ruby .require .keyword.other.special-method {
+  color: #cb4b16;
+}
+.source.ruby .keyword.other.special-method {
+  color: #cb4b16;
+}
+.source.ruby .keyword.other {
+  color: #859900;
+}
+.source.ruby .keyword.control {
+  color: #859900;
+}
+.source.ruby .special-method {
+  color: #268bd2;
+}
+.source.ruby .symbol {
+  color: #2aa198;
+}
+.source.ruby .symbol .punctuation.definition {
+  color: #2aa198;
+}
+.source.ruby .hashkey {
+  color: #dc322f;
+}
+.source.ruby .hashkey .punctuation.definition {
+  color: #dc322f;
+}
+.source.ruby .string.regexp {
+  color: #dc322f;
+}
+.source.ruby .todo {
+  color: #d33682;
+}
+.source.ruby .variable.ruby.global {
+  color: #268bd2;
+}
+.source.ruby .variable.ruby.global .punctuation {
+  color: #268bd2;
+}
+.source.ruby .variable.block {
+  color: #268bd2;
+}
+.source.ruby .punctuation.separator {
+  color: #839496;
+}
+.source.ruby .string.interpolated .embedded.line.ruby .punctuation .source.ruby {
+  color: #dc322f;
+}
+.source.ruby .string.interpolated .embedded.line.ruby .source.ruby {
+  color: #839496;
+}
+.source.ruby .string.interpolated .embedded.line.ruby .source.ruby .punctuation.array,
+.source.ruby .string.interpolated .embedded.line.ruby .source.ruby .punctuation.function {
+  color: #839496;
+}
+.source.ruby .support.function {
+  color: #839496;
+}
+.source.ruby .support.function.kernel {
+  color: #859900;
+}
+.source.python .entity {
+  color: #839496;
+}
+.source.python .entity.name {
+  color: #268bd2;
+}
+.source.python .entity.other {
+  color: #268bd2;
+}
+.source.python .function {
+  color: #268bd2;
+}
+.source.python .function.magic {
+  color: #268bd2;
+}
+.source.python .punctuation.string {
+  color: #2aa198;
+}
+.source.python .keyword.operator {
+  color: #839496;
+}
+.source.python .keyword.operator.quantifier {
+  color: #2aa198;
+}
+.source.python .keyword.operator.logical {
+  color: #859900;
+}
+.source.python .keyword.control.import {
+  color: #cb4b16;
+}
+.source.python .keyword.other {
+  color: #859900;
+}
+.source.python .constant.language {
+  color: #268bd2;
+}
+.source.python .constant.character {
+  color: #2aa198;
+}
+.source.python .constant.other {
+  color: #dc322f;
+}
+.source.python .entity.name.type.class {
+  color: #268bd2;
+}
+.source.python .variable {
+  color: #839496;
+}
+.source.python .support.function.builtin {
+  color: #268bd2;
+}
+.source.python .support.type.exception.python {
+  color: #b58900;
+}
+.source.python .support.type.python {
+  color: #268bd2;
+}
+.source.python .storage.type.string {
+  color: #2aa198;
+}
+.source.python .storage.type.class {
+  color: #859900;
+}
+.source.python .storage.type.class.todo {
+  color: #d33682;
+}
+.source.python .storage.type.function {
+  color: #859900;
+}
+.source.python .punctuation.definition.parameters {
+  color: #839496;
+}
+.source.python .punctuation.section.function.begin {
+  color: #839496;
+}
+.source.python .punctuation.separator.parameters {
+  color: #839496;
+}
+.source.c .meta.preprocessor,
+.source.c\+\+ .meta.preprocessor {
+  color: #dc322f;
+}
+.source.c .keyword.control.import,
+.source.c\+\+ .keyword.control.import {
+  color: #dc322f;
+}
+.source.c .punctuation.string,
+.source.c\+\+ .punctuation.string {
+  color: #2aa198;
+}
+.source.c .constant,
+.source.c\+\+ .constant {
+  color: #dc322f;
+}
+.source.c .constant.numeric,
+.source.c\+\+ .constant.numeric,
+.source.c .constant.language.c,
+.source.c\+\+ .constant.language.c {
+  color: #2aa198;
+}
+.source.c .storage,
+.source.c\+\+ .storage {
+  color: #b58900;
+}
+.source.c .entity,
+.source.c\+\+ .entity {
+  color: #839496;
+}
+.source.c .entity.name.function.preprocessor,
+.source.c\+\+ .entity.name.function.preprocessor {
+  color: #dc322f;
+}
+.source.c .support.type,
+.source.c\+\+ .support.type {
+  color: #b58900;
+}
+.source.c .support.type.posix-reserved,
+.source.c\+\+ .support.type.posix-reserved {
+  color: #839496;
+}
+.source.c .variable.other.dot-access,
+.source.c\+\+ .variable.other.dot-access {
+  color: #839496;
+}
+.source.c .variable.parameter.preprocessor,
+.source.c\+\+ .variable.parameter.preprocessor {
+  color: #dc322f;
+}
+.source.php .storage.type.class {
+  color: #b58900;
+}
+.source.php .storage.type.function {
+  color: #dc322f;
+}
+.source.php .storage.modifier {
+  color: #b58900;
+}
+.source.php .entity.name.type.class {
+  color: #839496;
+}
+.source.php .entity.name.function {
+  color: #839496;
+}
+.source.php .entity.other {
+  color: #839496;
+}
+.source.php .variable {
+  color: #268bd2;
+}
+.source.php .punctuation.definition {
+  color: #839496;
+}
+.source.php .punctuation.definition.comment {
+  color: #586e75;
+}
+.source.php .punctuation.definition.array {
+  color: #dc322f;
+}
+.source.php .punctuation.definition.string {
+  color: #839496;
+}
+.source.php .punctuation.definition.variable {
+  color: #859900;
+}
+.source.php .punctuation.section.scope {
+  color: #dc322f;
+}
+.source.php .support.function.construct {
+  color: #b58900;
+}
+.source.php .support.function.array {
+  color: #859900;
+}
+.source.php .keyword.operator.class {
+  color: #b58900;
+}
+.source.php .keyword.operator.assignment {
+  color: #859900;
+}
+.source.php .keyword.other {
+  color: #dc322f;
+}
+.terminal {
+  background-color: #002b36;
+}
+.terminal .color-0 {
+  color: #839496;
+}
+.terminal .background-0 {
+  background-color: #002b36;
+}
+.terminal .color-1 {
+  color: #dc322f;
+}
+.terminal .background-1 {
+  background-color: #dc322f;
+}
+.terminal .color-2 {
+  color: #859900;
+}
+.terminal .background-2 {
+  background-color: #859900;
+}
+.terminal .color-3 {
+  color: #b58900;
+}
+.terminal .background-3 {
+  background-color: #b58900;
+}
+.terminal .color-4 {
+  color: #268bd2;
+}
+.terminal .background-4 {
+  background-color: #268bd2;
+}
+.terminal .color-5 {
+  color: #d33682;
+}
+.terminal .background-5 {
+  background-color: #d33682;
+}
+.terminal .color-6 {
+  color: #2aa198;
+}
+.terminal .background-6 {
+  background-color: #2aa198;
+}
+.terminal .color-7 {
+  color: #fdf6e3;
+}
+.terminal .background-7 {
+  background-color: #fdf6e3;
+}
+pre.editor-colors .gutter .git-line-modified,
+.host .gutter .git-line-modified {
+  border-left: 2px solid #b58900;
+  padding-left: calc(0.5em - 2px);
+  color: #839496;
+}
+pre.editor-colors .gutter .git-line-added,
+.host .gutter .git-line-added {
+  border-left: 2px solid #859900;
+  padding-left: calc(0.5em - 2px);
+  color: #839496;
+}
+pre.editor-colors .gutter .git-line-removed,
+.host .gutter .git-line-removed {
+  border-left: 2px solid #dc322f;
+  padding-left: calc(0.5em - 2px);
+  color: #839496;
+}
+pre.editor-colors .wrap-guide,
+.host .wrap-guide {
+  background-color: #073642;
+}
+.source.scala .variable {
+  color: #93a1a1;
+}
+.source.scala .declaration {
+  color: #93a1a1;
+  font-weight: bold;
+}
+.source.scala .comparison {
+  color: #93a1a1;
+}
+.source.scala .class,
+.source.scala .type {
+  color: #b58900;
+}
+.source.scala .val {
+  font-weight: normal;
+}
+.source.scala .variable {
+  font-weight: bold;
+}
+.source.scala .variable.parameter {
+  color: #6c71c4;
+  font-weight: normal;
+}
+.source.scala .control.flow {
+  color: #93a1a1;
+  font-weight: bold;
+}
+.source.scala .constant.language {
+  color: #93a1a1;
+  font-weight: bold;
+}
+.source.scala .function.declaration {
+  color: #6c71c4;
+}
+.source.scala .modifier.other {
+  font-weight: bold;
+}
+.source.scala .package {
+  color: #93a1a1;
+}
+.source.scala .variable.import {
+  font-weight: normal;
+}
+.source.scala .type .bounds,
+.source.scala .type .class {
+  color: #6c71c4;
+}
+.source.scala .documentation :not(.embedded).link.entity {
+  color: #268bd2;
+  text-decoration: underline;
+}
+.source.scala .documentation :not(.embedded) .class,
+.source.scala .documentation :not(.embedded) .parameter {
+  color: #93a1a1;
+}
+.source.scala .documentation :not(.embedded) .description {
+  color: #586e75;
+}
+.source.scala .embedded {
+  color: #93a1a1;
+  opacity: 0.8;
+  font-style: italic;
+}
+.source.scala .embedded .margin,
+.source.scala .embedded .delimiters {
+  font-style: normal;
+}
+pre.editor-colors .gutter .line-number.linter-warning .icon-right:before,
+.host .gutter .line-number.linter-warning .icon-right:before {
+  color: #b58900;
+}
+pre.editor-colors .gutter .line-number.linter-error .icon-right:before,
+.host .gutter .line-number.linter-error .icon-right:before {
+  color: #dc322f;
+}
+pre.editor-colors .highlights .linter-warning .region,
+.host .highlights .linter-warning .region {
+  border: 1px solid #b58900;
+  background-image: none;
+  background-color: rgba(181, 137, 0, 0.2);
+}
+pre.editor-colors .highlights .linter-error .region,
+.host .highlights .linter-error .region {
+  border: 1px solid #dc322f;
+  background-image: none;
+  background-color: rgba(255, 16, 12, 0.2);
+}
+</style>
+  </head>
+  <body class='markdown-preview'><h1 id="haste">Haste</h1>
+<p><a href="http://support.barkingmousestudio.com">Support</a></p>
+<p>Haste is a quick launcher for Unity. Navigate your project with speed: select GameObjects in your scene, files and folders in your project or execute MenuItems. MenuItem support is only available in the paid version of Haste.</p>
+<h2 id="quick-reference">Quick Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Keyboard</th>
+<th>Mouse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open Haste</td>
+<td>⌘ + K (Ctrl + K on Windows)</td>
+<td>Click &quot;Window/Haste&quot;</td>
+</tr>
+<tr>
+<td>Navigate Search Results</td>
+<td>↑ or ↓</td>
+<td>Click search result</td>
+</tr>
+<tr>
+<td>Select Highlighted Result</td>
+<td>Enter</td>
+<td>Double-click search result</td>
+</tr>
+<tr>
+<td>Multi-Select Highlighted Result</td>
+<td>⌘ + Enter (Ctrl + Enter on Windows)</td>
+<td>⌘ + Click (Ctrl + Click on Windows)</td>
+</tr>
+<tr>
+<td>Dismiss Haste</td>
+<td>ESC</td>
+<td>Click anywhere outside of Haste</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-haste">Configuring Haste</h2>
+<p>To modify Haste&#39;s keyboard shortcut open the file &quot;Assets/Haste/Editor/InternalResources/HasteShortcut.cs&quot; in your favorite text editor. Then modify <em>both</em> <code style="font-family: Fira Mono;">MenuItem</code> attributes using the following special characters:</p>
+<ul>
+<li><code style="font-family: Fira Mono;">%</code> (ctrl on Windows, cmd on OS X),</li>
+<li><code style="font-family: Fira Mono;">#</code> (shift),</li>
+<li><code style="font-family: Fira Mono;">&amp;</code> (alt),</li>
+<li><code style="font-family: Fira Mono;">_</code> (no key modifiers)</li>
+</ul>
+<p>For example to create a menu with the shortcut alt-g use &quot;Window/Haste &amp;g&quot;.</p>
+<p>Note that if the shortcut conflicts with another shortcut, Haste may not open.</p>
+<p>For more details, see the <a href="http://docs.unity3d.com/ScriptReference/MenuItem.html">Unity MenuItem docs</a>.</p>
+<p>(Additional settings are available in the &quot;Haste&quot; tab of &quot;Unity Preferences&quot;.)</p>
+<h2 id="searching-by-file-type">Searching By File Type</h2>
+<p>With Haste you can also find assets by their type simply by searching for their extension. A few examples:</p>
+<ul>
+<li><code style="font-family: Fira Mono;">.cs</code> for C# scripts</li>
+<li><code style="font-family: Fira Mono;">.unity</code> for scenes</li>
+<li><code style="font-family: Fira Mono;">.mat</code> for materials</li>
+</ul>
+<h2 id="step-by-step-tutorial">Step-By-Step Tutorial</h2>
+<h5 id="step-1-import-haste-into-your-project-">Step 1. Import Haste into your project.</h5>
+<h5 id="step-2-open-the-included-tutorial-scene-assets-haste-tutorial-tutorial-unity-">Step 2. Open the included tutorial scene @ <code style="font-family: Fira Mono;">Assets/Haste/Tutorial/Tutorial.unity</code></h5>
+<h5 id="step-3-press-command-k-k-on-os-x-ctrl-k-on-windows-to-open-haste-">Step 3. Press Command+K (⌘+K) on OS X (Ctrl+K on Windows) to open Haste.</h5>
+<p>This is Haste. You can open it at any time.</p>
+<p>The first time you open Haste it will begin indexing your scene hierarchy and project files automatically, making new items available for search as their discovered.</p>
+<h5 id="step-4-type-myfirstgameobject-into-the-search-box-">Step 4. Type <code style="font-family: Fira Mono;">MyFirstGameObject</code> into the search box.</h5>
+<p>Haste will begin listing your search results immediately. Note that searches in Haste are not case-sensitive.</p>
+<h5 id="step-5-you-can-use-the-up-down-arrows-to-navigate-the-search-results-use-the-arrows-to-highlight-the-gameobject-named-first-">Step 5. You can use the up (↑) / down (↓) arrows to navigate the search results. Use the arrows to highlight the GameObject named &quot;first&quot;.</h5>
+<h5 id="step-6-press-enter-to-select-the-highlighted-gameobject-">Step 6. Press Enter (↵) to select the highlighted GameObject.</h5>
+<p>Pressing enter will select the highlighted result.</p>
+<p>Searching by the full name can be tedious. To search faster you can search using Haste&#39;s &quot;fuzzy&quot; matching.</p>
+<h5 id="step-7-open-haste-and-type-msgo-">Step 7. Open Haste and type <code style="font-family: Fira Mono;">msgo</code>.</h5>
+<p>Note how Haste highlights the capital letters in the GameObject&#39;s name. Haste can search on any &quot;word boundary&quot; which are capital letters or characters that occur after spaces and other characters such as hyphens and parenthesis. Think of this like &quot;keyboard-shortcuts on steroids&quot; where everything in Unity gets an acronym to lookup the object by.</p>
+<h5 id="step-8-press-esc-to-dismiss-haste-">Step 8. Press ESC to dismiss Haste.</h5>
+<p>You can do this at any time when Haste is open without performing any actions.</p>
+<p>Next lets use some MenuItem actions... (requires Haste Pro.)</p>
+<h5 id="step-9-open-haste-and-search-for-tutorialprefab-or-tutp-or-even-tp-">Step 9. Open Haste and search for <code style="font-family: Fira Mono;">TutorialPrefab</code> (or <code style="font-family: Fira Mono;">tutp</code> or even <code style="font-family: Fira Mono;">tp</code>).</h5>
+<p>This brings up the <code style="font-family: Fira Mono;">TutorialPrefab.prefab</code> in the project&#39;s assets.</p>
+<h5 id="step-10-press-enter-to-select-the-prefab-">Step 10. Press Enter (↵) to select the prefab.</h5>
+<h5 id="step-11-now-search-for-instantiate-prefab-or-ip-in-haste-and-press-enter-">Step 11. Now search for <code style="font-family: Fira Mono;">Instantiate Prefab</code> (or <code style="font-family: Fira Mono;">ip</code>) in Haste and press Enter (↵).</h5>
+<p>Haste Pro provides access to as many built-in MenuItems as possible with Unity&#39;s exposed APIs. Haste Pro also indexes custom MenuItems from other editor extensions making it easy to extend Haste&#39;s capabilities.</p>
+<h2 id="missing-menu-items">Missing Menu Items</h2>
+<p>Due to limitations in the current Unity editor APIs the following menu items are not available through Haste:</p>
+<ul>
+<li>File/New Project...</li>
+<li>File/Open Project...</li>
+<li>Edit/Project Settings/Input</li>
+<li>Edit/Project Settings/Audio</li>
+<li>Edit/Project Settings/Time</li>
+<li>Edit/Project Settings/Graphics</li>
+<li>Edit/Project Settings/Network</li>
+</ul></body>
+</html>

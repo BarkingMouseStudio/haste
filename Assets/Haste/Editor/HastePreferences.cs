@@ -30,7 +30,7 @@ namespace Haste {
           HasteSettings.UsageCount,
           HasteSettings.UsageSinceDate.ToLongDateString(),
           HasteSettings.UsageAverage
-        ), HasteStyles.UsageStyle);
+        ), HasteStyles.Skin.GetStyle("Usage"));
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();

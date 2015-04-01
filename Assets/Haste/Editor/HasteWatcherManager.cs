@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Haste {
 
-  public delegate IEnumerable<HasteItem> HasteSourceFactory();
+  public delegate IEnumerable<IHasteItem> HasteSourceFactory();
 
   // Manager for various source watchers.
   public class HasteWatcherManager : IEnumerable<KeyValuePair<string, IHasteWatcher>> {
@@ -111,11 +111,11 @@ namespace Haste {
       }
     }
 
-    void AddToIndex(HasteItem item) {
+    void AddToIndex(IHasteItem item) {
       Haste.Index.Add(item);
     }
 
-    void RemoveFromIndex(HasteItem item) {
+    void RemoveFromIndex(IHasteItem item) {
       Haste.Index.Remove(item);
     }
 

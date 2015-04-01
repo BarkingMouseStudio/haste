@@ -9,7 +9,7 @@ namespace Haste {
 
     static readonly string NAME = "query";
 
-    static readonly float BACKSPACE_DELAY = 0.2f;
+    static readonly float BACKSPACE_DELAY = 0.1f;
     double backspaceTime = 0.0f;
 
     public event QueryChangedHandler Changed;
@@ -89,8 +89,9 @@ namespace Haste {
       // GUI.Button(new Rect(0, 0, 0, 0), "", GUIStyle.none);
 
       using (new HasteFocusText(NAME)) {
-        Query = EditorGUILayout.TextField(Query, HasteStyles.QueryStyle,
-          GUILayout.Height(HasteStyles.QueryStyle.fixedHeight));
+        var queryStyle = HasteStyles.Skin.GetStyle("Query");
+        Query = EditorGUILayout.TextField(Query, queryStyle,
+          GUILayout.Height(queryStyle.fixedHeight));
         Query = Query.Trim();
       }
 

@@ -10,7 +10,7 @@ namespace Haste {
 
   public abstract class AbstractHasteResult : IHasteResult {
 
-    public HasteItem Item { get; private set; }
+    public IHasteItem Item { get; private set; }
     public string Name { get; private set; }
     public string NameLower { get; private set; }
     public string NameBoundaries { get; private set; }
@@ -67,7 +67,7 @@ namespace Haste {
 
     string QueryLower { get; set; }
 
-    public AbstractHasteResult(HasteItem item, string queryLower, int queryLen) {
+    public AbstractHasteResult(IHasteItem item, string queryLower, int queryLen) {
       QueryLower = queryLower;
       Item = item;
 
@@ -90,8 +90,8 @@ namespace Haste {
       IsFirstCharNameMatch = NameLower[0] == queryLower[0];
 
       // Much faster than "StartsWith"
-      IsPrefixMatch = Item.PathLower.IndexOf(queryLower) == 0;
-      IsNamePrefixMatch = NameLower.IndexOf(queryLower) == 0;
+      IsPrefixMatch = queryLen >= 3 && Item.PathLower.IndexOf(queryLower) == 0;
+      IsNamePrefixMatch = queryLen >= 3 && NameLower.IndexOf(queryLower) == 0;
 
       IsExactMatch = Item.PathLower == queryLower;
       IsExactNameMatch = NameLower == queryLower;
@@ -103,11 +103,11 @@ namespace Haste {
 
     public virtual void Draw(bool isHighlighted, bool highlightMatches) {
       using (new HasteVertical()) {
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : HasteStyles.NameStyle);
+        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : HasteStyles.Skin.GetStyle("Name"));
         if (highlightMatches) {
-          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
         } else {
-          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
         }
       }
     }

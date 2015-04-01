@@ -9,13 +9,17 @@ namespace Haste {
 
   public class HasteHierarchyResult : AbstractHasteResult {
 
-    private static Texture _GameObjectIcon;
+    public static void LoadGameObjectIcon() {
+      gameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
+    }
+
+    private static Texture gameObjectIcon;
     public static Texture GameObjectIcon {
       get {
-        if (_GameObjectIcon == null) {
-          _GameObjectIcon = EditorGUIUtility.ObjectContent(null, typeof(GameObject)).image;
+        if (gameObjectIcon == null) {
+          LoadGameObjectIcon();
         }
-        return _GameObjectIcon;
+        return gameObjectIcon;
       }
     }
 
@@ -42,31 +46,31 @@ namespace Haste {
       }
     }
 
-    public HasteHierarchyResult(HasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
+    public HasteHierarchyResult(IHasteItem item, string query, int queryLen) : base(item, query, queryLen) {}
 
     GUIStyle GetLabelStyle(GameObject go) {
       if (go == null) {
-        return HasteStyles.DisabledNameStyle;
+        return HasteStyles.Skin.GetStyle("DisabledName");
       }
       switch (PrefabUtility.GetPrefabType(go)) {
         case PrefabType.PrefabInstance:
         case PrefabType.ModelPrefabInstance:
           if (go.activeInHierarchy) {
-            return HasteStyles.PrefabStyle;
+            return HasteStyles.Skin.GetStyle("Prefab");
           } else {
-            return HasteStyles.DisabledPrefabStyle;
+            return HasteStyles.Skin.GetStyle("DisabledPrefab");
           }
         case PrefabType.MissingPrefabInstance:
           if (go.activeInHierarchy) {
-            return HasteStyles.BrokenPrefabStyle;
+            return HasteStyles.Skin.GetStyle("BrokenPrefab");
           } else {
-            return HasteStyles.DisabledBrokenPrefabStyle;
+            return HasteStyles.Skin.GetStyle("DisabledBrokenPrefab");
           }
         default:
           if (go.activeInHierarchy) {
-            return HasteStyles.NameStyle;
+            return HasteStyles.Skin.GetStyle("Name");
           } else {
-            return HasteStyles.DisabledNameStyle;
+            return HasteStyles.Skin.GetStyle("DisabledName");
           }
       }
     }
@@ -85,18 +89,18 @@ namespace Haste {
         }
 
         if (childCount > 0) {
-          EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+          EditorGUILayout.LabelField(String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : GetLabelStyle(go));
         } else {
           if (go == null) {
-            EditorGUILayout.LabelField(String.Format("{0} <destroyed>", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+            EditorGUILayout.LabelField(String.Format("{0} <destroyed>", Path.GetFileName(Item.Path), childCount), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : GetLabelStyle(go));
           } else {
-            EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.HighlightedNameStyle : GetLabelStyle(go));
+            EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : GetLabelStyle(go));
           }
         }
         if (highlightMatches) {
-          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+          EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
         } else {
-          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.HighlightedDescriptionStyle : HasteStyles.DescriptionStyle);
+          EditorGUILayout.LabelField(Item.Path, isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
         }
       }
     }

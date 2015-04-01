@@ -14,7 +14,7 @@ namespace Haste {
       } else if (isHighlighted) {
         resultStyle = HasteStyles.HighlightStyle;
       } else {
-        resultStyle = HasteStyles.NonHighlightStyle;
+        resultStyle = HasteStyles.EmptyStyle;
       }
 
       using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
