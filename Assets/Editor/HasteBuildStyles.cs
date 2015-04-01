@@ -83,16 +83,13 @@ namespace Haste {
       }
     }
 
-    static Font LoadFont(string path) {
-      var font = HasteResources.Load<Font>(path);
-      font.hideFlags = HideFlags.HideAndDontSave;
-      return font;
-    }
-
     static void CreateSkin(string name, HastePalette palette) {
+      var font = HasteResources.Load<Font>("Fonts/FiraSans-Regular.ttf");
+      font.hideFlags = HideFlags.HideAndDontSave;
+
       var builder = new Builder(name);
 
-      builder.AddStyle(new Style() { name = "Query", other = EditorStyles.textField, fixedHeight = 64, font = LoadFont("Fonts/FiraSans-Regular.ttf"), alignment = TextAnchor.MiddleLeft });
+      builder.AddStyle(new Style() { name = "Query", other = EditorStyles.textField, fixedHeight = 64, font = font, alignment = TextAnchor.MiddleLeft });
 
       builder.AddStyle(new Style() { name = "Intro", other = EditorStyles.largeLabel, fixedHeight = 64, fontSize = 32, alignment = TextAnchor.MiddleCenter });
       builder.AddStyle(new Style() { name = "Count", other = EditorStyles.largeLabel, fontSize = 14, alignment = TextAnchor.MiddleLeft });
@@ -107,10 +104,10 @@ namespace Haste {
       builder.AddStyle(new Style() { name = "DisabledPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledPrefabColor });
       builder.AddStyle(new Style() { name = "DisabledBrokenPrefab", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledBrokenPrefabColor });
 
-      builder.AddStyle(new Style() { name = "Name", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, richText = true, textColor = palette.PrimaryColor });
-      builder.AddStyle(new Style() { name = "DisabledName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, richText = true, textColor = palette.DisabledColor });
-      builder.AddStyle(new Style() { name = "HighlightedName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, richText = true, textColor = palette.PrimaryHighlightedColor });
-      builder.AddStyle(new Style() { name = "HighlightedDisabledName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, richText = true, textColor = palette.SecondaryHighlightedColor });
+      builder.AddStyle(new Style() { name = "Name", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrimaryColor });
+      builder.AddStyle(new Style() { name = "DisabledName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.DisabledColor });
+      builder.AddStyle(new Style() { name = "HighlightedName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrimaryHighlightedColor });
+      builder.AddStyle(new Style() { name = "HighlightedDisabledName", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.SecondaryHighlightedColor });
 
       builder.AddStyle(new Style() { name = "Description", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = palette.SecondaryColor });
       builder.AddStyle(new Style() { name = "DisabledDescription", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = palette.DisabledColor });
