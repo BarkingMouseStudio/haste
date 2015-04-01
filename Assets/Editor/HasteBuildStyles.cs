@@ -96,7 +96,7 @@ namespace Haste {
       builder.AddStyle(new Style() { name = "Empty", other = EditorStyles.largeLabel, fixedHeight = 24, fontSize = 16, alignment = TextAnchor.MiddleCenter });
       builder.AddStyle(new Style() { name = "Tip", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, wordWrap = true, textColor = palette.SecondaryColor });
       builder.AddStyle(new Style() { name = "Usage", other = EditorStyles.label, wordWrap = true });
-      builder.AddStyle(new Style() { name = "Upgrade", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, fontStyle = FontStyle.Bold, textColor = palette.SelectionColor });
+      builder.AddStyle(new Style() { name = "Upgrade", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, textColor = palette.SelectionColor });
       builder.AddStyle(new Style() { name = "Indexing", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleCenter, fontSize = 14, textColor = palette.SecondaryColor });
 
       builder.AddStyle(new Style() { name = "Name", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 16, textColor = palette.PrimaryColor });
