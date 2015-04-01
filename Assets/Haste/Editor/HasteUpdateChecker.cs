@@ -9,8 +9,8 @@ using System.Collections.Generic;
 namespace Haste {
 
   public enum HasteUpdateStatus {
-    Available,
     UpToDate,
+    Available,
     Failed,
     InProgress
   }
@@ -18,7 +18,7 @@ namespace Haste {
   public class HasteUpdateChecker {
 
     static readonly string HASTE_UPDATE_URL =
-      "https://evening-basin-5533.herokuapp.com/version";
+      "http://barkingmousestudio.com/haste-version/version.json";
 
     public TimeSpan Interval { get; private set; }
     public HasteUpdateStatus Status { get; private set; }
@@ -30,40 +30,23 @@ namespace Haste {
       Interval = TimeSpan.FromHours(1);
     }
 
-    public void OnGUI() {
-      if (!HasteSettings.CheckForUpdates) {
-        return;
-      }
-
-      switch (Status) {
-        case HasteUpdateStatus.Available:
-          if (GUILayout.Button("An update is available!", HasteStyles.UpgradeStyle)) {
-            #if IS_HASTE_PRO
-              UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
-            #else
-              UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_FREE_URL);
-            #endif
-          }
-          break;
-        case HasteUpdateStatus.UpToDate:
-          EditorGUILayout.LabelField("Haste is up to date.", HasteStyles.TipStyle);
-          break;
-        case HasteUpdateStatus.Failed:
-          EditorGUILayout.LabelField("Failed to check for updates.", HasteStyles.TipStyle);
-          break;
-        case HasteUpdateStatus.InProgress:
-          EditorGUILayout.LabelField("Checking for updates...", HasteStyles.TipStyle);
-          break;
-      }
-    }
-
     public IEnumerator Check() {
-      HasteSettings.LastUpdateCheck = DateTime.Now.Ticks;
+      if (!HasteSettings.CheckForUpdates) {
+        // Disabled
+        yield break;
+      }
+
+      if (DateTime.Now < HasteSettings.LastUpdateCheckDate.Add(Interval)) {
+        // Too soon
+        yield break;
+      }
 
       if (Status == HasteUpdateStatus.InProgress) {
         // Don't check for updates while checking for updates
         yield break;
       }
+
+      HasteSettings.LastUpdateCheck = DateTime.Now.Ticks;
 
       Status = HasteUpdateStatus.InProgress;
       Progress = 0.0f;
