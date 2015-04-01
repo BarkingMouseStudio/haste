@@ -249,15 +249,21 @@ namespace Haste {
       }
     }
 
+    HasteUpdateStatus updateStatus = HasteUpdateStatus.UpToDate;
     bool isIndexing = false;
 
     void Update() {
-      if ((Haste.IsIndexing || isIndexing) && this.windowState == HasteWindowState.Intro) {
-        // This is here to repaint the indexing count
-        Repaint();
+      if (this.windowState == HasteWindowState.Intro || this.windowState == HasteWindowState.Empty) {
+        if ((Haste.IsIndexing != isIndexing) && (Haste.UpdateChecker.Status != updateStatus)) {
+          // This is here to repaint the indexing count
+          Repaint();
+        }
       }
 
       isIndexing = Haste.IsIndexing;
+      updateStatus = Haste.UpdateChecker.Status;
+
+      this.queryInput.UpdateHandler(this);
 
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
