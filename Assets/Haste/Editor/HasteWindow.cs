@@ -42,6 +42,9 @@ namespace Haste {
 
     Rect selectionPosition;
 
+    HasteUpdateStatus updateStatus = HasteUpdateStatus.UpToDate;
+    bool isIndexing = false;
+
     public static HasteWindow Instance { get; protected set; }
 
     public static void Open() {
@@ -248,9 +251,6 @@ namespace Haste {
           break;
       }
     }
-
-    HasteUpdateStatus updateStatus = HasteUpdateStatus.UpToDate;
-    bool isIndexing = false;
 
     void Update() {
       if (this.windowState == HasteWindowState.Intro || this.windowState == HasteWindowState.Empty) {
