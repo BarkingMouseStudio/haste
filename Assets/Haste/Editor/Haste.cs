@@ -100,6 +100,11 @@ namespace Haste {
       }
 
       HasteSettings.Version = VERSION;
+
+      HasteStyles.LoadSkin();
+      HasteHierarchyResult.LoadGameObjectIcon();
+
+      Scheduler.Start(HasteStyles.PreCacheDynamicFonts());
     }
 
     // static void AddGlobalEventHandler() {
@@ -128,8 +133,6 @@ namespace Haste {
     static void StringSettingChanged(HasteSetting setting, string before, string after) {
       switch (setting) {
         case HasteSetting.Version:
-          HasteSettings.UsageCount = 0;
-          HasteSettings.UsageSince = DateTime.Now.Ticks;
           Rebuild();
           break;
       }
@@ -191,8 +194,11 @@ namespace Haste {
       // We must delay the window action to handle actions
       // that affect layout state to prevent bugs in Unity.
       if (WindowAction != null && HasteWindow.Instance == null) {
-        WindowAction();
-        WindowAction = null;
+        try {
+          WindowAction();
+        } finally {
+          WindowAction = null;
+        }
       }
 
       // Compiling state changed
