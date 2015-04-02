@@ -26,7 +26,7 @@ namespace Haste {
     public static string BoldStart {
       get {
         if (string.IsNullOrEmpty(boldStart)) {
-          boldStart = EditorGUIUtility.isProSkin ? "<color=\"#aaa\"><b>" : "<color=\"#222\"><b>";
+          boldStart = EditorGUIUtility.isProSkin ? "<color=\"#aaa\"><b>" : "<color=\"#555\"><b>";
         }
         return boldStart;
       }
@@ -36,7 +36,7 @@ namespace Haste {
     public static string HighlightedBoldStart {
       get {
         if (string.IsNullOrEmpty(highlightedBoldStart)) {
-          highlightedBoldStart = EditorGUIUtility.isProSkin ? "<color=\"#ddd\"><b>" : "<color=\"#eee\"><b>";
+          highlightedBoldStart = EditorGUIUtility.isProSkin ? "<color=\"#ddd\"><b>" : "<color=\"#ddd\"><b>";
         }
         return highlightedBoldStart;
       }
