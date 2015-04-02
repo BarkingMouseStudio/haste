@@ -104,10 +104,20 @@ namespace Haste {
     public virtual void Draw(bool isHighlighted) {
       using (new HasteVertical()) {
         // Name
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") : HasteStyles.Skin.GetStyle("Name"));
+        var nameStyle = isHighlighted ?
+          HasteStyles.Skin.GetStyle("HighlightedName") :
+          HasteStyles.Skin.GetStyle("Name");
+        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), nameStyle);
 
         // Description
-        EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart, HasteStyles.BoldEnd), isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description"));
+        var descriptionStyle = isHighlighted ?
+          HasteStyles.Skin.GetStyle("HighlightedDescription") :
+          HasteStyles.Skin.GetStyle("Description");
+        var boldStart = isHighlighted ?
+          HasteStyles.HighlightedBoldStart :
+          HasteStyles.BoldStart;
+        var description = HasteStringUtils.BoldLabel(Item.Path, Indices, boldStart, HasteStyles.BoldEnd);
+        EditorGUILayout.LabelField(description, descriptionStyle);
       }
     }
 
