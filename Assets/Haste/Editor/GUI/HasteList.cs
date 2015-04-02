@@ -70,15 +70,15 @@ namespace Haste {
       scrollPosition = Vector2.zero;
     }
 
-    void ScrollTo(int toIndex) {
-      if (toIndex >= 0 && toIndex < Items.Length) {
-        var heightOffset = 0.0f;
-        for (var i = 0; i < toIndex; i++) {
+    void ScrollTo(int to) {
+      if (to >= 0 && to < Items.Length) {
+        var scrollY = 0.0f;
+        for (var i = 0; i < to; i++) {
           if (Items[i] != null) {
-            heightOffset += Items[i].Height(i == HighlightedIndex);
+            scrollY += Items[i].Height(i == HighlightedIndex);
           }
         }
-        scrollPosition = new Vector2(scrollPosition.x, heightOffset);
+        scrollPosition = new Vector2(scrollPosition.x, scrollY);
       }
     }
 
@@ -126,7 +126,7 @@ namespace Haste {
 
         bool isHighlighted;
         IHasteResult result;
-        float currentY = 0.0f;
+        float resultY = 0.0f;
         float resultHeight;
         bool isVisible;
 
@@ -136,16 +136,17 @@ namespace Haste {
           result = Items[i];
           resultHeight = result.Height(isHighlighted);
 
-          isVisible = currentY >= scrollPosition.y - resultHeight && currentY < scrollPosition.y + TOTAL_HEIGHT + resultHeight;
+          isVisible = resultY >= scrollPosition.y - resultHeight &&
+            resultY < scrollPosition.y + TOTAL_HEIGHT + resultHeight;
           if (isVisible) {
             HasteListItem.Draw(result, i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
           } else {
-            EditorGUILayout.BeginVertical(GUILayout.Height(resultHeight));
-            EditorGUILayout.Space();
-            EditorGUILayout.EndVertical();
+            using (new HasteVertical(GUILayout.Height(resultHeight))) {
+              EditorGUILayout.Space();
+            }
           }
 
-          currentY += resultHeight;
+          resultY += resultHeight;
         }
       }
     }
