@@ -17,7 +17,8 @@ namespace Haste {
         resultStyle = HasteStyles.EmptyStyle;
       }
 
-      using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(result.Height(isHighlighted)))) {
+      var height = result.Height(isHighlighted);
+      using (var horizontal = new HasteHorizontal(resultStyle, GUILayout.Height(height), GUILayout.ExpandWidth(true))) {
         var e = Event.current;
         var isMouseContained = horizontal.Rect.Contains(e.mousePosition);
         if (isMouseContained) {
@@ -39,6 +40,11 @@ namespace Haste {
         }
 
         result.Draw(isHighlighted);
+
+        if (result.IsSelected) {
+          var rect = new Rect(horizontal.Rect.x + horizontal.Rect.width - 28, horizontal.Rect.y + 10, 20, 20);
+          EditorGUI.LabelField(rect, HasteStyles.SelectionSymbol, HasteStyles.Skin.GetStyle("Dot"));
+        }
       }
     }
   }

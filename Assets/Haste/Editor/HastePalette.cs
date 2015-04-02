@@ -8,10 +8,9 @@ namespace Haste {
     public Color SecondaryColor;
     public Color DisabledColor;
 
-    public Color SelectionColor;
-    public Color HighlightColor;
-    public Color PrimaryHighlightedColor;
-    public Color SecondaryHighlightedColor;
+    public Color HighlightedPrimaryColor;
+    public Color HighlightedSecondaryColor;
+    public Color HighlightedDisabledColor;
 
     public Color PrefabColor;
     public Color BrokenPrefabColor;
@@ -22,6 +21,10 @@ namespace Haste {
     public Color HighlightedBrokenPrefabColor;
     public Color HighlightedDisabledPrefabColor;
     public Color HighlightedDisabledBrokenPrefabColor;
+
+    public Color SelectionColor;
+    public Color HighlightColor;
+    public Color DotColor;
 
     private static readonly float lerpFactor = 0.5f;
 
@@ -40,14 +43,27 @@ namespace Haste {
     }
 
     public static HastePalette GetLight() {
+      var primaryColor = new Color(18f / 255f, 18f / 255f, 18f / 255f);
+      var secondaryColor = new Color(0.0f, 0.0f, 0.0f, 0.7f);
+      var disabledColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+
+      var highlightedPrimaryColor = Color.Lerp(primaryColor, Color.white, lerpFactor);
+      var highlightedSecondaryColor = Color.Lerp(secondaryColor, Color.white, lerpFactor);
+      var highlightedDisabledColor = Color.Lerp(disabledColor, Color.white, lerpFactor);
+
       var prefabColor = new Color(0.02f, 0.17f, 0.52f);
       var brokenPrefabColor = new Color(0.27f, 0.07f, 0.07f);
       var disabledPrefabColor = WithAlpha(prefabColor, 0.5f);
       var disabledBrokenPrefabColor = WithAlpha(brokenPrefabColor, 0.5f);
+
       return new HastePalette() {
-        PrimaryColor = new Color(18f / 255f, 18f / 255f, 18f / 255f),
-        SecondaryColor = new Color(0.0f, 0.0f, 0.0f, 0.7f),
-        DisabledColor = new Color(0.3f, 0.3f, 0.3f, 0.5f),
+        PrimaryColor = primaryColor,
+        SecondaryColor = secondaryColor,
+        DisabledColor = disabledColor,
+
+        HighlightedPrimaryColor = highlightedPrimaryColor,
+        HighlightedSecondaryColor = highlightedSecondaryColor,
+        HighlightedDisabledColor = highlightedDisabledColor,
 
         PrefabColor = prefabColor,
         BrokenPrefabColor = brokenPrefabColor,
@@ -61,20 +77,32 @@ namespace Haste {
 
         SelectionColor = new Color(143f / 255f, 143f / 255f, 143f / 255f),
         HighlightColor = new Color(62f / 255f, 125f / 255f, 231f / 255f),
-        PrimaryHighlightedColor = new Color(250f / 255f, 251f / 255f, 254f / 255f),
-        SecondaryHighlightedColor = new Color(1.0f, 1.0f, 1.0f, 0.5f),
+        DotColor = new Color(1, 1, 1, 0.5f),
       };
     }
 
     public static HastePalette GetDark() {
+      var primaryColor = new Color(0.705f, 0.705f, 0.705f);
+      var secondaryColor = new Color(0.5f, 0.5f, 0.5f);
+      var disabledColor = new Color(0.4f, 0.4f, 0.4f, 0.5f);
+
+      var highlightedPrimaryColor = Color.Lerp(primaryColor, Color.white, lerpFactor);
+      var highlightedSecondaryColor = Color.Lerp(secondaryColor, Color.white, lerpFactor);
+      var highlightedDisabledColor = Color.Lerp(disabledColor, Color.white, lerpFactor);
+
       var prefabColor = new Color(0.3f, 0.5f, 0.835f);
       var brokenPrefabColor = new Color(0.7f, 0.4f, 0.4f);
       var disabledPrefabColor = WithAlpha(prefabColor, 0.5f);
       var disabledBrokenPrefabColor = WithAlpha(brokenPrefabColor, 0.5f);
+
       return new HastePalette() {
-        PrimaryColor = new Color(0.705f, 0.705f, 0.705f),
-        SecondaryColor = new Color(0.5f, 0.5f, 0.5f),
-        DisabledColor = new Color(0.4f, 0.4f, 0.4f, 0.5f),
+        PrimaryColor = primaryColor,
+        SecondaryColor = secondaryColor,
+        DisabledColor = disabledColor,
+
+        HighlightedPrimaryColor = highlightedPrimaryColor,
+        HighlightedSecondaryColor = highlightedSecondaryColor,
+        HighlightedDisabledColor = highlightedDisabledColor,
 
         PrefabColor = prefabColor,
         BrokenPrefabColor = brokenPrefabColor,
@@ -88,8 +116,7 @@ namespace Haste {
 
         SelectionColor = new Color(72f / 255f, 72f / 255f, 72f / 255f),
         HighlightColor = new Color(0.24f, 0.37f, 0.59f),
-        PrimaryHighlightedColor = new Color(0.91f, 0.91f, 0.91f),
-        SecondaryHighlightedColor = new Color(1.0f, 1.0f, 1.0f, 0.7f),
+        DotColor = new Color(1, 1, 1, 0.5f),
       };
     }
   }

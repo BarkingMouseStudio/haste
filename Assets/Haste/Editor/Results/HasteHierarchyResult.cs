@@ -99,11 +99,11 @@ namespace Haste {
         GUIStyle nameStyle = GetLabelStyle(go, isHighlighted || IsSelected);
         string name;
         if (childCount > 0) {
-          name = String.Format("{0} ({1}) {2}", Path.GetFileName(Item.Path), childCount, IsSelected ? HasteStyles.SelectionSymbol : "");
+          name = String.Format("{0} ({1})", Path.GetFileName(Item.Path), childCount);
         } else if (go == null) {
           name = String.Format("{0} <destroyed>", Path.GetFileName(Item.Path), childCount);
         } else {
-          name = String.Format("{0} {1}", Path.GetFileName(Item.Path), IsSelected ? HasteStyles.SelectionSymbol : "");
+          name = Path.GetFileName(Item.Path);
         }
         EditorGUILayout.LabelField(name, nameStyle);
 
