@@ -272,7 +272,7 @@ namespace Haste {
 
       prevUpdateStatus = Haste.UpdateChecker.Status;
 
-      this.queryInput.UpdateHandler(this);
+      // this.queryInput.UpdateHandler(this);
 
       if (this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:

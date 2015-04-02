@@ -31,6 +31,8 @@ namespace Haste {
           if (delta >= BACKSPACE_DELAY) {
             // Consume backspace events while we're holding the key down.
             e.Use();
+            query = ""; // ?
+            OnGUIChanged(); // ?
           }
           break;
       }
@@ -39,11 +41,11 @@ namespace Haste {
     void OnKeyUp(Event e) {
       switch (e.keyCode) {
         case KeyCode.Backspace:
-          var delta = EditorApplication.timeSinceStartup - backspaceTime;
-          if (delta >= BACKSPACE_DELAY) {
-            // Consume backspace events when we release the key after a delay.
-            e.Use();
-          }
+          // var delta = EditorApplication.timeSinceStartup - backspaceTime;
+          // if (delta >= BACKSPACE_DELAY) {
+          //   // Consume backspace events when we release the key after a delay.
+          //   e.Use();
+          // }
 
           // Always clear backspace time.
           backspaceTime = 0;
@@ -80,18 +82,18 @@ namespace Haste {
     //   EditorGUI.FocusTextInControl("");
     // }
 
-    public void UpdateHandler(EditorWindow window) {
-      if (backspaceTime > 0) { // Quick check that backspace key is down
-        var delta = EditorApplication.timeSinceStartup - backspaceTime;
-
-        // If we have a query and our backspace has been held long enough,
-        // clear the query:
-        if (delta >= BACKSPACE_DELAY && query.Length > 0) {
-          query = "";
-          OnGUIChanged();
-        }
-      }
-    }
+    // public void UpdateHandler(EditorWindow window) {
+    //   if (backspaceTime > 0) { // Quick check that backspace key is down
+    //     var delta = EditorApplication.timeSinceStartup - backspaceTime;
+    //
+    //     // If we have a query and our backspace has been held long enough,
+    //     // clear the query:
+    //     if (delta >= BACKSPACE_DELAY && query.Length > 0) {
+    //       query = "";
+    //       OnGUIChanged();
+    //     }
+    //   }
+    // }
 
     public void OnGUI() {
       OnEvent(Event.current);
