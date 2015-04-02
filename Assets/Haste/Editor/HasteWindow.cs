@@ -42,8 +42,8 @@ namespace Haste {
 
     Rect selectionPosition;
 
-    HasteUpdateStatus updateStatus = HasteUpdateStatus.UpToDate;
-    bool isIndexing = false;
+    HasteUpdateStatus prevUpdateStatus = HasteUpdateStatus.UpToDate;
+    bool wasIndexing = false;
 
     public static HasteWindow Instance { get; protected set; }
 
@@ -254,14 +254,23 @@ namespace Haste {
 
     void Update() {
       if (this.windowState == HasteWindowState.Intro || this.windowState == HasteWindowState.Empty) {
-        if ((Haste.IsIndexing != isIndexing) && (Haste.UpdateChecker.Status != updateStatus)) {
-          // This is here to repaint the indexing count
+        // If we're actively indexing, repaint.
+        if (Haste.IsIndexing) {
+          Repaint();
+          wasIndexing = Haste.IsIndexing;
+
+        // If our indexing state has changed, repaint.
+      } else if (wasIndexing) {
+          Repaint();
+          wasIndexing = false;
+
+        // If our update status has changed, repaint.
+        } else if (Haste.UpdateChecker.Status != prevUpdateStatus) {
           Repaint();
         }
       }
 
-      isIndexing = Haste.IsIndexing;
-      updateStatus = Haste.UpdateChecker.Status;
+      prevUpdateStatus = Haste.UpdateChecker.Status;
 
       this.queryInput.UpdateHandler(this);
 

@@ -9,7 +9,7 @@ namespace Haste {
 
     static readonly string NAME = "query";
 
-    static readonly float BACKSPACE_DELAY = 0.15f;
+    static readonly float BACKSPACE_DELAY = 0.2f;
     double backspaceTime = 0.0f;
 
     public event QueryChangedHandler Changed;
@@ -29,7 +29,7 @@ namespace Haste {
 
           var delta = EditorApplication.timeSinceStartup - backspaceTime;
           if (delta >= BACKSPACE_DELAY) {
-            // Consume backspace events while we're holding the key down
+            // Consume backspace events while we're holding the key down.
             e.Use();
           }
           break;
@@ -41,11 +41,11 @@ namespace Haste {
         case KeyCode.Backspace:
           var delta = EditorApplication.timeSinceStartup - backspaceTime;
           if (delta >= BACKSPACE_DELAY) {
-            // Consume backspace events while we're holding the key down
+            // Consume backspace events when we release the key after a delay.
             e.Use();
           }
 
-          // Always clear backspace time
+          // Always clear backspace time.
           backspaceTime = 0;
           break;
       }

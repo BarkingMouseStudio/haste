@@ -24,19 +24,7 @@ namespace Haste {
       EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
       EditorGUILayout.EndVertical();
 
-      if (Haste.IsIndexing) {
-        EditorGUILayout.LabelField(string.Format("(Indexing {0}...)", Haste.IndexingCount), HasteStyles.Skin.GetStyle("Indexing"));
-      } else if (!string.IsNullOrEmpty(tip)) {
-        EditorGUILayout.LabelField(tip, HasteStyles.Skin.GetStyle("Tip"));
-      }
-
-      HasteUpdates.DrawIntro();
-
-      #if !IS_HASTE_PRO
-      if (GUILayout.Button("Click here to upgrade to Haste Pro", HasteStyles.Skin.GetStyle("Upgrade"))) {
-        UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
-      }
-      #endif
+      HasteFooter.Draw(tip);
 
       EditorGUILayout.Space();
     }
