@@ -21,8 +21,7 @@ namespace Haste {
 
       EditorGUILayout.LabelField("No results found.", HasteStyles.Skin.GetStyle("Empty"));
 
-      EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
-      EditorGUILayout.EndVertical();
+      using (new HasteVertical(GUILayout.ExpandHeight(true))) {}
 
       HasteFooter.Draw(tip);
 

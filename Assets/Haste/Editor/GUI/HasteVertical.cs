@@ -18,6 +18,10 @@ namespace Haste {
       Rect = EditorGUILayout.BeginVertical();
     }
 
+    public HasteVertical(params GUILayoutOption[] options) {
+      Rect = EditorGUILayout.BeginVertical(options);
+    }
+
     public void Dispose() {
       EditorGUILayout.EndVertical();
     }
