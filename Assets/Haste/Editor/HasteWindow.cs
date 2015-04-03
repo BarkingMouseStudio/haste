@@ -47,6 +47,24 @@ namespace Haste {
 
     public static HasteWindow Instance { get; protected set; }
 
+    public static bool IsOpen {
+      get {
+        return Instance != null;
+      }
+    }
+
+    public static Rect GetPosition() {
+      var position = HasteSettings.WindowPosition;
+      if (position == Vector2.zero) {
+        position = new Vector2(
+          (Screen.currentResolution.width - HasteStyles.WindowWidth) / 2,
+          (Screen.currentResolution.height - HasteStyles.WindowHeight) / 2
+        );
+      }
+      return new Rect(position.x, position.y,
+        HasteStyles.WindowWidth, HasteStyles.WindowHeight);
+    }
+
     public static void Open() {
       if (HasteWindow.Instance == null) {
         HasteWindow.Init();
@@ -61,6 +79,16 @@ namespace Haste {
       // Increment open count
       HasteSettings.UsageCount++;
 
+      if (HasteSettings.ShowHandle) {
+        if (HasteWindow.IsOpen) {
+          // Close any old instances before opening the window
+          HasteWindow.Instance.Close();
+        }
+        HasteWindow.Instance = EditorWindow.GetWindowWithRect<HasteWindow>(GetPosition(), true);
+        HasteWindow.Instance.InitializeInstance();
+        return;
+      }
+
       HasteWindow.Instance = EditorWindow.CreateInstance<HasteWindow>();
       HasteWindow.Instance.InitializeInstance();
 
@@ -70,12 +98,7 @@ namespace Haste {
 
     void InitializeInstance() {
       this.title = "Haste";
-
-      this.position = new Rect(
-        (Screen.currentResolution.width - HasteStyles.WindowWidth) / 2,
-        (Screen.currentResolution.height - HasteStyles.WindowHeight) / 2,
-        HasteStyles.WindowWidth, HasteStyles.WindowHeight
-      );
+      this.position = GetPosition();
 
       // Disable the resize handle on the window
       this.minSize = this.maxSize =
@@ -253,6 +276,7 @@ namespace Haste {
     }
 
     void Update() {
+      // Watch for changes to the window position while we're able to move it
       if (this.windowState == HasteWindowState.Intro || this.windowState == HasteWindowState.Empty) {
         // If we're actively indexing, repaint.
         if (Haste.IsIndexing) {
@@ -274,7 +298,7 @@ namespace Haste {
 
       // this.queryInput.UpdateHandler(this);
 
-      if (this != EditorWindow.focusedWindow) {
+      if (!HasteSettings.ShowHandle && this != EditorWindow.focusedWindow) {
         // Check if we lost focus and close:
         // Cannot use OnLostFocus due to render bug in Unity
         Selection.objects = prevSelection;

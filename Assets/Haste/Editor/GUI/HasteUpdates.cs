@@ -26,7 +26,7 @@ namespace Haste {
 
       switch (Haste.UpdateChecker.Status) {
         case HasteUpdateStatus.Available:
-          if (GUILayout.Button("Update Haste", GUILayout.MinWidth(112), GUILayout.ExpandWidth(false))) {
+          if (GUILayout.Button("Update Haste", GUILayout.Width(128))) {
             #if IS_HASTE_PRO
               UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
             #else

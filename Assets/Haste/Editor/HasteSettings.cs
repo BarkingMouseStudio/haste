@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 using UnityEditor;
 
 namespace Haste {
@@ -14,6 +15,9 @@ namespace Haste {
     UsageSince,
     LastUpdateCheck,
     CheckForUpdates,
+    ShowHandle,
+    WindowX,
+    WindowY,
     Source
   }
 
@@ -26,6 +30,28 @@ namespace Haste {
     public static event SettingChangedHandler<bool> ChangedBool;
     public static event SettingChangedHandler<int> ChangedInt;
     public static event SettingChangedHandler<string> ChangedString;
+    public static event SettingChangedHandler<float> ChangedFloat;
+
+    public static bool ShowHandle {
+      get {
+        return HasteSettings.GetBool(HasteSetting.ShowHandle, false);
+      }
+      set {
+        HasteSettings.SetBool(HasteSetting.ShowHandle, value);
+      }
+    }
+
+    public static Vector2 WindowPosition {
+      get {
+        var x = HasteSettings.GetFloat(HasteSetting.WindowX, 0.0f);
+        var y = HasteSettings.GetFloat(HasteSetting.WindowY, 0.0f);
+        return new Vector2(x, y);
+      }
+      set {
+        HasteSettings.SetFloat(HasteSetting.WindowX, value.x);
+        HasteSettings.SetFloat(HasteSetting.WindowY, value.y);
+      }
+    }
 
     public static int UsageAverage {
       get {
@@ -128,6 +154,18 @@ namespace Haste {
       EditorPrefs.SetInt(GetPrefKey(setting), value);
       if (original != value && ChangedInt != null) {
         ChangedInt(setting, original, value);
+      }
+    }
+
+    public static float GetFloat(HasteSetting setting, float defaultValue = 0) {
+      return EditorPrefs.GetFloat(GetPrefKey(setting), defaultValue);
+    }
+
+    public static void SetFloat(HasteSetting setting, float value) {
+      var original = GetFloat(setting);
+      EditorPrefs.SetFloat(GetPrefKey(setting), value);
+      if (original != value && ChangedFloat != null) {
+        ChangedFloat(setting, original, value);
       }
     }
 

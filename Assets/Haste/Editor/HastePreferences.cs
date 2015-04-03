@@ -35,6 +35,9 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
+        EditorGUILayout.LabelField("Version", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
         EditorGUILayout.LabelField("Current Version", Haste.VERSION);
         bool checkForUpdates = EditorGUILayout.Toggle("Check For Updates", HasteSettings.CheckForUpdates);
         if (checkForUpdates != HasteSettings.CheckForUpdates) {
@@ -50,7 +53,7 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Available Sources");
+        EditorGUILayout.LabelField("Available Sources", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
         using (var toggleGroup = new HasteToggleGroup("Haste Enabled", HasteSettings.Enabled)) {
@@ -75,7 +78,7 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Ignore Paths");
+        EditorGUILayout.LabelField("Ignore Paths", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         HasteSettings.IgnorePaths = EditorGUILayout.TextField(HasteSettings.IgnorePaths);
         EditorGUILayout.Space();
@@ -89,6 +92,55 @@ namespace Haste {
         }
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Rebuilds the internal index used for fast searching in Haste. Use this if Haste starts providing weird results.", MessageType.Info);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Window Position", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        bool showHandle = EditorGUILayout.Toggle("Enable Moving Window", HasteSettings.ShowHandle);
+        if (showHandle != HasteSettings.ShowHandle) {
+          HasteSettings.ShowHandle = showHandle;
+
+          // If we are showing the handle, open window
+          if (showHandle) {
+            HasteWindow.Open();
+
+          // If the window is open and we turned off the handle, close window
+          } else if (HasteWindow.IsOpen) {
+            HasteWindow.Instance.Close();
+          }
+        }
+        EditorGUILayout.Space();
+
+        using (new HasteHorizontal()) {
+          using (new HasteDisabled(!showHandle || !HasteWindow.IsOpen)) {
+            if (GUILayout.Button("Save Window Position", GUILayout.Width(128))) {
+              HasteSettings.WindowPosition = HasteWindow.Instance.position.position;
+
+              // Close window after saving its position.
+              if (HasteWindow.IsOpen) {
+                HasteWindow.Instance.Close();
+              }
+
+              HasteSettings.ShowHandle = false;
+            }
+          }
+
+          using (new HasteDisabled(HasteSettings.WindowPosition == Vector2.zero)) {
+            if (GUILayout.Button("Reset Window Position", GUILayout.Width(128))) {
+              HasteSettings.WindowPosition = Vector2.zero;
+
+              // Close window after restoring its position.
+              if (HasteWindow.IsOpen) {
+                HasteWindow.Instance.Close();
+              }
+            }
+          }
+        }
+
+        EditorGUILayout.Space();
       }
     }
   }
