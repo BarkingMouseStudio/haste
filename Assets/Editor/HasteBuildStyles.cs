@@ -123,12 +123,16 @@ namespace Haste {
 
       var skin = builder.Build();
       AssetDatabase.CreateAsset(skin, String.Format("{0}/{1}.guiskin", SKINS_PATH, skin.name));
+      HasteDebug.Info("Created {0} skin.", skin.name);
     }
 
     [MenuItem("Window/Haste/Create Skins")]
     public static void CreateSkins() {
-      CreateSkin("Pro", HastePalette.GetDark());
-      CreateSkin("Personal", HastePalette.GetLight());
+      if (EditorGUIUtility.isProSkin) {
+        CreateSkin("Pro", HastePalette.GetDark());
+      } else {
+        CreateSkin("Personal", HastePalette.GetLight());
+      }
     }
   }
 }
