@@ -13,7 +13,6 @@ namespace Haste {
     public IHasteItem Item { get; private set; }
     public string Name { get; private set; }
     public string NameLower { get; private set; }
-    public string NameBoundaries { get; private set; }
 
     public bool IsVisible { get; set; }
 
@@ -86,7 +85,6 @@ namespace Haste {
 
       Name = HasteStringUtils.GetFileNameWithoutExtension(Item.Path);
       NameLower = Name.ToLowerInvariant();
-      NameBoundaries = HasteStringUtils.GetBoundaries(Name);
 
       IsFirstCharMatch = Item.PathLower[0] == queryLower[0];
       IsFirstCharNameMatch = NameLower[0] == queryLower[0];

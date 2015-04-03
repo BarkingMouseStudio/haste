@@ -9,7 +9,6 @@ namespace Haste {
     bool IsVisible { get; set; }
 
     string Name { get; }
-    string NameBoundaries { get; }
 
     bool IsFirstCharMatch { get; }
     bool IsFirstCharNameMatch { get; }
