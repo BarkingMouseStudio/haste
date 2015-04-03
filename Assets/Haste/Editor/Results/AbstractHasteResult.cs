@@ -15,6 +15,8 @@ namespace Haste {
     public string NameLower { get; private set; }
     public string NameBoundaries { get; private set; }
 
+    public bool IsVisible { get; set; }
+
     public virtual bool IsDraggable {
       get { return false; }
     }

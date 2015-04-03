@@ -6,6 +6,8 @@ namespace Haste {
   public interface IHasteResult {
     IHasteItem Item { get; }
 
+    bool IsVisible { get; set; }
+
     string Name { get; }
     string NameBoundaries { get; }
 
