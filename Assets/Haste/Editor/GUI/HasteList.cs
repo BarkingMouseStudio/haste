@@ -12,14 +12,19 @@ namespace Haste {
 
     private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
-    const float TOTAL_HEIGHT = 200.0f;
-
     Vector2 scrollPosition = Vector2.zero;
 
     public event HasteListEvent ItemDrag;
     public event HasteListEvent ItemMouseDown;
     public event HasteListEvent ItemClick;
     public event HasteListEvent ItemDoubleClick;
+
+    private float listHeight = 0.0f;
+
+    public HasteList Init(float listHeight) {
+      this.listHeight = listHeight;
+      return this;
+    }
 
     private int highlightedIndex = 0;
     int HighlightedIndex {
@@ -71,15 +76,32 @@ namespace Haste {
     }
 
     void ScrollTo(int to) {
-      if (to >= 0 && to < Items.Length) {
-        var scrollY = 0.0f;
-        for (var i = 0; i < to; i++) {
-          if (Items[i] != null) {
-            scrollY += Items[i].Height(i == HighlightedIndex);
-          }
-        }
-        scrollPosition = new Vector2(scrollPosition.x, scrollY);
+      if (to > Items.Length - 1 || to < 0) {
+        return;
       }
+
+      float scrollY = 0.0f;
+      float totalHeight = 0.0f;
+      float itemHeight = 0.0f;
+
+      for (int i = 0; i < Items.Length; i++) {
+        if (Items[i] != null) {
+          itemHeight = Items[i].Height(i == HighlightedIndex);
+        } else {
+          itemHeight = 0.0f;
+        }
+
+        if (i < to) {
+          scrollY += itemHeight;
+        }
+
+        totalHeight += itemHeight;
+      }
+
+      // Limit scroll y to bottom-most scroll position
+      scrollY = Mathf.Min(scrollY, totalHeight - listHeight);
+
+      scrollPosition = new Vector2(scrollPosition.x, scrollY);
     }
 
     public void OnUpArrow() {
@@ -124,29 +146,34 @@ namespace Haste {
       using (var scrollView = new HasteScrollView(scrollPosition, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))) {
         scrollPosition = scrollView.ScrollPosition;
 
+        IHasteResult item;
         bool isHighlighted;
-        IHasteResult result;
-        float resultY = 0.0f;
-        float resultHeight;
-        bool isVisible;
+        float itemY = 0.0f;
+        float itemHeight;
+
+        // We can only change the rendered items during a layout event
+        bool computeVisibility = Event.current.type == EventType.Layout;
 
         for (var i = 0; i < Items.Length; i++) {
           isHighlighted = i == HighlightedIndex;
 
-          result = Items[i];
-          resultHeight = result.Height(isHighlighted);
+          item = Items[i];
+          itemHeight = item.Height(isHighlighted);
 
-          isVisible = resultY >= scrollPosition.y - resultHeight &&
-            resultY < scrollPosition.y + TOTAL_HEIGHT + resultHeight;
-          if (isVisible) {
-            HasteListItem.Draw(result, i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
+          if (computeVisibility) {
+            item.IsVisible = itemY >= scrollPosition.y - itemHeight &&
+              itemY < scrollPosition.y + listHeight + itemHeight;
+          }
+
+          if (item.IsVisible) {
+            HasteListItem.Draw(item, i, isHighlighted, this.OnItemMouseDown, this.OnItemClick, this.OnItemDoubleClick, this.OnItemDrag);
           } else {
-            using (new HasteVertical(GUILayout.Height(resultHeight))) {
+            using (new HasteVertical(GUILayout.Height(itemHeight))) {
               EditorGUILayout.Space();
             }
           }
 
-          resultY += resultHeight;
+          itemY += itemHeight;
         }
       }
     }

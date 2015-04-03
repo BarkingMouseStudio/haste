@@ -93,7 +93,7 @@ namespace Haste {
       this.queryInput = ScriptableObject.CreateInstance<HasteQuery>();
       this.queryInput.Changed += OnQueryChanged;
 
-      this.resultList = ScriptableObject.CreateInstance<HasteList>();
+      this.resultList = ScriptableObject.CreateInstance<HasteList>().Init(HasteStyles.ListHeight);
       this.resultList.ItemDrag += OnItemDrag;
       this.resultList.ItemMouseDown += OnItemHighlight;
       this.resultList.ItemClick += OnItemSelect;
