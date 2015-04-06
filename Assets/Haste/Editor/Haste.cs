@@ -118,6 +118,8 @@ namespace Haste {
 
       HasteSettings.Version = VERSION;
 
+      // Pre-load icons and styles
+      HasteHierarchyResult.LoadGameObjectIcon();
       Scheduler.Start(HasteStyles.Init());
     }
 
