@@ -15,8 +15,6 @@ namespace Haste {
 
     public static readonly string SelectionSymbol = "\u25cf";
 
-    public static bool Ready { get; private set; }
-
     static IDictionary<string, GUIStyle> styles =
       new Dictionary<string, GUIStyle>();
 
