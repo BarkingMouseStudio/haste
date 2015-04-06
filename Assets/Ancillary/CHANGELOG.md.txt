@@ -1,6 +1,20 @@
 v1.7.0
 ===
 
+- Faster list render performance
+- Faster startup time:
+    - Initializing dynamic fonts would sometimes take over 1s the first time you opened Haste. No more!​
+- New backspace behavior:
+    - Pressing backspace will now only delete single characters like normal
+    - Holding backspace for 0.2s will clear the query (this should be familiar from mobile keyboards)​
+- Indexing now pauses automatically during lightmapping
+- Word boundaries should now include numbers
+- Tweaking search result prioritization
+- Bug fixes
+- New setting to reposition Haste (see Unity Preferences > Haste)
+- New opt-in to automatically check for updates to Haste (see Unity Preferences > Haste)
+- Style/color/contrast cleanup especially on light theme
+
 v1.6.1
 ===
 
