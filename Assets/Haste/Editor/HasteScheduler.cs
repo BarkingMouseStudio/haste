@@ -66,9 +66,22 @@ namespace Haste {
         if (coroutine.Value.IsStopping) {
           coroutines.Remove(coroutine);
         } else {
-          if (!coroutine.Value.Fiber.MoveNext()) {
-            coroutine.Value.Stop();
-            coroutines.Remove(coroutine);
+          // Check if the coroutine yielded another coroutine
+          HasteSchedulerNode current = coroutine.Value.Fiber.Current as HasteSchedulerNode;
+          bool isWaiting = false;
+
+          // If it did, check if it's still running
+          if (current != null) {
+            isWaiting = current.IsRunning;
+          }
+
+          // Don't advance while there's a sub-coroutine running
+          if (!isWaiting) {
+            // Advance until we can't, then cleanup
+            if (!coroutine.Value.Fiber.MoveNext()) {
+              coroutine.Value.Stop();
+              coroutines.Remove(coroutine);
+            }
           }
         }
 
