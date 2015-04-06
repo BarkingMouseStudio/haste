@@ -50,34 +50,34 @@ namespace Haste {
 
     GUIStyle GetLabelStyle(GameObject go, bool isHighlighted) {
       if (go == null) {
-        return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") :
-          HasteStyles.Skin.GetStyle("DisabledName");
+        return isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledName") :
+          HasteStyles.GetStyle("DisabledName");
       }
       switch (PrefabUtility.GetPrefabType(go)) {
         case PrefabType.PrefabInstance:
         case PrefabType.ModelPrefabInstance:
           if (go.activeInHierarchy) {
-            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedPrefabName") :
-              HasteStyles.Skin.GetStyle("PrefabName");
+            return isHighlighted ? HasteStyles.GetStyle("HighlightedPrefabName") :
+              HasteStyles.GetStyle("PrefabName");
           } else {
-            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledPrefabName") :
-              HasteStyles.Skin.GetStyle("DisabledPrefabName");
+            return isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledPrefabName") :
+              HasteStyles.GetStyle("DisabledPrefabName");
           }
         case PrefabType.MissingPrefabInstance:
           if (go.activeInHierarchy) {
-            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedBrokenPrefabName") :
-              HasteStyles.Skin.GetStyle("BrokenPrefabName");
+            return isHighlighted ? HasteStyles.GetStyle("HighlightedBrokenPrefabName") :
+              HasteStyles.GetStyle("BrokenPrefabName");
           } else {
-            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledBrokenPrefabName") :
-              HasteStyles.Skin.GetStyle("DisabledBrokenPrefabName");
+            return isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledBrokenPrefabName") :
+              HasteStyles.GetStyle("DisabledBrokenPrefabName");
           }
         default:
           if (go.activeInHierarchy) {
-            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedName") :
-              HasteStyles.Skin.GetStyle("Name");
+            return isHighlighted ? HasteStyles.GetStyle("HighlightedName") :
+              HasteStyles.GetStyle("Name");
           } else {
-            return isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") :
-              HasteStyles.Skin.GetStyle("DisabledName");
+            return isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledName") :
+              HasteStyles.GetStyle("DisabledName");
           }
       }
     }
@@ -109,7 +109,7 @@ namespace Haste {
 
         // Description
         string boldStart = isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart;
-        GUIStyle descriptionStyle = isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDescription") : HasteStyles.Skin.GetStyle("Description");
+        GUIStyle descriptionStyle = isHighlighted ? HasteStyles.GetStyle("HighlightedDescription") : HasteStyles.GetStyle("Description");
         EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, boldStart, HasteStyles.BoldEnd), descriptionStyle);
       }
     }

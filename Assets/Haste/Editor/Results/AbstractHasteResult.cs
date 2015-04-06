@@ -105,14 +105,14 @@ namespace Haste {
       using (new HasteVertical()) {
         // Name
         var nameStyle = isHighlighted ?
-          HasteStyles.Skin.GetStyle("HighlightedName") :
-          HasteStyles.Skin.GetStyle("Name");
+          HasteStyles.GetStyle("HighlightedName") :
+          HasteStyles.GetStyle("Name");
         EditorGUILayout.LabelField(Path.GetFileName(Item.Path), nameStyle);
 
         // Description
         var descriptionStyle = isHighlighted ?
-          HasteStyles.Skin.GetStyle("HighlightedDescription") :
-          HasteStyles.Skin.GetStyle("Description");
+          HasteStyles.GetStyle("HighlightedDescription") :
+          HasteStyles.GetStyle("Description");
         var boldStart = isHighlighted ?
           HasteStyles.HighlightedBoldStart :
           HasteStyles.BoldStart;
