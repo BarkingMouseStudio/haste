@@ -17,7 +17,7 @@ namespace Haste {
           if (FindInternalResourcesPath(out path)) {
             internalResourcesPath = path;
           } else {
-            Debug.LogError("Unable to locate the internal resources folder. Make sure your Haste installation is intact.");
+            Debug.LogError("[Haste] Unable to locate the internal resources folder. Make sure your Haste installation is intact.");
             HasteWindow.Instance.Close();
           }
         }
@@ -26,7 +26,9 @@ namespace Haste {
     }
 
     public static T Load<T>(string path) where T : UnityEngine.Object {
-      return (T)AssetDatabase.LoadAssetAtPath(InternalResourcesPath + path, typeof(T));
+      var asset = (T)AssetDatabase.LoadAssetAtPath(InternalResourcesPath + path, typeof(T));
+      asset.hideFlags = HideFlags.HideAndDontSave;
+      return asset;
     }
 
     private static bool FindInternalResourcesPath(out string path) {
