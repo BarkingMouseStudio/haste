@@ -19,7 +19,7 @@ namespace Haste {
     public void OnGUI() {
       EditorGUILayout.Space();
 
-      EditorGUILayout.LabelField("No results found.", HasteStyles.Skin.GetStyle("Empty"));
+      EditorGUILayout.LabelField("No results found.", HasteStyles.GetStyle("Empty"));
 
       using (new HasteVertical(GUILayout.ExpandHeight(true))) {}
 

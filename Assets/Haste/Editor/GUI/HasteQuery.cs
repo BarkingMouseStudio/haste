@@ -103,7 +103,7 @@ namespace Haste {
       // GUI.Button(new Rect(0, 0, 0, 0), "", GUIStyle.none);
 
       using (new HasteFocusText(NAME)) {
-        var queryStyle = HasteStyles.Skin.GetStyle("Query");
+        var queryStyle = HasteStyles.GetStyle("Query");
         query = EditorGUILayout.TextField(query, queryStyle,
           GUILayout.Height(queryStyle.fixedHeight));
         query = query.Trim();

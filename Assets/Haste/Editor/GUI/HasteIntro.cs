@@ -19,7 +19,7 @@ namespace Haste {
     public void OnGUI() {
       EditorGUILayout.Space();
 
-      var introStyle = HasteStyles.Skin.GetStyle("Intro");
+      var introStyle = HasteStyles.GetStyle("Intro");
       EditorGUILayout.LabelField("Just type.", introStyle, GUILayout.Height(introStyle.fixedHeight));
 
       using (new HasteVertical(GUILayout.ExpandHeight(true))) {}

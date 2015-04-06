@@ -52,7 +52,7 @@ namespace Haste {
 
       switch (Haste.UpdateChecker.Status) {
         case HasteUpdateStatus.Available:
-          if (GUILayout.Button("Update Haste", HasteStyles.Skin.GetStyle("Upgrade"))) {
+          if (GUILayout.Button("Update Haste", HasteStyles.GetStyle("Upgrade"))) {
             #if IS_HASTE_PRO
               UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);
             #else
@@ -61,7 +61,7 @@ namespace Haste {
           }
           break;
         case HasteUpdateStatus.InProgress:
-          EditorGUILayout.LabelField("Checking for updates...", HasteStyles.Skin.GetStyle("Tip"));
+          EditorGUILayout.LabelField("Checking for updates...", HasteStyles.GetStyle("Tip"));
           break;
       }
     }

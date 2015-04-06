@@ -43,7 +43,7 @@ namespace Haste {
 
         if (result.IsSelected) {
           var rect = new Rect(horizontal.Rect.x + horizontal.Rect.width - 28, horizontal.Rect.y + 10, 20, 20);
-          EditorGUI.LabelField(rect, HasteStyles.SelectionSymbol, HasteStyles.Skin.GetStyle("Dot"));
+          EditorGUI.LabelField(rect, HasteStyles.SelectionSymbol, HasteStyles.GetStyle("Dot"));
         }
       }
     }
