@@ -101,9 +101,6 @@ namespace Haste {
       lastLayoutCheck = EditorApplication.timeSinceStartup;
 
       UpdateChecker = new HasteUpdateChecker();
-      if (HasteSettings.CheckForUpdates) {
-        Scheduler.Start(UpdateChecker.Check());
-      }
 
       HasteSettings.ChangedBool += BoolSettingChanged;
       HasteSettings.ChangedString += StringSettingChanged;
@@ -121,10 +118,7 @@ namespace Haste {
 
       HasteSettings.Version = VERSION;
 
-      HasteStyles.LoadSkin();
-      HasteHierarchyResult.LoadGameObjectIcon();
-
-      Scheduler.Start(HasteStyles.PreCacheDynamicFonts());
+      Scheduler.Start(HasteStyles.Init());
     }
 
     // static void AddGlobalEventHandler() {
