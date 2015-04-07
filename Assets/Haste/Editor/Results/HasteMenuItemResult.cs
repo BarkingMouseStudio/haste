@@ -16,12 +16,12 @@ namespace Haste {
         base.Draw(isHighlighted);
       #else
         using (new HasteVertical()) {
-          var nameStyle = isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledName") :
-            HasteStyles.Skin.GetStyle("DisabledName");
+          var nameStyle = isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledName") :
+            HasteStyles.GetStyle("DisabledName");
           EditorGUILayout.LabelField(Item.Path, nameStyle);
 
-          var descriptionStyle = isHighlighted ? HasteStyles.Skin.GetStyle("HighlightedDisabledDescription") :
-            HasteStyles.Skin.GetStyle("DisabledDescription");
+          var descriptionStyle = isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledDescription") :
+            HasteStyles.GetStyle("DisabledDescription");
           EditorGUILayout.LabelField("Upgrade to Haste Pro to enable", descriptionStyle);
         }
       #endif
