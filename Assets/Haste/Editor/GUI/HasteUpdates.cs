@@ -2,23 +2,9 @@ using UnityEngine;
 using UnityEditor;
 
 namespace Haste {
+
   public static class HasteUpdates {
-    public static bool ShouldDraw {
-      get {
-        if (HasteSettings.CheckForUpdates) {
-          switch (Haste.UpdateChecker.Status) {
-            case HasteUpdateStatus.Available:
-              return true;
-            case HasteUpdateStatus.InProgress:
-              return true;
-            default:
-              return false;
-          }
-        } else {
-          return false;
-        }
-      }
-    }
+
     public static void DrawPreferences() {
       if (!HasteSettings.CheckForUpdates) {
         return;
@@ -45,6 +31,7 @@ namespace Haste {
           break;
       }
     }
+
     public static void DrawFooter() {
       if (!HasteSettings.CheckForUpdates) {
         return;

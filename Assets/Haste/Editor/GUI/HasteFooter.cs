@@ -13,10 +13,7 @@ namespace Haste {
         return;
       }
 
-      if (HasteUpdates.ShouldDraw) {
-        HasteUpdates.DrawFooter();
-        return;
-      }
+      HasteUpdates.DrawFooter();
 
       #if !IS_HASTE_PRO
       if (GUILayout.Button("Upgrade to Haste Pro", HasteStyles.GetStyle("Upgrade"))) {
