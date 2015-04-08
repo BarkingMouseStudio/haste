@@ -150,6 +150,16 @@ namespace Haste {
       return results.Reverse().ToArray();
     }
 
+    public static string GetFileName(string path) {
+      var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
+      if (sep != -1) {
+        sep = sep + 1;
+        return path.Substring(sep);
+      } else {
+        return path;
+      }
+    }
+
     public static string GetFileNameWithoutExtension(string path) {
       var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
       var ext = path.LastIndexOf('.');

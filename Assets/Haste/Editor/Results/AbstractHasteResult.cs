@@ -107,7 +107,7 @@ namespace Haste {
         var nameStyle = isHighlighted ?
           HasteStyles.GetStyle("HighlightedName") :
           HasteStyles.GetStyle("Name");
-        EditorGUILayout.LabelField(Path.GetFileName(Item.Path), nameStyle);
+        EditorGUILayout.LabelField(HasteStringUtils.GetFileName(Item.Path), nameStyle);
 
         // Description
         var descriptionStyle = isHighlighted ?

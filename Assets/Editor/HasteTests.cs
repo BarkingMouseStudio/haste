@@ -63,10 +63,26 @@ namespace Haste {
 
     [Test]
     public void TestGetFileNameWithoutExtension() {
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("test.cs"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("my/file/is/a/test"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("my/file/is/a/test.cs"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("te.mp/test"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("te.mp/test.cs"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test.cs"), Is.EqualTo("test"));
+    }
+
+    [Test]
+    public void TestGetFileName() {
+      Assert.That(HasteStringUtils.GetFileName("test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileName("test.cs"), Is.EqualTo("test.cs"));
+      Assert.That(HasteStringUtils.GetFileName("my/file/is/a/test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileName("my/file/is/a/test.cs"), Is.EqualTo("test.cs"));
+      Assert.That(HasteStringUtils.GetFileName("te.mp/test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileName("temp./test"), Is.EqualTo("test"));
+      Assert.That(HasteStringUtils.GetFileName("te.mp/test.cs"), Is.EqualTo("test.cs"));
+      Assert.That(HasteStringUtils.GetFileName("temp./test.cs"), Is.EqualTo("test.cs"));
     }
 
     [Test]
