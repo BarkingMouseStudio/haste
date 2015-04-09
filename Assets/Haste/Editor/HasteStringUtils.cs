@@ -151,17 +151,36 @@ namespace Haste {
     }
 
     public static string GetFileName(string path) {
-      var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
+      var len = path.Length;
+      if (len == 0) {
+        return "";
+      }
+
+      var sep = path.LastIndexOf('/');
+      if (sep == len - 1) {
+        path = path.TrimEnd(new []{'/'});
+        sep = path.LastIndexOf('/');
+      }
+
       if (sep != -1) {
-        sep = sep + 1;
-        return path.Substring(sep);
+        return path.Substring(sep + 1);
       } else {
         return path;
       }
     }
 
     public static string GetFileNameWithoutExtension(string path) {
-      var sep = path.LastIndexOf(Path.DirectorySeparatorChar);
+      var len = path.Length;
+      if (len == 0) {
+        return "";
+      }
+
+      var sep = path.LastIndexOf('/');
+      if (sep == len - 1) {
+        path = path.TrimEnd(new []{'/'});
+        sep = path.LastIndexOf('/');
+      }
+
       var ext = path.LastIndexOf('.');
       if (sep != -1 && ext != -1) {
         if (ext < sep) {
@@ -184,6 +203,10 @@ namespace Haste {
     public static int[] GetBoundaryIndices(string str) {
       int len = str.Length;
       List<int> indices = new List<int>();
+
+      if (len == 0) {
+        return indices.ToArray();
+      }
 
       char c, _c;
       for (int i = 0; i < len; i++) {
@@ -224,6 +247,9 @@ namespace Haste {
     // than ToLowerInvariant at the end.
     public static string GetBoundaries(string str) {
       int len = str.Length;
+      if (len == 0) {
+        return "";
+      }
 
       // Initializing the string builder with some default capacity helps.
       StringBuilder matches = new StringBuilder(len / 2, len);
