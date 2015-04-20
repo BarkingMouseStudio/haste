@@ -11,8 +11,6 @@ namespace Haste {
   public abstract class AbstractHasteResult : IHasteResult {
 
     public IHasteItem Item { get; private set; }
-    public string Name { get; private set; }
-    public string NameLower { get; private set; }
 
     public bool IsVisible { get; set; }
 
@@ -83,18 +81,15 @@ namespace Haste {
         BoundaryUtilization = 0;
       }
 
-      Name = HasteStringUtils.GetFileNameWithoutExtension(Item.Path);
-      NameLower = Name.ToLowerInvariant();
-
       IsFirstCharMatch = Item.PathLower[0] == queryLower[0];
-      IsFirstCharNameMatch = NameLower[0] == queryLower[0];
+      IsFirstCharNameMatch = Item.NameLower[0] == queryLower[0];
 
       // Much faster than "StartsWith"
       IsPrefixMatch = queryLen >= 3 && Item.PathLower.IndexOf(queryLower) == 0;
-      IsNamePrefixMatch = queryLen >= 3 && NameLower.IndexOf(queryLower) == 0;
+      IsNamePrefixMatch = queryLen >= 3 && Item.NameLower.IndexOf(queryLower) == 0;
 
       IsExactMatch = Item.PathLower == queryLower;
-      IsExactNameMatch = NameLower == queryLower;
+      IsExactNameMatch = Item.NameLower == queryLower;
     }
 
     public virtual bool Validate() {

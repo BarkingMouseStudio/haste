@@ -8,8 +8,6 @@ namespace Haste {
 
     bool IsVisible { get; set; }
 
-    string Name { get; }
-
     bool IsFirstCharMatch { get; }
     bool IsFirstCharNameMatch { get; }
 

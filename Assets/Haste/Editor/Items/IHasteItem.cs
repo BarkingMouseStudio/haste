@@ -11,10 +11,15 @@ namespace Haste {
   // during sorting are omitted.
   public interface IHasteItem : IEquatable<IHasteItem> {
 
-    string Path { get; }
-    string PathLower { get; }
     int Id { get; }
     string Source { get; }
+
+    string Path { get; }
+    string PathLower { get; }
+
+    string Name { get; }
+    string NameLower { get; }
+
     int Bitset { get; }
     string BoundariesLower { get; }
 

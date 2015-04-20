@@ -1,3 +1,12 @@
+v1.7.1
+===
+
+- Added support for Home, End, Page Up and Page Down to search results.
+- Added context menu item for ignoring assets in Haste (see README).
+- Added better interface for ignored paths in Haste's preferences.
+- Improvements to search results to filter out unlikely matches.
+- Fixed bug with some paths being considered invalid.
+
 v1.7.0
 ===
 

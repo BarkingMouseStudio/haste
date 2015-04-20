@@ -68,11 +68,15 @@ namespace Haste {
       }
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
-      // TODO: Require first char of name or path to match query?
 
       // Perform fast subsequence filtering
       var matches = bucket.Where(m => {
         if (m.PathLower.Length < queryLen) {
+          return false;
+        }
+
+        char q = queryLower[0];
+        if (m.NameLower[0] != q && m.PathLower[0] != q) {
           return false;
         }
 

@@ -13,14 +13,21 @@ namespace Haste {
     public string Source { get; private set; }
     public int Bitset { get; private set; }
     public string BoundariesLower { get; private set; }
+    public string Name { get; private set; }
+    public string NameLower { get; private set; }
 
     public AbstractHasteItem(string path, int id, string source) {
-      Path = path;
       Id = id;
       Source = source;
+
+      Path = path;
       PathLower = path.ToLowerInvariant();
-      Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
+
       BoundariesLower = HasteStringUtils.GetBoundaries(Path);
+      Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
+
+      Name = HasteStringUtils.GetFileNameWithoutExtension(Path);
+      NameLower = Name.ToLowerInvariant();
     }
 
     public virtual IHasteResult GetResult(string queryLower, int queryLen) {
