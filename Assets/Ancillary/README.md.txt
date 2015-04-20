@@ -13,6 +13,10 @@ Action | Keyboard | Mouse
 Open Haste | ⌘ + K (Ctrl + K on Windows) | Click "Window/Haste"
 Navigate Search Results | ↑ or ↓ | Click search result
 Select Highlighted Result | Enter | Double-click search result
+Go to beginning | Fn + ← (Home on Windows) |
+Go to end | Fn + → (End on Windows) |
+Go up a page | Fn + ↑ (Page Up on Windows) |
+Go down a page | Fn + ↓ (Page Down on Windows) |
 Multi-Select Highlighted Result | ⌘ + Enter (Ctrl + Enter on Windows) | ⌘ + Click (Ctrl + Click on Windows)
 Dismiss Haste | ESC | Click anywhere outside of Haste
 

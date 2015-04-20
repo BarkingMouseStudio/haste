@@ -246,6 +246,20 @@ namespace Haste {
       }
     }
 
+    void OnPageUp(Event e) {
+      this.resultList.OnPageUp();
+      if (this.resultList.HighlightedItem != null) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      }
+    }
+
+    void OnPageDown(Event e) {
+      this.resultList.OnPageDown();
+      if (this.resultList.HighlightedItem != null) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      }
+    }
+
     void OnUpArrow(Event e) {
       this.resultList.OnUpArrow();
       if (this.resultList.HighlightedItem != null) {
@@ -277,6 +291,14 @@ namespace Haste {
         case KeyCode.End:
           e.Use();
           OnEnd(e);
+          break;
+        case KeyCode.PageUp:
+          e.Use();
+          OnPageUp(e);
+          break;
+        case KeyCode.PageDown:
+          e.Use();
+          OnPageDown(e);
           break;
         case KeyCode.UpArrow:
           e.Use();

@@ -13,6 +13,12 @@ namespace Haste {
     public static readonly int ItemHeight = 46;
     public static readonly float ListHeight = 230;
 
+    public static int PageSize {
+      get {
+        return Mathf.FloorToInt(ListHeight / ItemHeight);
+      }
+    }
+
     public static readonly string SelectionSymbol = "\u25cf";
 
     static IDictionary<string, GUIStyle> styles =

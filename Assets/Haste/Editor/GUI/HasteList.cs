@@ -124,6 +124,16 @@ namespace Haste {
       ScrollTo(HighlightedIndex);
     }
 
+    public void OnPageUp() {
+      HighlightedIndex = Mathf.Max(HighlightedIndex - HasteStyles.PageSize, 0);
+      ScrollTo(HighlightedIndex);
+    }
+
+    public void OnPageDown() {
+      HighlightedIndex = Mathf.Min(HighlightedIndex + HasteStyles.PageSize, Items.Length - 1);
+      ScrollTo(HighlightedIndex);
+    }
+
     void OnItemDrag(Event e, int index) {
       HighlightedIndex = index;
       if (HighlightedItem != null && ItemDrag != null) {
