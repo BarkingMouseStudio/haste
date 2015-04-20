@@ -114,6 +114,16 @@ namespace Haste {
       ScrollTo(HighlightedIndex);
     }
 
+    public void OnHome() {
+      HighlightedIndex = 0;
+      ScrollTo(HighlightedIndex);
+    }
+
+    public void OnEnd() {
+      HighlightedIndex = Items.Length - 1;
+      ScrollTo(HighlightedIndex);
+    }
+
     void OnItemDrag(Event e, int index) {
       HighlightedIndex = index;
       if (HighlightedItem != null && ItemDrag != null) {

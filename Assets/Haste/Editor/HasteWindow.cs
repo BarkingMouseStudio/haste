@@ -232,6 +232,20 @@ namespace Haste {
       Close();
     }
 
+    void OnHome(Event e) {
+      this.resultList.OnHome();
+      if (this.resultList.HighlightedItem != null) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      }
+    }
+
+    void OnEnd(Event e) {
+      this.resultList.OnEnd();
+      if (this.resultList.HighlightedItem != null) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      }
+    }
+
     void OnUpArrow(Event e) {
       this.resultList.OnUpArrow();
       if (this.resultList.HighlightedItem != null) {
@@ -255,6 +269,14 @@ namespace Haste {
         case KeyCode.Return:
           e.Use();
           OnReturn(e);
+          break;
+        case KeyCode.Home:
+          e.Use();
+          OnHome(e);
+          break;
+        case KeyCode.End:
+          e.Use();
+          OnEnd(e);
           break;
         case KeyCode.UpArrow:
           e.Use();
