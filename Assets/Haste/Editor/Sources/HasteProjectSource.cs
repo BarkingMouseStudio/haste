@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,9 +26,9 @@ namespace Haste {
     }
 
     public IEnumerator<IHasteItem> GetEnumerator() {
-      var ignorePaths = HasteSettings.IgnorePaths.Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries).Select((s) => {
-        return s.Trim();
-      }).ToArray();
+      var ignorePaths = HasteSettings.IgnorePaths.Split(new []{','}, StringSplitOptions.RemoveEmptyEntries)
+        .Select((s) => s.Trim())
+        .ToArray();
 
       Queue<string> directories = new Queue<string>();
 
