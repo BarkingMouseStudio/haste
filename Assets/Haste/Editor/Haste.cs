@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    public static readonly string VERSION = "1.7.0";
+    public static readonly string VERSION = "1.7.1";
 
     private static Version version;
     public static Version Version {
