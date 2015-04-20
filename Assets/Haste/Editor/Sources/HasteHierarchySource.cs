@@ -23,7 +23,7 @@ namespace Haste {
         if (transform.parent == null) {
           path = transform.gameObject.name;
         } else {
-          path = GetTransformPath(transform.parent) + Path.DirectorySeparatorChar + transform.gameObject.name;
+          path = GetTransformPath(transform.parent) + "/" + transform.gameObject.name;
         }
 
         paths.Add(id, path);

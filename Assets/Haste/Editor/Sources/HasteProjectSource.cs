@@ -22,7 +22,7 @@ namespace Haste {
     }
 
     static string GetRelativeAssetPath(string assetPath) {
-      return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + Path.DirectorySeparatorChar));
+      return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + "/"));
     }
 
     public IEnumerator<IHasteItem> GetEnumerator() {
