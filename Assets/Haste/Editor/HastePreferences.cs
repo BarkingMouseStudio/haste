@@ -78,11 +78,7 @@ namespace Haste {
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("Ignore Paths", EditorStyles.boldLabel);
-        EditorGUILayout.Space();
-        HasteSettings.IgnorePaths = EditorGUILayout.TextField(HasteSettings.IgnorePaths);
-        EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("Comma-separated paths to ignore when indexing assets. Useful for excluding folders you do not want to see in results. Rebuild the index to apply changes (see below).", MessageType.Info);
+        HasteIgnore.DrawPreferences();
 
         EditorGUILayout.Space();
         EditorGUILayout.Space();
