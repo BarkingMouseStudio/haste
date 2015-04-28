@@ -68,6 +68,7 @@ namespace Haste {
       }
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
+      char q0 = queryLower[0];
 
       // Perform fast subsequence filtering
       var matches = bucket.Where(m => {
@@ -75,8 +76,10 @@ namespace Haste {
           return false;
         }
 
-        char q = queryLower[0];
-        if (m.NameLower[0] != q && m.PathLower[0] != q) {
+        bool firstCharName = m.NameLower.Length > 0 && m.NameLower[0] == q0;
+        bool firstCharPath = m.PathLower.Length > 0 && m.PathLower[0] == q0;
+        bool firstCharExtension = m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q0;
+        if (!firstCharName && !firstCharPath && !firstCharExtension) {
           return false;
         }
 
