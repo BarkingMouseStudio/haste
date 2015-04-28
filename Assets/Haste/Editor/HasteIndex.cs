@@ -94,20 +94,20 @@ namespace Haste {
       }
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
+      char q0 = queryLower[0];
 
       // Perform fast subsequence filtering
       var matches = new List<IHasteItem>();
-      char q = queryLower[0];
 
       foreach (var m in bucket) {
         if (m.PathLower.Length < queryLen) {
           continue;
         }
 
-        bool firstCharName = m.NameLower.Length > 0 && m.NameLower[0] == q;
-        bool firstCharPath = m.PathLower.Length > 0 && m.PathLower[0] == q;
-        bool firstCharExtension = m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q;
-        if (!firstCharExtension && !firstCharName && !firstCharPath) {
+        bool firstCharName = m.NameLower.Length > 0 && m.NameLower[0] == q0;
+        bool firstCharPath = m.PathLower.Length > 0 && m.PathLower[0] == q0;
+        bool firstCharExtension = m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q0;
+        if (q0 != '.' && !firstCharName && !firstCharPath && !firstCharExtension) {
           // TODO: Move to bucketing instead of boundaries
           continue;
         }

@@ -17,13 +17,6 @@ namespace Haste {
 
     public static readonly string VERSION = "1.7.1";
 
-    // The maximum time an iteration can spend indexing
-    // before a yield so we don't stall the editor.
-
-    // NOTE: Watchers are run sequentially so this is
-    // effectively global but can change for each iterator.
-    const float MAX_ITER_TIME = 4.0f / 1000.0f; // 4ms
-
     private static Version version;
     public static Version Version {
       get {
@@ -259,11 +252,7 @@ namespace Haste {
           Watchers.RestartSource(HasteLayoutSource.NAME);
         }
 
-        float iterTime = 0.0f;
-        while (iterTime < MAX_ITER_TIME) {
-          Scheduler.Tick();
-          iterTime += Time.deltaTime;
-        }
+        Scheduler.Tick();
       }
     }
   }
