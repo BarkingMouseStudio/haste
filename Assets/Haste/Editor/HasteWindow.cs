@@ -350,11 +350,23 @@ namespace Haste {
       }
     }
 
+    HasteSchedulerNode querying;
+
+    IEnumerator BeginSearch(string query) {
+      // TODO: Loading...
+      yield return Haste.Scheduler.Start(Haste.Index.Filter(query, RESULT_COUNT));
+      this.resultList.SetItems(Haste.Index.LastResults);
+    }
+
     void OnQueryChanged(string query) {
+      if (querying != null) {
+        querying.Stop();
+      }
+
       if (query == "") {
         this.resultList.ClearItems();
       } else {
-        this.resultList.SetItems(Haste.Index.Filter(query, RESULT_COUNT));
+        querying = Haste.Scheduler.Start(BeginSearch(query));
       }
     }
 

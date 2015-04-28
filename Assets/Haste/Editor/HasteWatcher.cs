@@ -28,13 +28,6 @@ namespace Haste {
 
   public class HasteWatcher : IHasteWatcher, IEnumerable {
 
-    // The maximum time an iteration can spend indexing
-    // before a yield so we don't stall the editor.
-
-    // NOTE: Watchers are run sequentially so this is
-    // effectively global but can change for each iterator.
-    const float MAX_ITER_TIME = 4.0f / 1000.0f; // 4ms
-
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
@@ -120,21 +113,13 @@ namespace Haste {
     }
 
     public IEnumerator GetEnumerator() {
-      float iterTime = 0.0f;
-
       foreach (IHasteItem item in factory()) {
         if (!currentCollection.Contains(item)) {
           OnCreated(item);
         }
 
         nextCollection.Add(item);
-
-        if (iterTime > MAX_ITER_TIME) {
-          iterTime = 0.0f;
-          yield return null;
-        }
-
-        iterTime += Time.deltaTime;
+        yield return null;
       }
 
       // Check for deleted paths
@@ -145,12 +130,7 @@ namespace Haste {
           OnDeleted(item);
         }
 
-        if (iterTime > MAX_ITER_TIME) {
-          iterTime = 0.0f;
-          yield return null;
-        }
-
-        iterTime += Time.deltaTime;
+        yield return null;
       }
 
       var temp = currentCollection;

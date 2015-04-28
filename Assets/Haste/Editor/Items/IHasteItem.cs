@@ -20,6 +20,8 @@ namespace Haste {
     string Name { get; }
     string NameLower { get; }
 
+    string ExtensionLower { get; }
+
     int Bitset { get; }
     string BoundariesLower { get; }
 

@@ -41,15 +41,15 @@ namespace Haste {
       index.Add(new HasteItem("Path/MyFileWithExtension.cs", 0, ""));
 
       // Test extensions
-      var results = index.Filter(".cs", 1);
+      var results = index.FilterSync(".cs", 1);
       Assert.That(results.Length, Is.EqualTo(1));
 
       // Test boundaries
-      results = index.Filter("pm", 1);
+      results = index.FilterSync("pm", 1);
       Assert.That(results.Length, Is.EqualTo(1));
 
       // Test name
-      results = index.Filter("m", 1);
+      results = index.FilterSync("m", 1);
       Assert.That(results.Length, Is.EqualTo(1));
     }
 
@@ -76,6 +76,23 @@ namespace Haste {
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("te.mp/test.cs"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test.cs"), Is.EqualTo("test"));
+    }
+
+    [Test]
+    public void TestGetExtension() {
+      Assert.That(HasteStringUtils.GetExtension("/"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("/."), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("this/is/a/test/"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("this/is/a/test/."), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("test."), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("test.cs"), Is.EqualTo("cs"));
+      Assert.That(HasteStringUtils.GetExtension("my/file/is/a/test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("my/file/is/a/test.cs"), Is.EqualTo("cs"));
+      Assert.That(HasteStringUtils.GetExtension("te.mp/test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("temp./test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("te.mp/test.cs"), Is.EqualTo("cs"));
+      Assert.That(HasteStringUtils.GetExtension("temp./test.cs"), Is.EqualTo("cs"));
     }
 
     [Test]
