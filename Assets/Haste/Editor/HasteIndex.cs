@@ -138,6 +138,8 @@ namespace Haste {
         .OrderBy(r => r, comparer)
         .Take(resultCount)
         .ToArray();
+
+      Debug.Log(LastResults.Length);
       IsFiltering = false;
     }
   }
