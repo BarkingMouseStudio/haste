@@ -55,10 +55,10 @@ namespace Haste {
 
     [Test]
     public void TestApproximately() {
-      Assert.That(HasteResultComparer.Approximately(0.0f, 0.0f), Is.True);
-      Assert.That(HasteResultComparer.Approximately(1.0f, 1.0f), Is.True);
-      Assert.That(HasteResultComparer.Approximately(1.0f, 0.0f), Is.False);
-      Assert.That(HasteResultComparer.Approximately(0.0f, 1.0f), Is.False);
+      Assert.That(HasteMathUtils.Approximately(0.0f, 0.0f), Is.True);
+      Assert.That(HasteMathUtils.Approximately(1.0f, 1.0f), Is.True);
+      Assert.That(HasteMathUtils.Approximately(1.0f, 0.0f), Is.False);
+      Assert.That(HasteMathUtils.Approximately(0.0f, 1.0f), Is.False);
     }
 
     [Test]

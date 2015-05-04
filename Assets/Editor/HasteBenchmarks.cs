@@ -166,9 +166,9 @@ namespace Haste {
     // ~ 2.75
     public void BenchApproximately() {
       Benchmark("Approximately", 100000, () => {
-        HasteResultComparer.Approximately(1.0f, 0.0f);
-        HasteResultComparer.Approximately(0.0f, 1.0f);
-        HasteResultComparer.Approximately(1.0f, 1.0f);
+        HasteMathUtils.Approximately(1.0f, 0.0f);
+        HasteMathUtils.Approximately(0.0f, 1.0f);
+        HasteMathUtils.Approximately(1.0f, 1.0f);
       });
     }
 

@@ -1,10 +1,6 @@
-using UnityEngine;
-using UnityEditor;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace Haste {
 
@@ -13,6 +9,8 @@ namespace Haste {
     public IHasteItem Item { get; private set; }
 
     public bool IsVisible { get; set; }
+
+    public float Score { get; set; }
 
     public virtual bool IsDraggable {
       get { return false; }
@@ -40,16 +38,11 @@ namespace Haste {
     public int[] Indices {
       get {
         if (indices == null) {
-          indices = GetIndices();
+          int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
+          indices = HasteStringUtils.GetWeightedSubsequence(Item.PathLower, QueryLower, boundaryIndices);
         }
         return indices;
       }
-    }
-
-    int[] GetIndices() {
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
-      int[] indices = HasteStringUtils.GetWeightedSubsequence(Item.PathLower, QueryLower, boundaryIndices);
-      return indices;
     }
 
     public bool IsFirstCharMatch { get; private set; }
@@ -66,10 +59,11 @@ namespace Haste {
 
     string QueryLower { get; set; }
 
-    public AbstractHasteResult(IHasteItem item, string queryLower, int queryLen) {
+    protected AbstractHasteResult(IHasteItem item, string queryLower, int queryLen) {
       QueryLower = queryLower;
       Item = item;
 
+      // TODO: All of this can be moved into score calculation (no need to keep in memory)
       // The number of characters in the query that hit a boundary
       int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.BoundariesLower);
       BoundaryQueryRatio = boundaryMatchCount / queryLen;
@@ -85,8 +79,8 @@ namespace Haste {
       IsFirstCharNameMatch = Item.NameLower[0] == queryLower[0];
 
       // Much faster than "StartsWith"
-      IsPrefixMatch = queryLen >= 3 && Item.PathLower.IndexOf(queryLower) == 0;
-      IsNamePrefixMatch = queryLen >= 3 && Item.NameLower.IndexOf(queryLower) == 0;
+      IsPrefixMatch = queryLen >= 3 && Item.PathLower.IndexOf(queryLower, StringComparison.InvariantCulture) == 0;
+      IsNamePrefixMatch = queryLen >= 3 && Item.NameLower.IndexOf(queryLower, StringComparison.InvariantCulture) == 0;
 
       IsExactMatch = Item.PathLower == queryLower;
       IsExactNameMatch = Item.NameLower == queryLower;

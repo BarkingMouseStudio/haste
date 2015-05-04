@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-
 namespace Haste {
 
   public interface IHasteResult {
     IHasteItem Item { get; }
 
     bool IsVisible { get; set; }
+
+    float Score { get; set; }
 
     bool IsFirstCharMatch { get; }
     bool IsFirstCharNameMatch { get; }

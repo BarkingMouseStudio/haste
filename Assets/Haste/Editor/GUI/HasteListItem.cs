@@ -7,7 +7,7 @@ namespace Haste {
   // Wraps results to handle some of the common drawing and interaction tasks.
   public static class HasteListItem {
 
-    public static void Draw(IHasteResult result, int index, bool isHighlighted, Action<Event, int> MouseDown, Action<Event, int> Click, Action<Event, int> DoubleClick, Action<Event, int> MouseDrag) {
+    public static void Draw(IHasteResult result, int index, bool isHighlighted, Action<Event, int> mouseDown, Action<Event, int> click, Action<Event, int> doubleClick, Action<Event, int> mouseDrag) {
       GUIStyle resultStyle;
       if (isHighlighted) {
         resultStyle = HasteStyles.HighlightStyle;
@@ -24,20 +24,24 @@ namespace Haste {
         if (isMouseContained) {
           switch (e.type) {
             case EventType.MouseDrag:
-              MouseDrag(e, index);
+              mouseDrag(e, index);
               break;
             case EventType.MouseDown:
               if (e.clickCount == 2) {
-                DoubleClick(e, index);
+                doubleClick(e, index);
               } else {
-                MouseDown(e, index);
+                mouseDown(e, index);
               }
               break;
             case EventType.MouseUp:
-              Click(e, index);
+              click(e, index);
               break;
           }
         }
+
+        #if DEBUG
+        EditorGUILayout.LabelField(result.Score.ToString(), isHighlighted ? HasteStyles.GetStyle("HighlightedScore") : HasteStyles.GetStyle("Score"), GUILayout.Width(32), GUILayout.ExpandHeight(true));
+        #endif
 
         result.Draw(isHighlighted);
 

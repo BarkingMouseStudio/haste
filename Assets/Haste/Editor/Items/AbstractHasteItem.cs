@@ -17,7 +17,7 @@ namespace Haste {
     public string NameLower { get; private set; }
     public string ExtensionLower { get; private set; }
 
-    public AbstractHasteItem(string path, int id, string source) {
+    protected AbstractHasteItem(string path, int id, string source) {
       Id = id;
       Source = source;
 
