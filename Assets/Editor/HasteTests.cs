@@ -38,19 +38,27 @@ namespace Haste {
     [Test]
     public void TestFilter() {
       var index = new HasteIndex();
+      var search = new HasteSearch(index);
+
       index.Add(new HasteItem("Path/MyFileWithExtension.cs", 0, ""));
 
       // Test extensions
-      var results = index.FilterSync(".cs", 1);
-      Assert.That(results.Length, Is.EqualTo(1));
+      var promise = new Promise<IEnumerable<IHasteResult>>();
+      var process = search.Search(".cs", 1, promise);
+      while (process.MoveNext()); // Force sync.
+      Assert.That(promise.Value.Count(), Is.EqualTo(1));
 
       // Test boundaries
-      results = index.FilterSync("pm", 1);
-      Assert.That(results.Length, Is.EqualTo(1));
+      promise = new Promise<IEnumerable<IHasteResult>>();
+      process = search.Search("pm", 1, promise);
+      while (process.MoveNext()); // Force sync.
+      Assert.That(promise.Value.Count(), Is.EqualTo(1));
 
       // Test name
-      results = index.FilterSync("m", 1);
-      Assert.That(results.Length, Is.EqualTo(1));
+      promise = new Promise<IEnumerable<IHasteResult>>();
+      process = search.Search("m", 1, promise);
+      while (process.MoveNext()); // Force sync.
+      Assert.That(promise.Value.Count(), Is.EqualTo(1));
     }
 
     [Test]

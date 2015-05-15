@@ -122,11 +122,14 @@ namespace Haste {
     // ~ 248ms
     public void BenchHasteIndexFilter() {
       var index = new HasteIndex();
+      var search = new HasteSearch(index);
       for (int i = 0; i < 100000; i++) {
         index.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
       }
       Benchmark("HasteIndex#Filter", 10, () => {
-        index.Filter("s", 100);
+        var promise = new Promise<IEnumerable<IHasteResult>>();
+        var process = search.Search("s", 100, promise);
+        while (process.MoveNext()); // Force sync.
       });
     }
 

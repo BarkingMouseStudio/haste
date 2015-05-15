@@ -1,7 +1,3 @@
-using UnityEngine;
-using UnityEditor;
-using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -10,7 +6,7 @@ namespace Haste {
   // Stoppable co-routine scheduler node.
   public class HasteSchedulerNode {
 
-    public IEnumerator Fiber;
+    public IEnumerator Fiber { get; private set; }
 
     public bool IsStopping { get; private set; }
 
@@ -28,7 +24,7 @@ namespace Haste {
   // Custom co-routine scheduler to support starting and stopping coroutines individually.
   public class HasteScheduler {
 
-    private LinkedList<HasteSchedulerNode> coroutines;
+    private readonly LinkedList<HasteSchedulerNode> coroutines;
 
     public bool IsRunning {
       get {
@@ -67,13 +63,12 @@ namespace Haste {
           coroutines.Remove(coroutine);
         } else {
           // Check if the coroutine yielded another coroutine
-          HasteSchedulerNode current = coroutine.Value.Fiber.Current as HasteSchedulerNode;
-          bool isWaiting = false;
+          var current = coroutine.Value.Fiber.Current as HasteSchedulerNode;
 
           // If it did, check if it's still running
-          if (current != null) {
-            isWaiting = current.IsRunning;
-          }
+          bool isWaiting = current != null && current.IsRunning;
+          // UnityEngine.Debug.Log(coroutine.GetHashCode() + " " + (current != null ? current.GetHashCode() : 0) + " " + isWaiting);
+
 
           // Don't advance while there's a sub-coroutine running
           if (!isWaiting) {

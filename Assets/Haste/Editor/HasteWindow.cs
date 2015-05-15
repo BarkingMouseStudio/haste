@@ -12,7 +12,8 @@ namespace Haste {
   public enum HasteWindowState {
     Intro,
     Empty,
-    Results
+    Results,
+    Loading
   }
 
   [Serializable]
@@ -35,6 +36,9 @@ namespace Haste {
     HasteEmpty empty;
 
     [SerializeField]
+    HasteLoading loading;
+
+    [SerializeField]
     HasteIntro intro;
 
     [SerializeField]
@@ -44,6 +48,7 @@ namespace Haste {
 
     HasteUpdateStatus prevUpdateStatus = HasteUpdateStatus.UpToDate;
     bool wasIndexing = false;
+    bool wasSearching = false;
 
     public static HasteWindow Instance { get; protected set; }
 
@@ -125,6 +130,7 @@ namespace Haste {
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
       this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
+      this.loading = ScriptableObject.CreateInstance<HasteLoading>();
     }
 
     public bool IsSelected(UnityEngine.Object obj) {
@@ -137,6 +143,10 @@ namespace Haste {
     }
 
     void OnReturn(Event e) {
+      if (windowState != HasteWindowState.Results) {
+        return;
+      }
+
       // Add to multi-selection
       if (EditorGUI.actionKey) {
         var obj = this.resultList.HighlightedItem.Object;
@@ -223,7 +233,7 @@ namespace Haste {
         return;
       }
 
-      Selection.activeObject = item.Object;
+      Selection.objects = new []{item.Object};
     }
 
     void OnItemAction(IHasteResult item) {
@@ -235,42 +245,42 @@ namespace Haste {
     void OnHome(Event e) {
       this.resultList.OnHome();
       if (this.resultList.HighlightedItem != null) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+        Selection.objects = new []{this.resultList.HighlightedItem.Object};
       }
     }
 
     void OnEnd(Event e) {
       this.resultList.OnEnd();
       if (this.resultList.HighlightedItem != null) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+        Selection.objects = new []{this.resultList.HighlightedItem.Object};
       }
     }
 
     void OnPageUp(Event e) {
       this.resultList.OnPageUp();
       if (this.resultList.HighlightedItem != null) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+        Selection.objects = new []{this.resultList.HighlightedItem.Object};
       }
     }
 
     void OnPageDown(Event e) {
       this.resultList.OnPageDown();
       if (this.resultList.HighlightedItem != null) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+        Selection.objects = new []{this.resultList.HighlightedItem.Object};
       }
     }
 
     void OnUpArrow(Event e) {
       this.resultList.OnUpArrow();
       if (this.resultList.HighlightedItem != null) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+        Selection.objects = new []{this.resultList.HighlightedItem.Object};
       }
     }
 
     void OnDownArrow(Event e) {
       this.resultList.OnDownArrow();
       if (this.resultList.HighlightedItem != null) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+        Selection.objects = new []{this.resultList.HighlightedItem.Object};
       }
     }
 
@@ -320,6 +330,12 @@ namespace Haste {
     }
 
     void Update() {
+      bool isSearching = searching != null && !searching.IsRunning;
+      if (isSearching != wasSearching) {
+        Repaint();
+        wasSearching = isSearching;
+      }
+
       // Watch for changes to the window position while we're able to move it
       if (this.windowState == HasteWindowState.Intro || this.windowState == HasteWindowState.Empty) {
         // If we're actively indexing, repaint.
@@ -327,10 +343,10 @@ namespace Haste {
           Repaint();
           wasIndexing = Haste.IsIndexing;
 
-        // If our indexing state has changed, repaint.
-      } else if (wasIndexing) {
-          Repaint();
-          wasIndexing = false;
+          // If our indexing state has changed, repaint.
+        } else if (wasIndexing) {
+            Repaint();
+            wasIndexing = false;
 
         // If our update status has changed, repaint.
         } else if (Haste.UpdateChecker.Status != prevUpdateStatus) {
@@ -350,23 +366,23 @@ namespace Haste {
       }
     }
 
-    HasteSchedulerNode querying;
+    HasteSchedulerNode searching;
 
     IEnumerator BeginSearch(string query) {
-      // TODO: Loading...
-      yield return Haste.Scheduler.Start(Haste.Index.Filter(query, RESULT_COUNT));
-      this.resultList.SetItems(Haste.Index.LastResults);
+      var promise = new Promise<IEnumerable<IHasteResult>>();
+      yield return Haste.Scheduler.Start(Haste.Search.Search(query, RESULT_COUNT, promise)); // wait on search
+      this.resultList.SetItems(promise.Value.ToArray());
     }
 
     void OnQueryChanged(string query) {
-      if (querying != null) {
-        querying.Stop();
+      if (searching != null) {
+        searching.Stop();
       }
 
       if (query == "") {
         this.resultList.ClearItems();
       } else {
-        querying = Haste.Scheduler.Start(BeginSearch(query));
+        searching = Haste.Scheduler.Start(BeginSearch(query));
       }
     }
 
@@ -379,6 +395,8 @@ namespace Haste {
 
       if (this.queryInput.Query == "") {
         this.windowState = HasteWindowState.Intro;
+      } else if (searching != null && searching.IsRunning) {
+        this.windowState = HasteWindowState.Loading;
       } else if (this.resultList.Size == 0) {
         this.windowState = HasteWindowState.Empty;
       } else {
@@ -388,6 +406,9 @@ namespace Haste {
       switch (this.windowState) {
         case HasteWindowState.Intro:
           this.intro.OnGUI();
+          break;
+        case HasteWindowState.Loading:
+          this.loading.OnGUI();
           break;
         case HasteWindowState.Empty:
           this.empty.OnGUI();

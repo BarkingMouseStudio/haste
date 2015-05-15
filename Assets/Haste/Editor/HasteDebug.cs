@@ -5,6 +5,11 @@ using System.Collections;
 
 namespace Haste {
 
+  public class AssertionException: Exception {
+    public AssertionException() {}
+    public AssertionException(string message) : base(message) {}
+  }
+
   public static class HasteDebug {
 
     static string[] Args(params object[] args) {
@@ -12,6 +17,12 @@ namespace Haste {
         .Cast<object>()
         .Select(x => x == null ? "null" : x.ToString())
         .ToArray();
+    }
+
+    public static void Assert(bool condition, string message = "") {
+      if (!condition) {
+        throw new AssertionException(message);
+      }
     }
 
     [System.Diagnostics.Conditional("DEBUG")]

@@ -36,6 +36,7 @@ namespace Haste {
 
     public static HasteScheduler Scheduler;
     public static HasteIndex Index;
+    public static HasteSearch Search;
     public static HasteWatcherManager Watchers;
 
     public static HasteUpdateChecker UpdateChecker;
@@ -83,6 +84,7 @@ namespace Haste {
 
       Scheduler = new HasteScheduler();
       Index = new HasteIndex();
+      Search = new HasteSearch(Index);
       Watchers = new HasteWatcherManager();
 
       Watchers.AddSource(HasteProjectSource.NAME,
@@ -205,6 +207,9 @@ namespace Haste {
     //   HasteShortcutHandler();
     // }
 
+    // The maximum time an iteration can spend working per update
+    const float MAX_ITER_TIME = 4.0f / 1000.0f; // 1ms
+
     // Main update loop in Haste—run's scheduler
     static void Update() {
       if (HasteSettings.CheckForUpdates) {
@@ -252,7 +257,13 @@ namespace Haste {
           Watchers.RestartSource(HasteLayoutSource.NAME);
         }
 
-        Scheduler.Tick();
+        for (var start = 0.0f; start < MAX_ITER_TIME; start += Time.deltaTime) {
+          if (!Scheduler.IsRunning) {
+            // Don't need to waste cycles
+            break;
+          }
+          Scheduler.Tick();
+        }
       }
     }
   }
