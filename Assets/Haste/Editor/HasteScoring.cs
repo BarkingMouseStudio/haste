@@ -14,7 +14,7 @@ namespace Haste {
 
       // Favor exact name matches
       if (r.IsExactNameMatch) {
-        score += 4.0f;
+        score += 60.0f;
 
       // Favor exact path matches
       } else if (r.IsExactMatch) {
