@@ -15,23 +15,55 @@ namespace Haste {
       HasteResultComparer comparer = new HasteResultComparer();
 
       string queryLower = "rop";
-      IHasteResult a = new HasteResult(new HasteItem("Unity Test Tools/Platform Runner/Run on platform", 0, ""), queryLower, queryLower.Length);
-      IHasteResult b = new HasteResult(new HasteItem("Assets/UnityTestTools/Common/Editor/icons/rerun-darktheme.png", 0, ""), queryLower, queryLower.Length);
+      int queryLen = queryLower.Length;
+
+      var aItem = new HasteItem("Unity Test Tools/Platform Runner/Run on platform", 0, "");
+      var aScore = HasteScoring.Score(aItem, queryLower, queryLen);
+      var a = new HasteResult(aItem, aScore, queryLower);
+
+      var bItem = new HasteItem("Assets/UnityTestTools/Common/Editor/icons/rerun-darktheme.png", 0, "");
+      var bScore = HasteScoring.Score(bItem, queryLower, queryLen);
+      var b = new HasteResult(bItem, bScore, queryLower);
+
       Assert.That(comparer.Compare(a, b), Is.EqualTo(-1));
 
       queryLower = "ca";
-      IHasteResult c = new HasteResult(new HasteItem("Component/Add...", 0, ""), queryLower, queryLower.Length);
-      IHasteResult d = new HasteResult(new HasteItem("Component/Layout/Canvas", 0, ""), queryLower, queryLower.Length);
+      queryLen = queryLower.Length;
+
+      var cItem = new HasteItem("Component/Add...", 0, "");
+      var cScore = HasteScoring.Score(cItem, queryLower, queryLen);
+      var c = new HasteResult(cItem, cScore, queryLower);
+
+      var dItem = new HasteItem("Component/Layout/Canvas", 0, "");
+      var dScore = HasteScoring.Score(dItem, queryLower, queryLen);
+      var d = new HasteResult(dItem, dScore, queryLower);
+
       Assert.That(comparer.Compare(c, d), Is.EqualTo(-1));
 
       queryLower = "cec";
-      IHasteResult e = new HasteResult(new HasteItem("GameObject/Create Empty Child", 0, ""), queryLower, queryLower.Length);
-      IHasteResult f = new HasteResult(new HasteItem("Component/Physics/Cloth Renderer", 0, ""), queryLower, queryLower.Length);
+      queryLen = queryLower.Length;
+
+      var eItem = new HasteItem("GameObject/Create Empty Child", 0, "");
+      var eScore = HasteScoring.Score(eItem, queryLower, queryLen);
+      var e = new HasteResult(eItem, eScore, queryLower);
+
+      var fItem = new HasteItem("Component/Physics/Cloth Renderer", 0, "");
+      var fScore = HasteScoring.Score(fItem, queryLower, queryLen);
+      var f = new HasteResult(fItem, fScore, queryLower);
+
       Assert.That(comparer.Compare(e, f), Is.EqualTo(-1));
 
       queryLower = "acl";
-      IHasteResult g = new HasteResult(new HasteItem("Assets/Create/Lens Flare", 0, ""), queryLower, queryLower.Length);
-      IHasteResult h = new HasteResult(new HasteItem("GameObject/Align With View", 0, ""), queryLower, queryLower.Length);
+      queryLen = queryLower.Length;
+
+      var gItem = new HasteItem("Assets/Create/Lens Flare", 0, "");
+      var gScore = HasteScoring.Score(gItem, queryLower, queryLen);
+      var g = new HasteResult(gItem, gScore, queryLower);
+
+      var hItem = new HasteItem("GameObject/Align With View", 0, "");
+      var hScore = HasteScoring.Score(hItem, queryLower, queryLen);
+      var h = new HasteResult(hItem, hScore, queryLower);
+
       Assert.That(comparer.Compare(g, h), Is.EqualTo(-1));
     }
 
@@ -55,10 +87,10 @@ namespace Haste {
 
     [Test]
     public void TestApproximately() {
-      Assert.That(HasteResultComparer.Approximately(0.0f, 0.0f), Is.True);
-      Assert.That(HasteResultComparer.Approximately(1.0f, 1.0f), Is.True);
-      Assert.That(HasteResultComparer.Approximately(1.0f, 0.0f), Is.False);
-      Assert.That(HasteResultComparer.Approximately(0.0f, 1.0f), Is.False);
+      Assert.That(HasteMathUtils.Approximately(0.0f, 0.0f), Is.True);
+      Assert.That(HasteMathUtils.Approximately(1.0f, 1.0f), Is.True);
+      Assert.That(HasteMathUtils.Approximately(1.0f, 0.0f), Is.False);
+      Assert.That(HasteMathUtils.Approximately(0.0f, 1.0f), Is.False);
     }
 
     [Test]
@@ -76,6 +108,23 @@ namespace Haste {
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("te.mp/test.cs"), Is.EqualTo("test"));
       Assert.That(HasteStringUtils.GetFileNameWithoutExtension("temp./test.cs"), Is.EqualTo("test"));
+    }
+
+    [Test]
+    public void TestGetExtension() {
+      Assert.That(HasteStringUtils.GetExtension("/"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("/."), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("this/is/a/test/"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("this/is/a/test/."), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("test."), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("test.cs"), Is.EqualTo("cs"));
+      Assert.That(HasteStringUtils.GetExtension("my/file/is/a/test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("my/file/is/a/test.cs"), Is.EqualTo("cs"));
+      Assert.That(HasteStringUtils.GetExtension("te.mp/test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("temp./test"), Is.EqualTo(""));
+      Assert.That(HasteStringUtils.GetExtension("te.mp/test.cs"), Is.EqualTo("cs"));
+      Assert.That(HasteStringUtils.GetExtension("temp./test.cs"), Is.EqualTo("cs"));
     }
 
     [Test]

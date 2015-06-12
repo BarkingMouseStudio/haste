@@ -1,10 +1,5 @@
-using UnityEngine;
-using UnityEditor;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Haste {
 
@@ -12,10 +7,10 @@ namespace Haste {
 
     private static readonly IHasteResult[] emptyResults = new IHasteResult[0];
 
-    IDictionary<char, HashSet<IHasteItem>> index =
+    readonly IDictionary<char, HashSet<IHasteItem>> index =
       new Dictionary<char, HashSet<IHasteItem>>();
 
-    HasteResultComparer comparer = new HasteResultComparer();
+    readonly HasteResultComparer comparer = new HasteResultComparer();
 
     // The number of unique items in the index
     public int Count { get; protected set; }
@@ -68,6 +63,7 @@ namespace Haste {
       }
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
+      char q0 = queryLower[0];
 
       // Perform fast subsequence filtering
       var matches = bucket.Where(m => {
@@ -75,17 +71,19 @@ namespace Haste {
           return false;
         }
 
-        char q = queryLower[0];
-        if (m.NameLower[0] != q && m.PathLower[0] != q) {
+        bool firstCharName = m.NameLower.Length > 0 && m.NameLower[0] == q0;
+        bool firstCharPath = m.PathLower.Length > 0 && m.PathLower[0] == q0;
+        bool firstCharExtension = q0 == '.' || m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q0;
+        if (!firstCharName && !firstCharPath && !firstCharExtension) {
           return false;
         }
 
-        var contains = HasteStringUtils.ContainsChars(m.Bitset, queryBits);
+        bool contains = HasteStringUtils.ContainsChars(m.Bitset, queryBits);
         if (!contains) {
           return false;
         }
 
-        var subsequence = HasteStringUtils.ContainsSubsequence(m.PathLower, queryLower, m.PathLower.Length, queryLen);
+        bool subsequence = HasteStringUtils.ContainsSubsequence(m.PathLower, queryLower, m.PathLower.Length, queryLen);
         if (!subsequence) {
           return false;
         }
@@ -94,7 +92,9 @@ namespace Haste {
       });
 
       // Score, sort then take (otherwise we loose good results)
-      return matches.Select(m => m.GetResult(queryLower, queryLen))
+      return matches.Select(m => {
+          return m.GetResult(HasteScoring.Score(m, queryLower, queryLen), queryLower);
+        })
         .OrderBy(r => r, comparer)
         .Take(resultCount)
         .ToArray();

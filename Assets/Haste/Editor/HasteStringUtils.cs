@@ -169,6 +169,34 @@ namespace Haste {
       }
     }
 
+    public static string GetExtension(string path) {
+      var len = path.Length;
+      if (len == 0) {
+        return "";
+      }
+
+      var sep = path.LastIndexOf('/');
+
+      // Remove trailing slash before getting filename
+      if (sep == len - 1) {
+        path = path.TrimEnd(new []{'/'});
+        sep = path.LastIndexOf('/');
+      }
+
+      int ext = -1;
+      if (sep != -1) {
+        ext = path.IndexOf('.', sep);
+      } else {
+        ext = path.LastIndexOf('.');
+      }
+
+      if (ext != -1) {
+        return path.Substring(ext + 1);
+      } else {
+        return "";
+      }
+    }
+
     public static string GetFileNameWithoutExtension(string path) {
       var len = path.Length;
       if (len == 0) {

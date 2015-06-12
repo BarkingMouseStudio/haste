@@ -1,24 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-
 namespace Haste {
 
   public interface IHasteResult {
     IHasteItem Item { get; }
+    float Score { get; }
 
     bool IsVisible { get; set; }
-
-    bool IsFirstCharMatch { get; }
-    bool IsFirstCharNameMatch { get; }
-
-    bool IsPrefixMatch { get; }
-    bool IsNamePrefixMatch { get; }
-
-    bool IsExactMatch { get; }
-    bool IsExactNameMatch { get; }
-
-    float BoundaryQueryRatio { get; }
-    float BoundaryUtilization { get; }
 
     int[] Indices { get; }
 

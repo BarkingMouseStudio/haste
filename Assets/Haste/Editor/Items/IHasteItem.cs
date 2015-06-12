@@ -20,10 +20,12 @@ namespace Haste {
     string Name { get; }
     string NameLower { get; }
 
+    string ExtensionLower { get; }
+
     int Bitset { get; }
     string BoundariesLower { get; }
 
-    IHasteResult GetResult(string queryLower, int queryLen);
+    IHasteResult GetResult(float score, string queryLower);
     bool Equals(object obj);
     int GetHashCode();
   }

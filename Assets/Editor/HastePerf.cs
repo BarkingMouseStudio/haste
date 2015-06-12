@@ -18,7 +18,7 @@ namespace Haste {
     public static string GetRandomPath() {
       StringBuilder pathBuilder = new StringBuilder();
       for (int i = 0; i < Random.Range(0, 2); i++) {
-        pathBuilder.Append(GetRandomName()).Append(Path.DirectorySeparatorChar);
+        pathBuilder.Append(GetRandomName()).Append("/");
       }
       pathBuilder.Append(GetRandomName());
       return pathBuilder.ToString();

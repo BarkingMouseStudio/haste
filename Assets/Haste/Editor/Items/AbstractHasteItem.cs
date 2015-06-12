@@ -15,8 +15,9 @@ namespace Haste {
     public string BoundariesLower { get; private set; }
     public string Name { get; private set; }
     public string NameLower { get; private set; }
+    public string ExtensionLower { get; private set; }
 
-    public AbstractHasteItem(string path, int id, string source) {
+    protected AbstractHasteItem(string path, int id, string source) {
       Id = id;
       Source = source;
 
@@ -28,10 +29,12 @@ namespace Haste {
 
       Name = HasteStringUtils.GetFileNameWithoutExtension(Path);
       NameLower = Name.ToLowerInvariant();
+
+      ExtensionLower = HasteStringUtils.GetExtension(Path).ToLowerInvariant();
     }
 
-    public virtual IHasteResult GetResult(string queryLower, int queryLen) {
-      return new HasteResult(this, queryLower, queryLen);
+    public virtual IHasteResult GetResult(float score, string queryLower) {
+      return new HasteResult(this, score, queryLower);
     }
 
     public bool Equals(IHasteItem other) {
