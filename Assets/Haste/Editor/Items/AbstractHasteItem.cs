@@ -33,8 +33,8 @@ namespace Haste {
       ExtensionLower = HasteStringUtils.GetExtension(Path).ToLowerInvariant();
     }
 
-    public virtual IHasteResult GetResult(string queryLower, int queryLen) {
-      return new HasteResult(this, queryLower, queryLen);
+    public virtual IHasteResult GetResult(float score, string queryLower) {
+      return new HasteResult(this, score, queryLower);
     }
 
     public bool Equals(IHasteItem other) {

@@ -8,9 +8,9 @@ namespace Haste {
 
     public IHasteItem Item { get; private set; }
 
-    public bool IsVisible { get; set; }
+    public float Score { get; private set; }
 
-    public float Score { get; set; }
+    public bool IsVisible { get; set; }
 
     public virtual bool IsDraggable {
       get { return false; }
@@ -39,51 +39,19 @@ namespace Haste {
       get {
         if (indices == null) {
           int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
-          indices = HasteStringUtils.GetWeightedSubsequence(Item.PathLower, QueryLower, boundaryIndices);
+          indices = HasteStringUtils.GetWeightedSubsequence(Item.PathLower, queryLower, boundaryIndices);
         }
         return indices;
       }
     }
 
-    public bool IsFirstCharMatch { get; private set; }
-    public bool IsFirstCharNameMatch { get; private set; }
+    private readonly string queryLower;
 
-    public bool IsPrefixMatch { get; private set; }
-    public bool IsNamePrefixMatch { get; private set; }
+    protected AbstractHasteResult(IHasteItem item, float score, string queryLower) {
+      this.queryLower = queryLower;
 
-    public bool IsExactMatch { get; private set; }
-    public bool IsExactNameMatch { get; private set; }
-
-    public float BoundaryQueryRatio { get; private set; }
-    public float BoundaryUtilization { get; private set; }
-
-    string QueryLower { get; set; }
-
-    protected AbstractHasteResult(IHasteItem item, string queryLower, int queryLen) {
-      QueryLower = queryLower;
+      Score = score;
       Item = item;
-
-      // TODO: All of this can be moved into score calculation (no need to keep in memory)
-      // The number of characters in the query that hit a boundary
-      int boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, Item.BoundariesLower);
-      BoundaryQueryRatio = boundaryMatchCount / queryLen;
-
-      int boundaryLen = Item.BoundariesLower.Length;
-      if (boundaryLen > 0) {
-        BoundaryUtilization = boundaryMatchCount / boundaryLen;
-      } else {
-        BoundaryUtilization = 0;
-      }
-
-      IsFirstCharMatch = Item.PathLower[0] == queryLower[0];
-      IsFirstCharNameMatch = Item.NameLower[0] == queryLower[0];
-
-      // Much faster than "StartsWith"
-      IsPrefixMatch = queryLen >= 3 && Item.PathLower.IndexOf(queryLower, StringComparison.InvariantCulture) == 0;
-      IsNamePrefixMatch = queryLen >= 3 && Item.NameLower.IndexOf(queryLower, StringComparison.InvariantCulture) == 0;
-
-      IsExactMatch = Item.PathLower == queryLower;
-      IsExactNameMatch = Item.NameLower == queryLower;
     }
 
     public virtual bool Validate() {

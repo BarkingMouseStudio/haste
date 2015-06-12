@@ -11,8 +11,8 @@ namespace Haste {
 
     public HasteItem(string path, int id, string source) : base(path, id, source) {}
 
-    public override IHasteResult GetResult(string queryLower, int queryLen) {
-      return new HasteResult(this, queryLower, queryLen);
+    public override IHasteResult GetResult(float score, string queryLower) {
+      return new HasteResult(this, score, queryLower);
     }
   }
 }

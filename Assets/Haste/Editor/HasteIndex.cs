@@ -93,9 +93,7 @@ namespace Haste {
 
       // Score, sort then take (otherwise we loose good results)
       return matches.Select(m => {
-          var r = m.GetResult(queryLower, queryLen);
-          r.Score = HasteScoring.Score(r);
-          return r;
+          return m.GetResult(HasteScoring.Score(m, queryLower, queryLen), queryLower);
         })
         .OrderBy(r => r, comparer)
         .Take(resultCount)

@@ -109,7 +109,7 @@ namespace Haste {
       int queryLen = query.Length;
 
       IEnumerable<HasteResult> results = items.Select(m => {
-        return new HasteResult(m, query, queryLen);
+        return new HasteResult(m, HasteScoring.Score(m, query, queryLen), query);
       });
 
       var comparer = new HasteResultComparer();
@@ -143,7 +143,7 @@ namespace Haste {
       var query = "abc";
       var queryLen = query.Length;
       Benchmark("HasteResult", 10000, () => {
-        new HasteResult(item, query, queryLen);
+        new HasteResult(item, HasteScoring.Score(item, query, queryLen), query);
       });
     }
 
