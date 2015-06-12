@@ -3,15 +3,13 @@ using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Haste {
 
   public class HasteIndex {
 
-    IDictionary<char, HashSet<IHasteItem>> index =
+    readonly IDictionary<char, HashSet<IHasteItem>> index =
       new Dictionary<char, HashSet<IHasteItem>>();
 
     // The number of unique items in the index

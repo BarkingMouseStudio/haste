@@ -82,7 +82,7 @@ namespace Haste {
       }
     }
 
-    // ~ 13
+    // ~ 13 => 22
     public void BenchHasteIndexAdd() {
       List<IHasteItem> items = new List<IHasteItem>();
       int i = 0;
@@ -98,7 +98,7 @@ namespace Haste {
       });
     }
 
-    // ~ 187ms
+    // ~ 187ms => 124ms
     public void BenchHasteResultComparer() {
       IList<IHasteItem> items = new List<IHasteItem>();
       for (int i = 0; i < 10000; i++) {
@@ -109,7 +109,7 @@ namespace Haste {
       int queryLen = query.Length;
 
       IEnumerable<HasteResult> results = items.Select(m => {
-        return new HasteResult(m, query, queryLen);
+        return new HasteResult(m, HasteScoring.Score(m, query, queryLen), query);
       });
 
       var comparer = new HasteResultComparer();
@@ -127,9 +127,8 @@ namespace Haste {
         index.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
       }
       Benchmark("HasteIndex#Filter", 10, () => {
-        var promise = new Promise<IEnumerable<IHasteResult>>();
-        var process = search.Search("s", 100, promise);
-        while (process.MoveNext()); // Force sync.
+        var promise = new Promise<IHasteResult[]>();
+        HasteScheduler.Sync(search.Search("s", 100, promise));
       });
     }
 
@@ -146,7 +145,7 @@ namespace Haste {
       var query = "abc";
       var queryLen = query.Length;
       Benchmark("HasteResult", 10000, () => {
-        new HasteResult(item, query, queryLen);
+        new HasteResult(item, HasteScoring.Score(item, query, queryLen), query);
       });
     }
 
@@ -169,9 +168,9 @@ namespace Haste {
     // ~ 2.75
     public void BenchApproximately() {
       Benchmark("Approximately", 100000, () => {
-        HasteResultComparer.Approximately(1.0f, 0.0f);
-        HasteResultComparer.Approximately(0.0f, 1.0f);
-        HasteResultComparer.Approximately(1.0f, 1.0f);
+        HasteMathUtils.Approximately(1.0f, 0.0f);
+        HasteMathUtils.Approximately(0.0f, 1.0f);
+        HasteMathUtils.Approximately(1.0f, 1.0f);
       });
     }
 

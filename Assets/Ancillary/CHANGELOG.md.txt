@@ -1,28 +1,30 @@
 v1.7.1
 ===
 
+- Async search! Now slow queries won't stall the whole editor.
 - Added support for Home, End, Page Up and Page Down to search results.
 - Added context menu item for ignoring assets in Haste (see README).
 - Added better interface for ignored paths in Haste's preferences.
 - Improvements to search results to filter out unlikely matches.
 - Fixed bug with some paths being considered invalid.
+- Windows paths should be more consistent.
 
 v1.7.0
 ===
 
-- Faster list render performance
+- Faster list render performance.
 - Faster startup time:
-    - Initializing dynamic fonts would sometimes take over 1s the first time you opened Haste. No more!​
+    - Initializing dynamic fonts would sometimes take over 1s the first time you opened Haste. No more!
 - New backspace behavior:
-    - Pressing backspace will now only delete single characters like normal
-    - Holding backspace for 0.2s will clear the query (this should be familiar from mobile keyboards)​
-- Indexing now pauses automatically during lightmapping
-- Word boundaries should now include numbers
-- Tweaking search result prioritization
-- Bug fixes
-- New setting to reposition Haste (see Unity Preferences > Haste)
-- New opt-in to automatically check for updates to Haste (see Unity Preferences > Haste)
-- Style/color/contrast cleanup especially on light theme
+    - Pressing backspace will now only delete single characters like normal.
+    - Holding backspace for 0.2s will clear the query (this should be familiar from mobile keyboards).
+- Indexing now pauses automatically during lightmapping.
+- Word boundaries should now include numbers.
+- Tweaking search result prioritization.
+- Bug fixes.
+- New setting to reposition Haste (see Unity Preferences > Haste).
+- New opt-in to automatically check for updates to Haste (see Unity Preferences > Haste).
+- Style/color/contrast cleanup especially on light theme.
 
 v1.6.1
 ===

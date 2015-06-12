@@ -257,12 +257,20 @@ namespace Haste {
           Watchers.RestartSource(HasteLayoutSource.NAME);
         }
 
-        for (var start = 0.0f; start < MAX_ITER_TIME; start += Time.deltaTime) {
-          if (!Scheduler.IsRunning) {
-            // Don't need to waste cycles
-            break;
+        // Don't need to waste cycles
+        if (Scheduler.IsRunning) {
+          var start = EditorApplication.timeSinceStartup;
+          var duration = 0.0;
+
+          while (duration < MAX_ITER_TIME) {
+            if (!Scheduler.IsRunning) {
+              break;
+            }
+
+            Scheduler.Tick();
+
+            duration += (EditorApplication.timeSinceStartup - start);
           }
-          Scheduler.Tick();
         }
       }
     }

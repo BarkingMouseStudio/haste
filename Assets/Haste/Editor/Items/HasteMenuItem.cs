@@ -9,8 +9,8 @@ namespace Haste {
 
     public HasteMenuItem(string path, int id, string source) : base(path, id, source) {}
 
-    public override IHasteResult GetResult(string queryLower, int queryLen) {
-      return new HasteMenuItemResult(this, queryLower, queryLen);
+    public override IHasteResult GetResult(float score, string queryLower) {
+      return new HasteMenuItemResult(this, score, queryLower);
     }
   }
 }

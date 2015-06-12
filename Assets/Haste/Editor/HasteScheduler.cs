@@ -1,3 +1,6 @@
+using UnityEngine;
+using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -17,14 +20,53 @@ namespace Haste {
     }
 
     public void Stop() {
+      var current = Fiber.Current as HasteSchedulerNode;
+      bool isWaiting = current != null ? current.IsRunning : false;
+      if (isWaiting) { // Recursively stop any pending sub-coroutines.
+        current.Stop();
+      }
       IsStopping = true;
+    }
+
+    // Return whether or not it's still running
+    public bool Next() {
+      // Check if the coroutine yielded another coroutine
+      var current = Fiber.Current as HasteSchedulerNode;
+
+      // If it did, check if it's still running
+      bool isWaiting = current != null ? current.IsRunning : false;
+
+      // Don't advance while there's a sub-coroutine running
+      if (isWaiting) {
+        return true;
+      }
+
+      // Advance until we can't, then cleanup
+      if (Fiber.MoveNext()) {
+        return true;
+      }
+
+      Stop();
+      return false;
+    }
+
+    public bool NextSync() {
+      var current = Fiber.Current as HasteSchedulerNode;
+      if (current != null && current.IsRunning) {
+        while (current.NextSync());
+      }
+      return Fiber.MoveNext();
+    }
+
+    public void Sync() {
+      while (NextSync());
     }
   }
 
   // Custom co-routine scheduler to support starting and stopping coroutines individually.
   public class HasteScheduler {
 
-    private readonly LinkedList<HasteSchedulerNode> coroutines;
+    readonly LinkedList<HasteSchedulerNode> coroutines;
 
     public bool IsRunning {
       get {
@@ -34,6 +76,16 @@ namespace Haste {
 
     public HasteScheduler() {
       coroutines = new LinkedList<HasteSchedulerNode>();
+    }
+
+    public static void Sync(IEnumerator fiber) {
+      var node = new HasteSchedulerNode(fiber);
+      node.Sync();
+    }
+
+    public static void Sync(IEnumerable enumerable) {
+      var node = new HasteSchedulerNode(enumerable.GetEnumerator());
+      node.Sync();
     }
 
     public HasteSchedulerNode Start(IEnumerator fiber) {
@@ -61,23 +113,8 @@ namespace Haste {
         // Remove the coroutine if its marked as stopping
         if (coroutine.Value.IsStopping) {
           coroutines.Remove(coroutine);
-        } else {
-          // Check if the coroutine yielded another coroutine
-          var current = coroutine.Value.Fiber.Current as HasteSchedulerNode;
-
-          // If it did, check if it's still running
-          bool isWaiting = current != null && current.IsRunning;
-          // UnityEngine.Debug.Log(coroutine.GetHashCode() + " " + (current != null ? current.GetHashCode() : 0) + " " + isWaiting);
-
-
-          // Don't advance while there's a sub-coroutine running
-          if (!isWaiting) {
-            // Advance until we can't, then cleanup
-            if (!coroutine.Value.Fiber.MoveNext()) {
-              coroutine.Value.Stop();
-              coroutines.Remove(coroutine);
-            }
-          }
+        } else if (!coroutine.Value.Next()) {
+          coroutines.Remove(coroutine);
         }
 
         coroutine = next;

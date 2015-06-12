@@ -9,8 +9,8 @@ namespace Haste {
 
     public HasteHierarchyItem(string path, int id, string source) : base(path, id, source) {}
 
-    public override IHasteResult GetResult(string queryLower, int queryLen) {
-      return new HasteHierarchyResult(this, queryLower, queryLen);
+    public override IHasteResult GetResult(float score, string queryLower) {
+      return new HasteHierarchyResult(this, score, queryLower);
     }
   }
 }

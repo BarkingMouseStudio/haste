@@ -50,6 +50,8 @@ namespace Haste {
     bool wasIndexing = false;
     bool wasSearching = false;
 
+    HasteSchedulerNode searching;
+
     public static HasteWindow Instance { get; protected set; }
 
     public static bool IsOpen {
@@ -242,6 +244,13 @@ namespace Haste {
       Close();
     }
 
+    new void Close() {
+      if (searching != null && searching.IsRunning) {
+        searching.Stop();
+      }
+      base.Close();
+    }
+
     void OnHome(Event e) {
       this.resultList.OnHome();
       if (this.resultList.HighlightedItem != null) {
@@ -330,7 +339,9 @@ namespace Haste {
     }
 
     void Update() {
-      bool isSearching = searching != null && !searching.IsRunning;
+      bool isSearching = searching != null && searching.IsRunning;
+
+      // Repaint window if search state changes
       if (isSearching != wasSearching) {
         Repaint();
         wasSearching = isSearching;
@@ -345,8 +356,8 @@ namespace Haste {
 
           // If our indexing state has changed, repaint.
         } else if (wasIndexing) {
-            Repaint();
-            wasIndexing = false;
+          Repaint();
+          wasIndexing = false;
 
         // If our update status has changed, repaint.
         } else if (Haste.UpdateChecker.Status != prevUpdateStatus) {
@@ -366,12 +377,15 @@ namespace Haste {
       }
     }
 
-    HasteSchedulerNode searching;
-
     IEnumerator BeginSearch(string query) {
-      var promise = new Promise<IEnumerable<IHasteResult>>();
-      yield return Haste.Scheduler.Start(Haste.Search.Search(query, RESULT_COUNT, promise)); // wait on search
-      this.resultList.SetItems(promise.Value.ToArray());
+      var searchResults = new Promise<IHasteResult[]>();
+      yield return Haste.Scheduler.Start(Haste.Search.Search(query, RESULT_COUNT, searchResults)); // wait on search
+
+      if (searchResults.Reason != null) {
+        Debug.LogException(searchResults.Reason);
+      } else if (searchResults.Value != null) {
+        this.resultList.SetItems(searchResults.Value);
+      }
     }
 
     void OnQueryChanged(string query) {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,9 @@ namespace Haste {
 
   public class HasteSearch {
 
-    HasteResultComparer comparer = new HasteResultComparer();
+    readonly HasteResultComparer comparer = new HasteResultComparer();
+    readonly IHasteItem[] emptyMatches = new IHasteItem[0];
+
     HasteIndex index;
 
     public HasteSearch(HasteIndex index) {
@@ -15,34 +18,37 @@ namespace Haste {
     }
 
     // Perform fast subsequence filtering
-    IEnumerator Filter(string queryLower, int queryLen, IPromise<List<IHasteItem>> promise) {
-      var matches = new List<IHasteItem>();
-
+    IEnumerator Filter(string queryLower, int queryLen, IPromise<IHasteItem[]> promise) {
       if (queryLen == 0) {
-        promise.Resolve(matches);
+        promise.Resolve(emptyMatches);
         yield break;
       }
 
       // Lookup bucket by first char
       HashSet<IHasteItem> bucket;
       if (!index.TryGetValue(queryLower[0], out bucket)) {
-        promise.Resolve(matches);
+        promise.Resolve(emptyMatches);
         yield break;
       }
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
       char q0 = queryLower[0];
 
-      foreach (var m in bucket) {
+      // We need to copy the hashset in case the indexer adds an item while we iterate
+      var bucketArr = new IHasteItem[bucket.Count];
+      bucket.CopyTo(bucketArr);
+
+      var matches = new List<IHasteItem>();
+
+      foreach (var m in bucketArr) {
         if (m.PathLower.Length < queryLen) {
           continue;
         }
 
         bool firstCharName = m.NameLower.Length > 0 && m.NameLower[0] == q0;
         bool firstCharPath = m.PathLower.Length > 0 && m.PathLower[0] == q0;
-        bool firstCharExtension = m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q0;
-        if (q0 != '.' && !firstCharName && !firstCharPath && !firstCharExtension) {
-          // TODO: Move to bucketing instead of boundaries
+        bool firstCharExtension = q0 == '.' || m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q0;
+        if (!firstCharName && !firstCharPath && !firstCharExtension) {
           continue;
         }
 
@@ -60,21 +66,23 @@ namespace Haste {
         yield return null;
       }
 
-      promise.Resolve(matches);
+      promise.Resolve(matches.ToArray());
     }
 
-    IEnumerator Map(List<IHasteItem> matches, string queryLower, int queryLen, IPromise<List<IHasteResult>> promise) {
-      var results = new List<IHasteResult>(matches.Count);
-      foreach (var m in matches) {
-        results.Add(m.GetResult(queryLower, queryLen));
+    IEnumerator Map(IHasteItem[] matches, string queryLower, int queryLen, IPromise<IHasteResult[]> promise) {
+      IHasteResult[] results = new IHasteResult[matches.Length];
+      IHasteItem m;
+      for (var i = 0; i < matches.Length; i++) {
+        m = matches[i];
+        results[i] = m.GetResult(HasteScoring.Score(m, queryLower, queryLen), queryLower);
         yield return null;
       }
       promise.Resolve(results);
     }
 
-    IEnumerator Merge(IEnumerable<IHasteResult> left, IEnumerable<IHasteResult> right, IPromise<IEnumerable<IHasteResult>> promise) {
-      var leftCount = left.Count();
-      var rightCount = right.Count();
+    IEnumerator Merge(IHasteResult[] left, IHasteResult[] right, IPromise<IHasteResult[]> promise) {
+      int leftCount = left.Length;
+      int rightCount = right.Length;
 
       var result = new List<IHasteResult>(leftCount + rightCount);
 
@@ -85,10 +93,12 @@ namespace Haste {
 
         if (comparer.Compare(left0, right0) <= 0) {
           result.Add(left0);
-          left = left.Skip(1);
+          left = left.Skip(1).ToArray();
+          leftCount--;
         } else {
           result.Add(right0);
-          right = right.Skip(1);
+          right = right.Skip(1).ToArray();
+          rightCount--;
         }
 
         yield return null;
@@ -97,70 +107,93 @@ namespace Haste {
       // Append any remaining elements.
       while (leftCount > 0) {
         result.Add(left.First());
-        left = left.Skip(1);
-        yield return null;
+        left = left.Skip(1).ToArray();
+        leftCount--;
       }
 
       while (rightCount > 0) {
         result.Add(right.First());
-        right = right.Skip(1);
-        yield return null;
+        right = right.Skip(1).ToArray();
+        rightCount--;
       }
 
-      promise.Resolve(result);
+      promise.Resolve(result.ToArray());
     }
 
-    IEnumerator Sort(IEnumerable<IHasteResult> m, IPromise<IEnumerable<IHasteResult>> promise) {
-      var mCount = m.Count();
-
+    IEnumerator Sort(IHasteResult[] m, IPromise<IHasteResult[]> promise) {
       // Base case: a list of zero or one elements is sorted, by definition.
-      if (mCount <= 1) {
+      if (m.Length <= 1) {
         promise.Resolve(m);
         yield break;
       }
 
       // Recursive case: 1st, divide the list into equal-sized sublists.
-      var middle = mCount / 2;
+      var middle = m.Length / 2;
 
-      var left = m.Take(middle);
-      var right = m.Skip(middle);
 
-      HasteDebug.Assert(left.Count() + right.Count() == mCount,
+      var left = m.Take(middle).ToArray(); // new ArraySegment<IHasteResult>(m, 0, middle);
+      var right = m.Skip(middle).ToArray(); // new ArraySegment<IHasteResult>(m, middle, mCount - middle);
+
+      var leftCount = left.Length;
+      var rightCount = right.Length;
+
+      HasteDebug.Assert(leftCount + rightCount == m.Length,
         "Halves should equal whole.");
 
       // Recursively sort both sublists
-      var leftPromise = new Promise<IEnumerable<IHasteResult>>();
+      var leftPromise = new Promise<IHasteResult[]>();
       yield return Haste.Scheduler.Start(Sort(left, leftPromise));
 
-      var rightPromise = new Promise<IEnumerable<IHasteResult>>();
+      var rightPromise = new Promise<IHasteResult[]>();
       yield return Haste.Scheduler.Start(Sort(right, rightPromise));
 
       // Then merge the now-sorted sublists
       yield return Haste.Scheduler.Start(Merge(leftPromise.Value, rightPromise.Value, promise));
     }
 
-    public IEnumerator Search(string query, int count, IPromise<IEnumerable<IHasteResult>> promise) {
+    public IEnumerator Search(string query, int count, IPromise<IHasteResult[]> searchResult) {
       int queryLen = query.Length;
       string queryLower = query.ToLowerInvariant();
 
       // Grab a filtered subset from the index
-      var filter = new Promise<List<IHasteItem>>();
-      yield return Haste.Scheduler.Start(Filter(queryLower, queryLen, filter)); // Wait on filter
-      Debug.Log(filter.GetHashCode() + " " + filter.IsComplete + " " + filter.Value);
+      var filterResult = new Promise<IHasteItem[]>();
+      yield return Haste.Scheduler.Start(Filter(queryLower, queryLen, filterResult)); // Wait on filter
+
+      if (filterResult.Reason != null) {
+        searchResult.Reject(filterResult.Reason);
+        yield break;
+      } else if (filterResult.Value == null) {
+        searchResult.Reject(new ArgumentNullException("filterResult"));
+        yield break;
+      }
 
       // Convert items to results with scores
-      var map = new Promise<List<IHasteResult>>();
-      yield return Haste.Scheduler.Start(Map(filter.Value, queryLower, queryLen, map)); // Wait on map
-      Debug.Log(map.GetHashCode() + " " + map.IsComplete + " " + map.Value);
+      var mapResult = new Promise<IHasteResult[]>();
+      yield return Haste.Scheduler.Start(Map(filterResult.Value, queryLower, queryLen, mapResult)); // Wait on map
+
+      if (mapResult.Reason != null) {
+        searchResult.Reject(mapResult.Reason);
+        yield break;
+      } else if (mapResult.Value == null) {
+        searchResult.Reject(new ArgumentNullException("mapResult"));
+        yield break;
+      }
 
       // Sort the results based on those scores
-      var sort = new Promise<IEnumerable<IHasteResult>>();
-      yield return Haste.Scheduler.Start(Sort(map.Value, sort)); // Wait on sort
-      Debug.Log(sort.GetHashCode() + " " + sort.IsComplete + " " + sort.Value);
+      var sortResult = new Promise<IHasteResult[]>();
+      yield return Haste.Scheduler.Start(Sort(mapResult.Value, sortResult)); // Wait on sort
+
+      if (sortResult.Reason != null) {
+        searchResult.Reject(sortResult.Reason);
+        yield break;
+      } else if (sortResult.Value == null) {
+        searchResult.Reject(new ArgumentNullException("sortResult"));
+        yield break;
+      }
 
       // Take desired count
-      var results = sort.Value.Take(count);
-      promise.Resolve(results);
+      var results = sortResult.Value.Take(count).ToArray();
+      searchResult.Resolve(results);
     }
   }
 }

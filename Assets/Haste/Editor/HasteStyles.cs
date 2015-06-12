@@ -38,15 +38,7 @@ namespace Haste {
       }
     }
 
-    private static string highlightedBoldStart = "";
-    public static string HighlightedBoldStart {
-      get {
-        if (string.IsNullOrEmpty(highlightedBoldStart)) {
-          highlightedBoldStart = EditorGUIUtility.isProSkin ? "<color=\"#ddd\"><b>" : "<color=\"#ddd\"><b>";
-        }
-        return highlightedBoldStart;
-      }
-    }
+    public static readonly string HighlightedBoldStart = "<color=\"#ddd\"><b>";
 
     private static GUIStyle selectionStyle;
     public static GUIStyle SelectionStyle {
@@ -121,6 +113,11 @@ namespace Haste {
       AddStyle(new Style() { name = "DisabledDescription", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = HastePalette.Current.DisabledColor });
       AddStyle(new Style() { name = "HighlightedDescription", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = HastePalette.Current.HighlightedSecondaryColor });
       AddStyle(new Style() { name = "HighlightedDisabledDescription", other = EditorStyles.label, alignment = TextAnchor.MiddleLeft, fixedHeight = 24, fontSize = 12, richText = true, textColor = HastePalette.Current.HighlightedDisabledColor });
+
+      #if DEBUG
+      AddStyle(new Style() { name = "Score", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 12, textColor = HastePalette.Current.SecondaryColor });
+      AddStyle(new Style() { name = "HighlightedScore", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 12, textColor = HastePalette.Current.HighlightedSecondaryColor });
+      #endif
 
       AddStyle(new Style() { name = "Dot", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleCenter, fontSize = 24, textColor = HastePalette.Current.DotColor });
 
