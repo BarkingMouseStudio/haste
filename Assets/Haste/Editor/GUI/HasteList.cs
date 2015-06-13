@@ -44,7 +44,7 @@ namespace Haste {
 
       HighlightedIndex = 0;
       ResetScroll();
-      if (HighlightedItem != null) {
+      if (HighlightedItem != null && HasteSettings.SelectEnabled) {
         ItemClick(HighlightedItem);
       }
     }

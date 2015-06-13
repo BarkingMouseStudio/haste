@@ -18,7 +18,8 @@ namespace Haste {
     ShowHandle,
     WindowX,
     WindowY,
-    Source
+    Source,
+    SelectEnabled,
   }
 
   public delegate void SettingChangedHandler<T>(HasteSetting setting, T before, T after);
@@ -38,6 +39,15 @@ namespace Haste {
       }
       set {
         HasteSettings.SetBool(HasteSetting.ShowHandle, value);
+      }
+    }
+
+    public static bool SelectEnabled {
+      get {
+        return HasteSettings.GetBool(HasteSetting.SelectEnabled, true);
+      }
+      set {
+        HasteSettings.SetBool(HasteSetting.SelectEnabled, value);
       }
     }
 
