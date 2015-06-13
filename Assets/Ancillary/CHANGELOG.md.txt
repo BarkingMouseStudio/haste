@@ -1,4 +1,4 @@
-v1.7.1
+v1.8.0
 ===
 
 - Async search! Now slow queries won't stall the whole editor.
@@ -9,6 +9,7 @@ v1.7.1
 - Improvements to search results to filter out unlikely matches.
 - Fixed bug with some paths being considered invalid.
 - Windows paths should be more consistent.
+- Many more tweaks and bug fixes!
 
 v1.7.0
 ===

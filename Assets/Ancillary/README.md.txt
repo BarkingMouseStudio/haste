@@ -92,6 +92,11 @@ This brings up the `TutorialPrefab.prefab` in the project's assets.
 
 Haste Pro provides access to as many built-in MenuItems as possible with Unity's exposed APIs. Haste Pro also indexes custom MenuItems from other editor extensions making it easy to extend Haste's capabilities.
 
+Ignoring Assets
+---
+
+You can ignore assets in your project like third-party tools, etc. by right-clicking on the asset and selecting `Haste > Ignore`. The asset can be unignored by right-clicking and selecting `Haste > Unignored`. You can further manage ignored assets in Haste's Preferences inside of the main Unity Preferences.
+
 Missing Menu Items
 ---
 
