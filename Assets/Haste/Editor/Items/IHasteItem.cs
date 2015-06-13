@@ -23,7 +23,6 @@ namespace Haste {
     string ExtensionLower { get; }
 
     int Bitset { get; }
-    string BoundariesLower { get; }
 
     IHasteResult GetResult(float score, string queryLower);
     bool Equals(object obj);

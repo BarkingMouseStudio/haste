@@ -1,3 +1,4 @@
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -110,14 +111,22 @@ namespace Haste {
     }
 
     public IEnumerator GetEnumerator() {
+      double startTime = EditorApplication.timeSinceStartup;
+
       foreach (IHasteItem item in factory()) {
         if (!currentCollection.Contains(item)) {
           OnCreated(item);
         }
 
         nextCollection.Add(item);
-        yield return null;
+
+        if (EditorApplication.timeSinceStartup - startTime >= Haste.MAX_ITER_TIME) {
+          startTime = EditorApplication.timeSinceStartup;
+          yield return null;
+        }
       }
+
+      startTime = EditorApplication.timeSinceStartup;
 
       // Check for deleted paths
       foreach (IHasteItem item in currentCollection) {
@@ -127,7 +136,10 @@ namespace Haste {
           OnDeleted(item);
         }
 
-        yield return null;
+        if (EditorApplication.timeSinceStartup - startTime >= Haste.MAX_ITER_TIME) {
+          startTime = EditorApplication.timeSinceStartup;
+          yield return null;
+        }
       }
 
       var temp = currentCollection;

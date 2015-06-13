@@ -12,7 +12,6 @@ namespace Haste {
     public int Id { get; private set; }
     public string Source { get; private set; }
     public int Bitset { get; private set; }
-    public string BoundariesLower { get; private set; }
     public string Name { get; private set; }
     public string NameLower { get; private set; }
     public string ExtensionLower { get; private set; }
@@ -24,7 +23,6 @@ namespace Haste {
       Path = path;
       PathLower = path.ToLowerInvariant();
 
-      BoundariesLower = HasteStringUtils.GetBoundaries(Path);
       Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
 
       Name = HasteStringUtils.GetFileNameWithoutExtension(Path);

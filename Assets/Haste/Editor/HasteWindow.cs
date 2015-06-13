@@ -382,6 +382,7 @@ namespace Haste {
     }
 
     double searchStart;
+    const double loadingDelay = 0.25;
 
     IEnumerator BeginSearch(string query) {
       searchStart = EditorApplication.timeSinceStartup;
@@ -389,9 +390,14 @@ namespace Haste {
       var searchResults = new Promise<IHasteResult[]>();
       yield return Haste.Scheduler.Start(Haste.Search.Search(query, RESULT_COUNT, searchResults)); // wait on search
 
+      #if DEBUG
       if (searchResults.Reason != null) {
         Debug.LogException(searchResults.Reason);
-      } else if (searchResults.Value != null) {
+        yield break;
+      }
+      #endif
+
+      if (searchResults.Value != null) {
         this.resultList.SetItems(searchResults.Value);
       }
     }
@@ -421,7 +427,7 @@ namespace Haste {
         this.windowState = HasteWindowState.Intro;
 
       // If it's been long enough, render "loading"
-      } else if (searching != null && searching.IsRunning && duration.TotalMilliseconds > 250.0) {
+      } else if (searching != null && searching.IsRunning && duration.TotalSeconds > loadingDelay) {
         this.windowState = HasteWindowState.Loading;
 
       // Otherwise render previous results, if any
@@ -440,7 +446,6 @@ namespace Haste {
           this.intro.OnGUI();
           break;
         case HasteWindowState.Loading:
-          this.loading.Duration = duration;
           this.loading.OnGUI();
           break;
         case HasteWindowState.Results:

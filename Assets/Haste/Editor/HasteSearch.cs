@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,22 +34,19 @@ namespace Haste {
       }
 
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
-      char q0 = queryLower[0];
 
       // We need to copy the hashset in case the indexer adds an item while we iterate
       var bucketArr = new IHasteItem[bucket.Count];
       bucket.CopyTo(bucketArr);
 
-      var matches = new List<IHasteItem>();
-      foreach (var m in bucketArr) {
-        if (m.PathLower.Length < queryLen) {
-          continue;
-        }
+      double startTime = EditorApplication.timeSinceStartup;
 
-        bool firstCharName = m.NameLower.Length > 0 && m.NameLower[0] == q0;
-        bool firstCharPath = m.PathLower.Length > 0 && m.PathLower[0] == q0;
-        bool firstCharExtension = q0 == '.' || m.ExtensionLower.Length > 0 && m.ExtensionLower[0] == q0;
-        if (!firstCharName && !firstCharPath && !firstCharExtension) {
+      var matches = new List<IHasteItem>();
+      IHasteItem m;
+      for (var i = 0; i < bucketArr.Length; i++) {
+        m = bucketArr[i];
+
+        if (m.PathLower.Length < queryLen) {
           continue;
         }
 
@@ -63,22 +61,32 @@ namespace Haste {
         }
 
         matches.Add(m);
-        // yield return null;
+
+        if (EditorApplication.timeSinceStartup - startTime >= Haste.MAX_ITER_TIME) {
+          startTime = EditorApplication.timeSinceStartup;
+          yield return null;
+        }
       }
 
       promise.Resolve(matches.ToArray());
     }
 
     IEnumerator Map(IHasteItem[] matches, string queryLower, int queryLen, IPromise<IHasteResult[]> promise) {
+      double startTime = EditorApplication.timeSinceStartup;
+
       IHasteResult[] results = new IHasteResult[matches.Length];
       IHasteItem m;
       for (var i = 0; i < matches.Length; i++) {
         m = matches[i];
         results[i] = m.GetResult(HasteScoring.Score(m, queryLower, queryLen), queryLower);
-        // yield return null;
+
+        if (EditorApplication.timeSinceStartup - startTime >= Haste.MAX_ITER_TIME) {
+          startTime = EditorApplication.timeSinceStartup;
+          yield return null;
+        }
       }
+
       promise.Resolve(results);
-      yield break;
     }
 
     void Swap(IHasteResult[] A, int i, int j) {
@@ -130,7 +138,9 @@ namespace Haste {
 
       // Grab a filtered subset from the index
       var filterResult = new Promise<IHasteItem[]>();
+      // using (new HasteStopwatch("Filter")) {
       yield return Haste.Scheduler.Start(Filter(queryLower, queryLen, filterResult)); // Wait on filter
+      // }
 
       if (filterResult.Reason != null) {
         searchResult.Reject(filterResult.Reason);
@@ -142,7 +152,9 @@ namespace Haste {
 
       // Convert items to results with scores
       var mapResult = new Promise<IHasteResult[]>();
+      // using (new HasteStopwatch("Map")) {
       yield return Haste.Scheduler.Start(Map(filterResult.Value, queryLower, queryLen, mapResult)); // Wait on map
+      // }
 
       if (mapResult.Reason != null) {
         searchResult.Reject(mapResult.Reason);
@@ -154,7 +166,9 @@ namespace Haste {
 
       // Sort the results based on those scores
       var sorted = mapResult.Value;
+      // using (new HasteStopwatch("Sort")) {
       yield return Haste.Scheduler.Start(Sort(sorted, 0, sorted.Length - 1)); // Wait on sort
+      // }
 
       // Take desired count
       searchResult.Resolve(sorted.Take(count).ToArray());

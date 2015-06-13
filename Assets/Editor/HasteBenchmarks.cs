@@ -217,8 +217,10 @@ namespace Haste {
       var testItem = new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       var testQuery = "abc";
 
+      var boundariesLower = HasteStringUtils.GetBoundaries(testItem.Path);
+
       Benchmark("LongestCommonSubsequenceLength", 100000, () => {
-        HasteStringUtils.LongestCommonSubsequenceLength(testQuery, testItem.BoundariesLower);
+        HasteStringUtils.LongestCommonSubsequenceLength(testQuery, boundariesLower);
       });
     }
   }
