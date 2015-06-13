@@ -18,12 +18,12 @@ namespace Haste {
       var boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, item.BoundariesLower);
 
       // boundary matches : query length
-      var boundaryQueryRatio = boundaryMatchCount / queryLen;
+      var boundaryQueryRatio = boundaryMatchCount / (float)queryLen;
       score += 100.0f * boundaryQueryRatio;
 
       // boundary matches : boundaries length
       var boundaryLen = item.BoundariesLower.Length;
-      var boundaryUtilization = boundaryLen > 0 ? boundaryMatchCount / boundaryLen : 0;
+      var boundaryUtilization = boundaryLen > 0 ? boundaryMatchCount / (float)boundaryLen : 0.0f;
       score += 100.0f * boundaryUtilization;
 
       // Favor exact name matches

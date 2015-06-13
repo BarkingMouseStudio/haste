@@ -13,7 +13,8 @@ namespace Haste {
     Intro,
     Empty,
     Results,
-    Loading
+    Loading,
+    None
   }
 
   [Serializable]
@@ -377,7 +378,11 @@ namespace Haste {
       }
     }
 
+    double searchStart;
+
     IEnumerator BeginSearch(string query) {
+      searchStart = EditorApplication.timeSinceStartup;
+
       var searchResults = new Promise<IHasteResult[]>();
       yield return Haste.Scheduler.Start(Haste.Search.Search(query, RESULT_COUNT, searchResults)); // wait on search
 
@@ -407,14 +412,18 @@ namespace Haste {
 
       HasteSelection.Draw(selectionPosition, nextSelection);
 
+      var duration = TimeSpan.FromSeconds(EditorApplication.timeSinceStartup - searchStart);
+
       if (this.queryInput.Query == "") {
         this.windowState = HasteWindowState.Intro;
-      } else if (searching != null && searching.IsRunning) {
+      } else if (searching != null && searching.IsRunning && duration.TotalMilliseconds > 250.0) {
         this.windowState = HasteWindowState.Loading;
-      } else if (this.resultList.Size == 0) {
-        this.windowState = HasteWindowState.Empty;
-      } else {
+      } else if (this.resultList.Size > 0) {
         this.windowState = HasteWindowState.Results;
+      } else if (searching != null && searching.IsRunning) {
+        this.windowState = HasteWindowState.None;
+      } else {
+        this.windowState = HasteWindowState.Empty;
       }
 
       switch (this.windowState) {
@@ -422,13 +431,14 @@ namespace Haste {
           this.intro.OnGUI();
           break;
         case HasteWindowState.Loading:
+          this.loading.Duration = duration;
           this.loading.OnGUI();
-          break;
-        case HasteWindowState.Empty:
-          this.empty.OnGUI();
           break;
         case HasteWindowState.Results:
           this.resultList.OnGUI();
+          break;
+        case HasteWindowState.Empty:
+          this.empty.OnGUI();
           break;
       }
     }
