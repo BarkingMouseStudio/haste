@@ -50,8 +50,8 @@ namespace Haste {
       if (GUILayout.Button(String.Format("Bench {0}", "HasteItem"))) {
         BenchHasteItem();
       }
-      if (GUILayout.Button(String.Format("Bench {0}", "HasteResultComparer"))) {
-        BenchHasteResultComparer();
+      if (GUILayout.Button(String.Format("Bench {0}", "HasteResult#CompareTo"))) {
+        BenchHasteResultCompareTo();
       }
       if (GUILayout.Button(String.Format("Bench {0}", "GetFileNameWithoutExtension"))) {
         BenchGetFileNameWithoutExtension();
@@ -98,28 +98,23 @@ namespace Haste {
       });
     }
 
-    // ~ 187ms => 124ms
-    public void BenchHasteResultComparer() {
-      IList<IHasteItem> items = new List<IHasteItem>();
-      for (int i = 0; i < 10000; i++) {
-        items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
-      }
-
+    // ~ 5
+    public void BenchHasteResultCompareTo() {
       string query = "abc";
       int queryLen = query.Length;
 
-      IEnumerable<HasteResult> results = items.Select(m => {
-        return new HasteResult(m, HasteScoring.Score(m, query, queryLen), query);
-      });
+      var a = new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME);
+      var b = new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME);
 
-      var comparer = new HasteResultComparer();
+      var aR = new HasteResult(a, HasteScoring.Score(a, query, queryLen), query);
+      var bR = new HasteResult(b, HasteScoring.Score(b, query, queryLen), query);
 
-      Benchmark("HasteResultComparer", 10, () => {
-        results.OrderBy(r => r, comparer).ToArray();
+      Benchmark("HasteResult#CompareTo", 10, () => {
+        aR.CompareTo(bR);
       });
     }
 
-    // ~ 248ms
+    // ~ 126ms
     public void BenchHasteIndexFilter() {
       var index = new HasteIndex();
       var search = new HasteSearch(index);
@@ -132,14 +127,14 @@ namespace Haste {
       });
     }
 
-    // ~ 1.75
+    // ~ 2.5
     public void BenchLetterBitsetFromString() {
       Benchmark("LetterBitsetFromString", 100000, () => {
         HasteStringUtils.LetterBitsetFromString("this is a test");
       });
     }
 
-    // ~ 26
+    // ~ 24 - 26
     public void BenchHasteResult() {
       var item = new HasteItem("Apples/Bananas/Carrots", 0, "");
       var query = "abc";
@@ -149,7 +144,7 @@ namespace Haste {
       });
     }
 
-    // ~ 16
+    // ~ 26
     public void BenchBoldLabel() {
       string str = "Apples/Bananas/Carrots";
       int[] indices = new int[]{0, 7, 15};
@@ -158,14 +153,14 @@ namespace Haste {
       });
     }
 
-    // ~ 20
+    // ~ 40
     public void BenchHasteItem() {
-      Benchmark("HasteItem", 100000, () => {
+      Benchmark("HasteItem", 10000, () => {
         new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       });
     }
 
-    // ~ 2.75
+    // ~ 2.5
     public void BenchApproximately() {
       Benchmark("Approximately", 100000, () => {
         HasteMathUtils.Approximately(1.0f, 0.0f);
@@ -174,7 +169,7 @@ namespace Haste {
       });
     }
 
-    // ~ 13
+    // ~ 17
     public void BenchGetBoundaries() {
       var str = "Apples/Bananas/Carrots";
       Benchmark("GetBoundaries", 10000, () => {
@@ -182,7 +177,7 @@ namespace Haste {
       });
     }
 
-    // ~ 150
+    // ~ 155
     public void BenchGetWeightedSubsequence() {
       string query = "ropr";
       string path = "Unity Test Tools/Platform Runner/Run on platform";
@@ -196,21 +191,21 @@ namespace Haste {
       });
     }
 
-    // ~ 4
+    // ~ 5
     public void BenchGetFileNameWithoutExtension() {
       Benchmark("GetFileNameWithoutExtension", 100000, () => {
         HasteStringUtils.GetFileNameWithoutExtension("Apples/Bananas/Carrots.cs");
       });
     }
 
-    // ~ 11
+    // ~ 18
     public void BenchStartsWith() {
       Benchmark("StartsWith", 100000, () => {
         ("Apples/Bananas/Carrots.cs").StartsWith("Apples");
       });
     }
 
-    // ~ 2
+    // ~ 2.7
     public void BenchIndexOfZero() {
       Benchmark("IndexOfZero", 100000, () => {
         ("Apples/Bananas/Carrots.cs").IndexOf("Apples");

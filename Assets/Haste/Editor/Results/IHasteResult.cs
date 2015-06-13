@@ -1,6 +1,8 @@
+using System;
+
 namespace Haste {
 
-  public interface IHasteResult {
+  public interface IHasteResult : IComparable<IHasteResult> {
     IHasteItem Item { get; }
     float Score { get; }
 

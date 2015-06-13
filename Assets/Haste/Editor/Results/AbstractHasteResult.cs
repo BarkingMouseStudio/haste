@@ -54,6 +54,24 @@ namespace Haste {
       Item = item;
     }
 
+    // -1: a is before than b
+    // 0: a is around b
+    // 1: a is after than b
+    public int CompareTo(IHasteResult b) {
+      // Order by score then fallback to length, then lexical ordering
+      if (!HasteMathUtils.Approximately(this.Score, b.Score)) {
+        return this.Score > b.Score ? -1 : 1;
+      }
+
+      // If scores are equal, order by path length
+      if (this.Item.Path.Length != b.Item.Path.Length) {
+        return this.Item.Path.Length < b.Item.Path.Length ? -1 : 1;
+      }
+
+      // If lengths are equal, order lexically
+      return EditorUtility.NaturalCompare(this.Item.PathLower, b.Item.PathLower);
+    }
+
     public virtual bool Validate() {
       return true;
     }

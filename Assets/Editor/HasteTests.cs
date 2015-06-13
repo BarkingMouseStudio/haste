@@ -12,8 +12,6 @@ namespace Haste {
 
     [Test]
     public void TestResultComparer() {
-      HasteResultComparer comparer = new HasteResultComparer();
-
       string queryLower = "rop";
       int queryLen = queryLower.Length;
 
@@ -25,7 +23,7 @@ namespace Haste {
       var bScore = HasteScoring.Score(bItem, queryLower, queryLen);
       var b = new HasteResult(bItem, bScore, queryLower);
 
-      Assert.That(comparer.Compare(a, b), Is.EqualTo(-1));
+      Assert.That(a.CompareTo(b), Is.EqualTo(-1));
 
       queryLower = "ca";
       queryLen = queryLower.Length;
@@ -38,7 +36,7 @@ namespace Haste {
       var dScore = HasteScoring.Score(dItem, queryLower, queryLen);
       var d = new HasteResult(dItem, dScore, queryLower);
 
-      Assert.That(comparer.Compare(c, d), Is.EqualTo(-1));
+      Assert.That(c.CompareTo(d), Is.EqualTo(-1));
 
       queryLower = "cec";
       queryLen = queryLower.Length;
@@ -51,7 +49,7 @@ namespace Haste {
       var fScore = HasteScoring.Score(fItem, queryLower, queryLen);
       var f = new HasteResult(fItem, fScore, queryLower);
 
-      Assert.That(comparer.Compare(e, f), Is.EqualTo(-1));
+      Assert.That(e.CompareTo(f), Is.EqualTo(-1));
 
       queryLower = "acl";
       queryLen = queryLower.Length;
@@ -64,7 +62,7 @@ namespace Haste {
       var hScore = HasteScoring.Score(hItem, queryLower, queryLen);
       var h = new HasteResult(hItem, hScore, queryLower);
 
-      Assert.That(comparer.Compare(g, h), Is.EqualTo(-1));
+      Assert.That(g.CompareTo(h), Is.EqualTo(-1));
     }
 
     [Test]

@@ -8,7 +8,6 @@ namespace Haste {
 
   public class HasteSearch {
 
-    readonly HasteResultComparer comparer = new HasteResultComparer();
     readonly IHasteItem[] emptyMatches = new IHasteItem[0];
 
     HasteIndex index;
@@ -80,75 +79,45 @@ namespace Haste {
       promise.Resolve(results);
     }
 
-    IEnumerator Merge(IHasteResult[] left, IHasteResult[] right, IPromise<IHasteResult[]> promise) {
-      int leftCount = left.Length;
-      int rightCount = right.Length;
-
-      var result = new List<IHasteResult>(leftCount + rightCount);
-
-      IHasteResult left0, right0;
-      while (leftCount > 0 && rightCount > 0) {
-        left0 = left.First();
-        right0 = right.First();
-
-        if (comparer.Compare(left0, right0) <= 0) {
-          result.Add(left0);
-          left = left.Skip(1).ToArray();
-          leftCount--;
-        } else {
-          result.Add(right0);
-          right = right.Skip(1).ToArray();
-          rightCount--;
-        }
-
-        yield return null;
-      }
-
-      // Append any remaining elements.
-      while (leftCount > 0) {
-        result.Add(left.First());
-        left = left.Skip(1).ToArray();
-        leftCount--;
-      }
-
-      while (rightCount > 0) {
-        result.Add(right.First());
-        right = right.Skip(1).ToArray();
-        rightCount--;
-      }
-
-      promise.Resolve(result.ToArray());
+    void Swap(IHasteResult[] A, int i, int j) {
+      var tmp = A[i];
+      A[i] = A[j];
+      A[j] = tmp;
     }
 
-    IEnumerator Sort(IHasteResult[] m, IPromise<IHasteResult[]> promise) {
-      // Base case: a list of zero or one elements is sorted, by definition.
-      if (m.Length <= 1) {
-        promise.Resolve(m);
+    int Partition(IHasteResult[] A, int lo, int hi) {
+      var pivotIndex = hi;
+      var pivotValue = A[pivotIndex];
+
+      // Put the chosen pivot at A[hi]
+      Swap(A, pivotIndex, hi);
+
+      // Compare remaining array elements against pivotValue = A[hi]
+      var storeIndex = lo;
+      for (var i = lo; i <= hi; i++) {
+        if (A[i].CompareTo(pivotValue) == -1) {
+          Swap(A, i, storeIndex);
+          storeIndex++;
+        }
+      }
+
+      Swap(A, storeIndex, hi); // Move pivot to its final place
+
+      return storeIndex;
+    }
+
+    // In-place async quicksort
+    IEnumerator Sort(IHasteResult[] A, int lo, int hi) {
+      if (A.Length < 3000) {
+        Array.Sort(A);
         yield break;
       }
 
-      // Recursive case: 1st, divide the list into equal-sized sublists.
-      var middle = m.Length / 2;
-
-
-      var left = m.Take(middle).ToArray(); // new ArraySegment<IHasteResult>(m, 0, middle);
-      var right = m.Skip(middle).ToArray(); // new ArraySegment<IHasteResult>(m, middle, mCount - middle);
-
-      var leftCount = left.Length;
-      var rightCount = right.Length;
-
-      HasteDebug.Assert(leftCount + rightCount == m.Length,
-        "Halves should equal whole.");
-
-      // Recursively sort both sublists
-      var leftPromise = new Promise<IHasteResult[]>();
-      yield return Haste.Scheduler.Start(Sort(left, leftPromise));
-
-      var rightPromise = new Promise<IHasteResult[]>();
-      yield return Haste.Scheduler.Start(Sort(right, rightPromise));
-
-      // Then merge the now-sorted sublists
-      yield return Haste.Scheduler.Start(Merge(leftPromise.Value, rightPromise.Value, promise));
+      if (lo < hi) {
+        var p = Partition(A, lo, hi);
+        yield return Haste.Scheduler.Start(Sort(A, lo, p - 1));
+        yield return Haste.Scheduler.Start(Sort(A, p + 1, hi));
+      }
     }
 
     public IEnumerator Search(string query, int count, IPromise<IHasteResult[]> searchResult) {
@@ -180,20 +149,11 @@ namespace Haste {
       }
 
       // Sort the results based on those scores
-      var sortResult = new Promise<IHasteResult[]>();
-      yield return Haste.Scheduler.Start(Sort(mapResult.Value, sortResult)); // Wait on sort
-
-      if (sortResult.Reason != null) {
-        searchResult.Reject(sortResult.Reason);
-        yield break;
-      } else if (sortResult.Value == null) {
-        searchResult.Reject(new ArgumentNullException("sortResult"));
-        yield break;
-      }
+      var sorted = mapResult.Value;
+      yield return Haste.Scheduler.Start(Sort(sorted, 0, sorted.Length - 1)); // Wait on sort
 
       // Take desired count
-      var results = sortResult.Value.Take(count).ToArray();
-      searchResult.Resolve(results);
+      searchResult.Resolve(sorted.Take(count).ToArray());
     }
   }
 }
