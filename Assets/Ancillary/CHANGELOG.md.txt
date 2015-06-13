@@ -3,7 +3,7 @@ v1.8.0
 
 - Faster async search! Now slow queries won't stall the whole editor.
 - Added new setting for disabling "soft" selection while scrolling through results.
-  - This is the best solution to prevent expanding the hierarchy and project.
+  - This is the best solution to prevent expanding the hierarchy and project views.
 - Added support for Home, End, Page Up and Page Down to search results.
 - Added context menu item for ignoring assets in Haste (see README).
 - Added better interface for ignored paths in Haste's preferences.
