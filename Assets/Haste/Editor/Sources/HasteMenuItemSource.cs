@@ -76,7 +76,7 @@ namespace Haste {
         foreach (var result in HasteReflection.GetAttributesInAssembly<MenuItem>(assembly)) {
           MenuItem menuItem = (MenuItem)result.First;
 
-          if (menuItem.menuItem.StartsWith("Window/Haste")) continue;
+          if (menuItem.menuItem == "Window/Haste") continue;
           if (menuItem.menuItem.StartsWith("internal:")) continue;
           if (menuItem.validate) continue;
 
