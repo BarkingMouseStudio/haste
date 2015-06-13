@@ -58,7 +58,9 @@ namespace Haste {
       compileParams.ReferencedAssemblies.Add(UnityEnginePath);
       compileParams.ReferencedAssemblies.Add(UnityEditorPath);
 
-      var codeProvider = new CSharpCodeProvider(new Dictionary<string, string>{ { "CompilerVersion", "v3.0" } });
+      var codeProvider = new CSharpCodeProvider(new Dictionary<string, string>{
+        { "CompilerVersion", "v3.0" }
+      });
       return codeProvider.CompileAssemblyFromSource(compileParams, sources);
     }
 
