@@ -15,11 +15,13 @@ namespace Haste {
     public void OnGUI() {
       EditorGUILayout.Space();
 
+      string label;
       if (Duration.TotalSeconds >= 1.0) {
-        EditorGUILayout.LabelField(string.Format("Loading... {0}s", Duration.TotalSeconds), HasteStyles.GetStyle("Empty"));
+        label = string.Format("Loading... {0}s", Duration.TotalSeconds);
       } else {
-        EditorGUILayout.LabelField(string.Format("Loading... {0}ms", Duration.TotalMilliseconds), HasteStyles.GetStyle("Empty"));
+        label = string.Format("Loading... {0}ms", Duration.TotalMilliseconds);
       }
+      EditorGUILayout.LabelField(label, HasteStyles.GetStyle("Empty"));
     }
   }
 }

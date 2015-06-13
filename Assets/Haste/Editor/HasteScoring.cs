@@ -19,12 +19,12 @@ namespace Haste {
 
       // boundary matches : query length
       var boundaryQueryRatio = boundaryMatchCount / (float)queryLen;
-      score += 100.0f * boundaryQueryRatio;
+      score += 40.0f * boundaryQueryRatio;
 
       // boundary matches : boundaries length
       var boundaryLen = item.BoundariesLower.Length;
       var boundaryUtilization = boundaryLen > 0 ? boundaryMatchCount / (float)boundaryLen : 0.0f;
-      score += 100.0f * boundaryUtilization;
+      score += 40.0f * boundaryUtilization;
 
       // Favor exact name matches
       if (item.NameLower == queryLower) {

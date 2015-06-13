@@ -343,9 +343,12 @@ namespace Haste {
       bool isSearching = searching != null && searching.IsRunning;
 
       // Repaint window if search state changes
-      if (isSearching != wasSearching) {
+      if (isSearching) {
         Repaint();
         wasSearching = isSearching;
+      } else if (wasSearching) {
+        Repaint();
+        wasSearching = false;
       }
 
       // Watch for changes to the window position while we're able to move it
@@ -416,10 +419,16 @@ namespace Haste {
 
       if (this.queryInput.Query == "") {
         this.windowState = HasteWindowState.Intro;
+
+      // If it's been long enough, render "loading"
       } else if (searching != null && searching.IsRunning && duration.TotalMilliseconds > 250.0) {
         this.windowState = HasteWindowState.Loading;
+
+      // Otherwise render previous results, if any
       } else if (this.resultList.Size > 0) {
         this.windowState = HasteWindowState.Results;
+
+      // Render empty loading
       } else if (searching != null && searching.IsRunning) {
         this.windowState = HasteWindowState.None;
       } else {

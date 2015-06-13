@@ -8,6 +8,8 @@ namespace Haste {
 
   public class HasteSearch {
 
+    const int MIN_SORT_LEN = 1000;
+
     readonly IHasteItem[] emptyMatches = new IHasteItem[0];
 
     HasteIndex index;
@@ -38,7 +40,6 @@ namespace Haste {
       bucket.CopyTo(bucketArr);
 
       var matches = new List<IHasteItem>();
-
       foreach (var m in bucketArr) {
         if (m.PathLower.Length < queryLen) {
           continue;
@@ -62,7 +63,7 @@ namespace Haste {
         }
 
         matches.Add(m);
-        yield return null;
+        // yield return null;
       }
 
       promise.Resolve(matches.ToArray());
@@ -74,9 +75,10 @@ namespace Haste {
       for (var i = 0; i < matches.Length; i++) {
         m = matches[i];
         results[i] = m.GetResult(HasteScoring.Score(m, queryLower, queryLen), queryLower);
-        yield return null;
+        // yield return null;
       }
       promise.Resolve(results);
+      yield break;
     }
 
     void Swap(IHasteResult[] A, int i, int j) {
@@ -108,8 +110,10 @@ namespace Haste {
 
     // In-place async quicksort
     IEnumerator Sort(IHasteResult[] A, int lo, int hi) {
-      if (A.Length < 3000) {
-        Array.Sort(A);
+      var len = (hi - lo) + 1;
+
+      if (len < MIN_SORT_LEN) {
+        Array.Sort(A, lo, len);
         yield break;
       }
 

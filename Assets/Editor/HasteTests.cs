@@ -11,6 +11,22 @@ namespace Haste {
   internal class HasteTests {
 
     [Test]
+    public void TestResultComparer2() {
+      string queryLower = "ce";
+      int queryLen = queryLower.Length;
+
+      var aItem = new HasteItem("GameObject/Create Empty", 0, "");
+      var aScore = HasteScoring.Score(aItem, queryLower, queryLen);
+      var a = new HasteResult(aItem, aScore, queryLower);
+
+      var bItem = new HasteItem("Component/Effects/Halo", 0, "");
+      var bScore = HasteScoring.Score(bItem, queryLower, queryLen);
+      var b = new HasteResult(bItem, bScore, queryLower);
+
+      Assert.That(a.CompareTo(b), Is.EqualTo(-1));
+    }
+
+    [Test]
     public void TestResultComparer() {
       string queryLower = "rop";
       int queryLen = queryLower.Length;
