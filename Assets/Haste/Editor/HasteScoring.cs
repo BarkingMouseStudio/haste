@@ -15,17 +15,12 @@ namespace Haste {
       #endif
 
       var boundariesLower = HasteStringUtils.GetBoundaries(item.Path);
-
-      // The number of characters in the query that hit a boundary
       var boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, boundariesLower);
-
-      // boundary matches : query length
       var boundaryQueryRatio = boundaryMatchCount / (float)queryLen;
-      score += 40.0f * boundaryQueryRatio;
-
-      // boundary matches : boundaries length
       var boundaryLen = boundariesLower.Length;
       var boundaryUtilization = boundaryLen > 0 ? boundaryMatchCount / (float)boundaryLen : 0.0f;
+
+      score += 40.0f * boundaryQueryRatio;
       score += 40.0f * boundaryUtilization;
 
       // Favor exact name matches

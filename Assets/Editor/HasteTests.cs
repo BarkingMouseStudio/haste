@@ -175,6 +175,7 @@ namespace Haste {
       Assert.That(HasteStringUtils.GetBoundaries("LlamaCrab"), Is.EqualTo("lc"));
       Assert.That(HasteStringUtils.GetBoundaries("ShrewRail/Wren"), Is.EqualTo("srw"));
       Assert.That(HasteStringUtils.GetBoundaries("Unity Test Tools/Platform Runner/Run on platform"), Is.EqualTo("uttprrop"));
+      Assert.That(HasteStringUtils.GetBoundaries("Component/Physics 2D/Polygon Collider 2D"), Is.EqualTo("cp2dpc2d"));
     }
 
     void TestBoldLabel(string path, string query, string expected) {
