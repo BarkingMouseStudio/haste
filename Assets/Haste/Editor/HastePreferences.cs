@@ -137,6 +137,19 @@ namespace Haste {
         }
 
         EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        bool selectEnabled = EditorGUILayout.Toggle("Enable Select", HasteSettings.SelectEnabled);
+        if (selectEnabled != HasteSettings.SelectEnabled) {
+          HasteSettings.SelectEnabled = selectEnabled;
+        }
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox("By default, Haste will temporarily select results as you scroll through them. Disabling this feature fixes the expansion of the hierarchy and project folders during search.", MessageType.Info);
+
+        EditorGUILayout.Space();
       }
     }
   }

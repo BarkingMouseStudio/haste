@@ -254,43 +254,43 @@ namespace Haste {
 
     void OnHome(Event e) {
       this.resultList.OnHome();
-      if (this.resultList.HighlightedItem != null) {
-        Selection.objects = new []{this.resultList.HighlightedItem.Object};
+      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
       }
     }
 
     void OnEnd(Event e) {
       this.resultList.OnEnd();
-      if (this.resultList.HighlightedItem != null) {
-        Selection.objects = new []{this.resultList.HighlightedItem.Object};
+      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
       }
     }
 
     void OnPageUp(Event e) {
       this.resultList.OnPageUp();
-      if (this.resultList.HighlightedItem != null) {
-        Selection.objects = new []{this.resultList.HighlightedItem.Object};
+      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
       }
     }
 
     void OnPageDown(Event e) {
       this.resultList.OnPageDown();
-      if (this.resultList.HighlightedItem != null) {
-        Selection.objects = new []{this.resultList.HighlightedItem.Object};
+      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
       }
     }
 
     void OnUpArrow(Event e) {
       this.resultList.OnUpArrow();
-      if (this.resultList.HighlightedItem != null) {
-        Selection.objects = new []{this.resultList.HighlightedItem.Object};
+      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
       }
     }
 
     void OnDownArrow(Event e) {
       this.resultList.OnDownArrow();
-      if (this.resultList.HighlightedItem != null) {
-        Selection.objects = new []{this.resultList.HighlightedItem.Object};
+      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
+        Selection.activeObject = this.resultList.HighlightedItem.Object;
       }
     }
 
