@@ -17,6 +17,8 @@ namespace Haste {
     string Path { get; }
     string PathLower { get; }
 
+    string BoundariesLower { get; }
+
     string Name { get; }
     string NameLower { get; }
 

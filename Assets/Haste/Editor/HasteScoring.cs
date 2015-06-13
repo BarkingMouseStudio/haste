@@ -14,10 +14,9 @@ namespace Haste {
       }
       #endif
 
-      var boundariesLower = HasteStringUtils.GetBoundaries(item.Path);
-      var boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, boundariesLower);
+      var boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, item.BoundariesLower);
       var boundaryQueryRatio = boundaryMatchCount / (float)queryLen;
-      var boundaryLen = boundariesLower.Length;
+      var boundaryLen = item.BoundariesLower.Length;
       var boundaryUtilization = boundaryLen > 0 ? boundaryMatchCount / (float)boundaryLen : 0.0f;
 
       score += 40.0f * boundaryQueryRatio;

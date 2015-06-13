@@ -15,6 +15,7 @@ namespace Haste {
     public string Name { get; private set; }
     public string NameLower { get; private set; }
     public string ExtensionLower { get; private set; }
+    public string BoundariesLower { get; private set; }
 
     protected AbstractHasteItem(string path, int id, string source) {
       Id = id;
@@ -22,6 +23,8 @@ namespace Haste {
 
       Path = path;
       PathLower = path.ToLowerInvariant();
+
+      BoundariesLower = HasteStringUtils.GetBoundaries(Path);
 
       Bitset = HasteStringUtils.LetterBitsetFromString(PathLower);
 

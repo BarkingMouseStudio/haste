@@ -23,25 +23,10 @@ namespace Haste {
       return index.TryGetValue(key, out bucket);
     }
 
-    string GetIndexBoundaries(IHasteItem m) {
-      var indexBoundaries = new StringBuilder(4);
-      if (m.NameLower.Length > 0) {
-        indexBoundaries.Append(m.NameLower[0]);
-      }
-      if (m.PathLower.Length > 0) {
-        indexBoundaries.Append(m.PathLower[0]);
-      }
-      if (m.ExtensionLower.Length > 0) {
-        indexBoundaries.Append('.');
-        indexBoundaries.Append(m.ExtensionLower[0]);
-      }
-      return indexBoundaries.ToString();
-    }
-
     public void Add(IHasteItem item) {
       Count++;
 
-      foreach (char c in GetIndexBoundaries(item)) {
+      foreach (char c in item.BoundariesLower) {
         if (!index.ContainsKey(c)) {
           index.Add(c, new HashSet<IHasteItem>());
         }
@@ -54,7 +39,7 @@ namespace Haste {
     public void Remove(IHasteItem item) {
       Count--;
 
-      foreach (char c in GetIndexBoundaries(item)) {
+      foreach (char c in item.BoundariesLower) {
         if (index.ContainsKey(c)) {
           index[c].Remove(item);
           Size--;
