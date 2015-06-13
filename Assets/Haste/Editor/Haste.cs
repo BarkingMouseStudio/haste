@@ -208,7 +208,7 @@ namespace Haste {
     // }
 
     // The maximum time an iteration can spend working per update
-    const float MAX_ITER_TIME = 16.0f / 1000.0f; // 1ms
+    public const float MAX_ITER_TIME = 4.0f / 1000.0f;
 
     // Main update loop in Haste—run's scheduler
     static void Update() {
