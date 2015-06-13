@@ -13,8 +13,7 @@ namespace Haste {
     Intro,
     Empty,
     Results,
-    Loading,
-    None
+    Loading
   }
 
   [Serializable]
@@ -236,7 +235,7 @@ namespace Haste {
         return;
       }
 
-      Selection.objects = new []{item.Object};
+      item.Select();
     }
 
     void OnItemAction(IHasteResult item) {
@@ -254,43 +253,43 @@ namespace Haste {
 
     void OnHome(Event e) {
       this.resultList.OnHome();
-      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Select();
       }
     }
 
     void OnEnd(Event e) {
       this.resultList.OnEnd();
-      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Select();
       }
     }
 
     void OnPageUp(Event e) {
       this.resultList.OnPageUp();
-      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Select();
       }
     }
 
     void OnPageDown(Event e) {
       this.resultList.OnPageDown();
-      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Select();
       }
     }
 
     void OnUpArrow(Event e) {
       this.resultList.OnUpArrow();
-      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Select();
       }
     }
 
     void OnDownArrow(Event e) {
       this.resultList.OnDownArrow();
-      if (this.resultList.HighlightedItem != null && HasteSettings.SelectEnabled) {
-        Selection.activeObject = this.resultList.HighlightedItem.Object;
+      if (this.resultList.HighlightedItem != null) {
+        this.resultList.HighlightedItem.Select();
       }
     }
 
@@ -423,22 +422,18 @@ namespace Haste {
 
       var duration = TimeSpan.FromSeconds(EditorApplication.timeSinceStartup - searchStart);
 
-      if (this.queryInput.Query == "") {
-        this.windowState = HasteWindowState.Intro;
-
-      // If it's been long enough, render "loading"
-      } else if (searching != null && searching.IsRunning && duration.TotalSeconds > loadingDelay) {
-        this.windowState = HasteWindowState.Loading;
-
-      // Otherwise render previous results, if any
-      } else if (this.resultList.Size > 0) {
-        this.windowState = HasteWindowState.Results;
-
-      // Render empty loading
-      } else if (searching != null && searching.IsRunning) {
-        this.windowState = HasteWindowState.None;
-      } else {
-        this.windowState = HasteWindowState.Empty;
+      var isSearching = searching != null && searching.IsRunning;
+      var isLong = duration.TotalSeconds >= loadingDelay;
+      if (!isSearching || isLong) { // Don't update right away if we're searching
+        if (this.queryInput.Query == "") {
+          this.windowState = HasteWindowState.Intro;
+        } else if (isSearching) {
+          this.windowState = HasteWindowState.Loading;
+        } else if (this.resultList.Size > 0) {
+          this.windowState = HasteWindowState.Results;
+        } else {
+          this.windowState = HasteWindowState.Empty;
+        }
       }
 
       switch (this.windowState) {

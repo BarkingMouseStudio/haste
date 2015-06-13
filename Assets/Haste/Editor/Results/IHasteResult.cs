@@ -19,5 +19,6 @@ namespace Haste {
     float Height(bool isHighlighted);
     bool Validate();
     void Action();
+    void Select();
   }
 }

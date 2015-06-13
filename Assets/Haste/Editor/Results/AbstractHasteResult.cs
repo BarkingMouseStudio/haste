@@ -96,6 +96,12 @@ namespace Haste {
       }
     }
 
+    public virtual void Select() {
+      if (HasteSettings.SelectEnabled) {
+        Selection.activeObject = Object;
+      }
+    }
+
     public virtual void Action() {
       // NO-OP
     }
