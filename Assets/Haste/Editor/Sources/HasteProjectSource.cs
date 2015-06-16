@@ -22,6 +22,10 @@ namespace Haste {
     }
 
     static string GetRelativeAssetPath(string assetPath) {
+      // Normalize Windows paths
+      if (Path.DirectorySeparatorChar == '\\') {
+        assetPath = assetPath.Replace('\\', '/');
+      }
       return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + "/"));
     }
 
