@@ -256,20 +256,12 @@ namespace Haste {
           Watchers.RestartSource(HasteLayoutSource.NAME);
         }
 
-        // Don't need to waste cycles
-        if (Scheduler.IsRunning) {
-          var start = EditorApplication.timeSinceStartup;
-          var duration = 0.0;
+        var start = EditorApplication.timeSinceStartup;
+        var duration = 0.0;
 
-          while (duration < MAX_ITER_TIME) {
-            if (!Scheduler.IsRunning) {
-              break;
-            }
-
-            Scheduler.Tick();
-
-            duration += (EditorApplication.timeSinceStartup - start);
-          }
+        while (duration < MAX_ITER_TIME && Scheduler.IsRunning) {
+          Scheduler.Tick();
+          duration += (EditorApplication.timeSinceStartup - start);
         }
       }
     }
