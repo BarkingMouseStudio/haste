@@ -21,12 +21,13 @@ namespace Haste {
       return false;
     }
 
-    static string GetRelativeAssetPath(string assetPath) {
+    static string GetNormalizedAssetPath(string assetPath) {
+      var path = Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + Path.DirectorySeparatorChar));
       // Normalize Windows paths
-      if (Path.DirectorySeparatorChar == '\\') {
-        assetPath = assetPath.Replace('\\', '/');
+      if (Path.DirectorySeparatorChar != '/') {
+        path = path.Replace(Path.DirectorySeparatorChar, '/');
       }
-      return Path.Combine("Assets", assetPath.TrimStart(Application.dataPath + "/"));
+      return path;
     }
 
     public IEnumerator<IHasteItem> GetEnumerator() {
@@ -53,7 +54,7 @@ namespace Haste {
             continue; // Ignore hidden files
           }
 
-          string path = GetRelativeAssetPath(filePath);
+          string path = GetNormalizedAssetPath(filePath);
           if (IsIgnored(ignorePaths, path)) {
             continue;
           }
@@ -66,7 +67,7 @@ namespace Haste {
             continue; // Ignore hidden files
           }
 
-          string path = GetRelativeAssetPath(directoryPath);
+          string path = GetNormalizedAssetPath(directoryPath);
           if (IsIgnored(ignorePaths, path)) {
             continue;
           }
