@@ -89,7 +89,7 @@ namespace Haste {
       AddStyle(new Style() { name = "Intro", other = EditorStyles.largeLabel, fixedHeight = 64, fontSize = 32, alignment = TextAnchor.MiddleCenter });
       AddStyle(new Style() { name = "Count", other = EditorStyles.largeLabel, fontSize = 14, alignment = TextAnchor.MiddleRight });
       AddStyle(new Style() { name = "Empty", other = EditorStyles.largeLabel, fixedHeight = 24, fontSize = 16, alignment = TextAnchor.MiddleCenter });
-      AddStyle(new Style() { name = "Tip", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, wordWrap = true, textColor = HastePalette.Current.SecondaryColor });
+      AddStyle(new Style() { name = "Tip", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, richText = true, wordWrap = true, textColor = HastePalette.Current.SecondaryColor });
       AddStyle(new Style() { name = "Usage", other = EditorStyles.label, wordWrap = true });
       AddStyle(new Style() { name = "Upgrade", other = EditorStyles.label, alignment = TextAnchor.MiddleCenter, fontSize = 14, textColor = HastePalette.Current.HighlightColor });
       AddStyle(new Style() { name = "Indexing", other = EditorStyles.largeLabel, alignment = TextAnchor.MiddleCenter, fontSize = 14, textColor = HastePalette.Current.SecondaryColor });
