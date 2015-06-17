@@ -5,27 +5,20 @@ using System.Linq;
 namespace Haste {
 
   #if IS_HASTE_PRO
-  public static class HasteRecommendations {
+  public class HasteRecommendations {
 
-    // Intelligent "recent":
-    // - Each time an item is selected, at its uid to a List<Tuple<int, float>> with a score of 1.
-    // - If the item already exists, increment by 1
-    // - Each time Haste is opened, decay the scores of all items by some amount.
-    // - Limit list to 100 MRU or so.
-    // Needs persistence
+    const float THRESHOLD = 0.25f;
+    const float DECAY = 0.9f;
 
-    static readonly float THRESHOLD = 0.1f;
-    static readonly float DECAY = 0.9f;
+    List<IHasteItem> items;
+    Dictionary<int, float> scores;
 
-    static List<IHasteItem> items;
-    static Dictionary<int, float> scores;
-
-    static HasteRecommendations() {
+    public HasteRecommendations() {
       items = new List<IHasteItem>();
       scores = new Dictionary<int, float>();
     }
 
-    public static float GetScore(IHasteItem item) {
+    public float GetScore(IHasteItem item) {
       float score;
       if (scores.TryGetValue(item.GetHashCode(), out score)) {
         return score;
@@ -34,7 +27,7 @@ namespace Haste {
       }
     }
 
-    public static IHasteResult[] Get() {
+    public IHasteResult[] Get() {
       return items.OrderByDescending(item => {
         return scores[item.GetHashCode()];
       }).Select(item => {
@@ -42,7 +35,7 @@ namespace Haste {
       }).ToArray();
     }
 
-    public static void Update(IHasteResult result) {
+    public void Update(IHasteResult result) {
       // Get original score
       var item = result.Item;
       var hashCode = item.GetHashCode();

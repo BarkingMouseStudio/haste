@@ -39,6 +39,10 @@ namespace Haste {
     public static HasteSearch Search;
     public static HasteWatcherManager Watchers;
 
+    #if IS_HASTE_PRO
+      public static HasteRecommendations Recommendations;
+    #endif
+
     public static HasteUpdateChecker UpdateChecker;
 
     internal static event HasteWindowAction WindowAction;
@@ -85,6 +89,10 @@ namespace Haste {
       Index = new HasteIndex();
       Search = new HasteSearch(Index);
       Watchers = new HasteWatcherManager();
+
+      #if IS_HASTE_PRO
+        Recommendations = new HasteRecommendations();
+      #endif
 
       Watchers.AddSource(HasteProjectSource.NAME,
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME), true),
