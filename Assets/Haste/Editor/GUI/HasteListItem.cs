@@ -40,9 +40,9 @@ namespace Haste {
         }
 
         #if DEBUG
-        EditorGUILayout.LabelField(Mathf.FloorToInt(result.Score).ToString(),
+        EditorGUILayout.LabelField(result.Score.ToString("f2"),
           isHighlighted ? HasteStyles.GetStyle("HighlightedScore") : HasteStyles.GetStyle("Score"),
-          GUILayout.Width(32), GUILayout.ExpandHeight(true));
+          GUILayout.Width(64), GUILayout.ExpandHeight(true));
         #endif
 
         result.Draw(isHighlighted);

@@ -187,6 +187,8 @@ namespace Haste {
       Selection.objects = prevSelection;
 
       if (this.resultList.HighlightedItem != null) {
+        HasteRecommendations.Update(this.resultList.HighlightedItem);
+
         // Register action to occur after the window is closed and destroyed.
         // This is done to prevent errors when modifying window layouts and
         // other Unity state while Haste is open.
@@ -239,6 +241,8 @@ namespace Haste {
     }
 
     void OnItemAction(IHasteResult item) {
+      HasteRecommendations.Update(item);
+
       Selection.objects = prevSelection;
       Haste.WindowAction += item.Action;
       Close();
@@ -339,36 +343,38 @@ namespace Haste {
     }
 
     void Update() {
+      bool needsRepaint = false;
       bool isSearching = searching != null && searching.IsRunning;
 
       // Repaint window if search state changes
       if (isSearching) {
-        Repaint();
         wasSearching = isSearching;
+        needsRepaint = true;
       } else if (wasSearching) {
-        Repaint();
         wasSearching = false;
+        needsRepaint = true;
       }
 
-      // Watch for changes to the window position while we're able to move it
-      if (this.windowState == HasteWindowState.Intro || this.windowState == HasteWindowState.Empty) {
-        // If we're actively indexing, repaint.
-        if (Haste.IsIndexing) {
-          Repaint();
-          wasIndexing = Haste.IsIndexing;
+      // Repaint window if indexing state changes
+      if (Haste.IsIndexing) {
+        wasIndexing = Haste.IsIndexing;
+        needsRepaint = true;
 
-          // If our indexing state has changed, repaint.
-        } else if (wasIndexing) {
-          Repaint();
-          wasIndexing = false;
+      } else if (wasIndexing) {
+        wasIndexing = false;
+        needsRepaint = true;
+      }
 
-        // If our update status has changed, repaint.
-        } else if (Haste.UpdateChecker.Status != prevUpdateStatus) {
-          Repaint();
-        }
+      // Repaint window if update state changes
+      if (Haste.UpdateChecker.Status != prevUpdateStatus) {
+        needsRepaint = true;
       }
 
       prevUpdateStatus = Haste.UpdateChecker.Status;
+
+      if (needsRepaint) {
+        Repaint();
+      }
 
       // this.queryInput.UpdateHandler(this);
 
@@ -413,20 +419,24 @@ namespace Haste {
       }
     }
 
-    void OnGUI() {
-      OnEvent(Event.current);
-
-      this.queryInput.OnGUI();
-
-      HasteSelection.Draw(selectionPosition, nextSelection);
-
+    void UpdateWindowState() {
       var duration = TimeSpan.FromSeconds(EditorApplication.timeSinceStartup - searchStart);
-
       var isSearching = searching != null && searching.IsRunning;
       var isLong = duration.TotalSeconds >= loadingDelay;
+
       if (!isSearching || isLong) { // Don't update right away if we're searching
         if (this.queryInput.Query == "") {
-          this.windowState = HasteWindowState.Intro;
+          if (this.resultList.IsEmpty) {
+            var recommendations = HasteRecommendations.Get();
+            if (recommendations.Length > 0) {
+              this.resultList.SetItems(recommendations);
+              this.windowState = HasteWindowState.Results;
+            } else {
+              this.windowState = HasteWindowState.Intro;
+            }
+          } else {
+            this.windowState = HasteWindowState.Results;
+          }
         } else if (isSearching) {
           this.windowState = HasteWindowState.Loading;
         } else if (this.resultList.Size > 0) {
@@ -435,6 +445,16 @@ namespace Haste {
           this.windowState = HasteWindowState.Empty;
         }
       }
+    }
+
+    void OnGUI() {
+      OnEvent(Event.current);
+
+      this.queryInput.OnGUI();
+
+      HasteSelection.Draw(selectionPosition, nextSelection);
+
+      UpdateWindowState();
 
       switch (this.windowState) {
         case HasteWindowState.Intro:

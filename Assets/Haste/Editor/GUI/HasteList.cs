@@ -39,6 +39,12 @@ namespace Haste {
       }
     }
 
+    public bool IsEmpty {
+      get {
+        return items.Length == 0;
+      }
+    }
+
     public void SetItems(IHasteResult[] items) {
       this.items = items;
 
