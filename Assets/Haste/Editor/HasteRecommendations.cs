@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Haste {
 
+  #if IS_HASTE_PRO
   public static class HasteRecommendations {
 
     // Intelligent "recent":
@@ -78,4 +79,5 @@ namespace Haste {
       scores[hashCode] = 1.0f;
     }
   }
+  #endif
 }

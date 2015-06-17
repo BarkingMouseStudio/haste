@@ -187,7 +187,9 @@ namespace Haste {
       Selection.objects = prevSelection;
 
       if (this.resultList.HighlightedItem != null) {
-        HasteRecommendations.Update(this.resultList.HighlightedItem);
+        #if IS_HASTE_PRO
+          HasteRecommendations.Update(this.resultList.HighlightedItem);
+        #endif
 
         // Register action to occur after the window is closed and destroyed.
         // This is done to prevent errors when modifying window layouts and
@@ -241,7 +243,9 @@ namespace Haste {
     }
 
     void OnItemAction(IHasteResult item) {
-      HasteRecommendations.Update(item);
+      #if IS_HASTE_PRO
+        HasteRecommendations.Update(item);
+      #endif
 
       Selection.objects = prevSelection;
       Haste.WindowAction += item.Action;
@@ -426,17 +430,21 @@ namespace Haste {
 
       if (!isSearching || isLong) { // Don't update right away if we're searching
         if (this.queryInput.Query == "") {
-          if (this.resultList.IsEmpty) {
-            var recommendations = HasteRecommendations.Get();
-            if (recommendations.Length > 0) {
-              this.resultList.SetItems(recommendations);
-              this.windowState = HasteWindowState.Results;
+          #if IS_HASTE_PRO
+            if (this.resultList.IsEmpty) {
+              var recommendations = HasteRecommendations.Get();
+              if (recommendations.Length > 0) {
+                this.resultList.SetItems(recommendations);
+                this.windowState = HasteWindowState.Results;
+              } else {
+                this.windowState = HasteWindowState.Intro;
+              }
             } else {
-              this.windowState = HasteWindowState.Intro;
+              this.windowState = HasteWindowState.Results;
             }
-          } else {
-            this.windowState = HasteWindowState.Results;
-          }
+          #else
+            this.windowState = HasteWindowState.Intro;
+          #endif
         } else if (isSearching) {
           this.windowState = HasteWindowState.Loading;
         } else if (this.resultList.Size > 0) {
