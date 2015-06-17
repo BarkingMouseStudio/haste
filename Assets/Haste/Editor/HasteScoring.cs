@@ -9,7 +9,7 @@ namespace Haste {
 
       #if !IS_HASTE_PRO
       // Force menu item matches to the bottom in free version
-      if (item.Source == HasteMenuItemSource.NAME) {
+      if (item.Source == HasteMenuItemSource.NAME || item.Source == HasteLayoutSource.NAME) {
         return score;
       }
       #endif
