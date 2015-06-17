@@ -12,7 +12,7 @@ namespace Haste {
 
     public void OnGUI() {
       EditorGUILayout.Space();
-      EditorGUILayout.LabelField("Loading...", HasteStyles.GetStyle("Empty"));
+      EditorGUILayout.LabelField("Searching...", HasteStyles.GetStyle("Empty"));
     }
   }
 }
