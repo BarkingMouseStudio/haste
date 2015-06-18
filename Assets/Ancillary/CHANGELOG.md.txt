@@ -1,7 +1,6 @@
 v1.8.0
 ===
 
-- PRO Recommended results and weighted recently-selected results.
 - Faster async search! Now slow queries won't stall the whole editor.
 - Added new setting for disabling "soft" selection while scrolling through results.
   - This is the best solution to prevent expanding the hierarchy and project views.
