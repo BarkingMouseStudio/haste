@@ -7,7 +7,7 @@ namespace Haste {
   #if IS_HASTE_PRO
   public class HasteRecommendations {
 
-    const float THRESHOLD = 0.25f;
+    const float THRESHOLD = 0.1f;
     const float DECAY = 0.9f;
 
     List<IHasteItem> items;
