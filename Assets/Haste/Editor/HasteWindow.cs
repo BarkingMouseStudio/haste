@@ -188,7 +188,7 @@ namespace Haste {
 
       if (this.resultList.HighlightedItem != null) {
         if (Haste.Recommendations != null) {
-          Haste.Recommendations.Update(this.resultList.HighlightedItem);
+          Haste.Recommendations.Add(this.resultList.HighlightedItem.Item);
         }
 
         // Register action to occur after the window is closed and destroyed.
@@ -244,7 +244,7 @@ namespace Haste {
 
     void OnItemAction(IHasteResult item) {
       if (Haste.Recommendations != null) {
-        Haste.Recommendations.Update(item);
+        Haste.Recommendations.Add(item.Item);
       }
 
       Selection.objects = prevSelection;

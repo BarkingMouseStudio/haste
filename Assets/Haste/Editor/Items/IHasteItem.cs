@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Haste {
 
@@ -9,10 +10,11 @@ namespace Haste {
   // Contains everything necessary to index
   // the item and filter them. Features required
   // during sorting are omitted.
-  public interface IHasteItem : IEquatable<IHasteItem> {
+  public interface IHasteItem : IEquatable<IHasteItem>, ISerializable {
 
     int Id { get; }
     string Source { get; }
+    float UserScore { get; set; }
 
     string Path { get; }
     string PathLower { get; }

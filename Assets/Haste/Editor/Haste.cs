@@ -91,7 +91,7 @@ namespace Haste {
       Watchers = new HasteWatcherManager();
 
       #if IS_HASTE_PRO
-        Recommendations = new HasteRecommendations();
+        Recommendations = HasteRecommendations.Load();
       #endif
 
       Watchers.AddSource(HasteProjectSource.NAME,

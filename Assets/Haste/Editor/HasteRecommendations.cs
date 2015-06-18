@@ -1,75 +1,91 @@
+using UnityEditor;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Haste {
 
   #if IS_HASTE_PRO
+  [Serializable]
   public class HasteRecommendations {
 
-    const float THRESHOLD = 0.25f;
+    const float THRESHOLD = 0.1f;
     const float DECAY = 0.9f;
 
-    List<IHasteItem> items;
-    Dictionary<int, float> scores;
+    // [SerializeField]
+    List<SerializableHasteItem> recent;
 
     public HasteRecommendations() {
-      items = new List<IHasteItem>();
-      scores = new Dictionary<int, float>();
+      recent = new List<SerializableHasteItem>();
     }
 
-    public float GetScore(IHasteItem item) {
-      float score;
-      if (scores.TryGetValue(item.GetHashCode(), out score)) {
-        return score;
-      } else {
-        return 0.0f;
+    public static string RecommendationsPath {
+      get {
+        return HasteResources.InternalResourcesPath + "Recommendations";
       }
+    }
+
+    public static HasteRecommendations Load() {
+      if (File.Exists(RecommendationsPath)) {
+        var bf = new BinaryFormatter();
+        var file = File.Open(RecommendationsPath, FileMode.Open);
+        var rec = (HasteRecommendations)bf.Deserialize(file);
+        file.Close();
+        return rec;
+      } else {
+        var rec = new HasteRecommendations();
+        rec.Save();
+        return rec;
+      }
+    }
+
+    public void Save() {
+      var bf = new BinaryFormatter();
+      var file = File.Create(RecommendationsPath);
+      bf.Serialize(file, this);
+      file.Close();
     }
 
     public IHasteResult[] Get() {
-      return items.OrderByDescending(item => {
-        return scores[item.GetHashCode()];
+      return recent.OrderByDescending(item => {
+        return item.Item.UserScore;
       }).Select(item => {
-        return item.GetResult(scores[item.GetHashCode()], "");
+        return item.Item.GetResult(item.Item.UserScore, "");
       }).ToArray();
     }
 
-    public void Update(IHasteResult result) {
-      // Get original score
-      var item = result.Item;
-      var hashCode = item.GetHashCode();
-
-      float score;
-      if (scores.TryGetValue(hashCode, out score) && score == 1.0f) {
-        return; // Do nothing
+    public void Add(IHasteItem newItem) {
+      var newSerializableItem = new SerializableHasteItem(newItem);
+      var isContained = recent.Contains(newSerializableItem);
+      if (isContained && newItem.UserScore == 1.0f) {
+        return; // Do nothing if we just selected this item
       }
 
-      var keys = scores.Keys.ToList();
-      var dead = new List<int>();
-
-      // Decay items and accumulate dead items
-      foreach (var key in keys) {
-        scores[key] *= DECAY;
-        if (scores[key] < THRESHOLD) {
-          dead.Add(key);
+      if (!isContained) {
+        // Decay recent
+        var dead = new List<SerializableHasteItem>();
+        foreach (var item in recent) {
+          item.Item.UserScore *= DECAY;
+          if (item.Item.UserScore < THRESHOLD) {
+            dead.Add(item);
+          }
         }
+
+        // Remove dead recent
+        recent.RemoveAll((item) => dead.Contains(item));
+
+        // Add new item
+        recent.Add(newSerializableItem);
       }
 
-      // Remove dead items
-      foreach (var key in dead) {
-        scores.Remove(key);
-      }
+      // Set item score
+      newItem.UserScore = 1.0f;
 
-      items.RemoveAll((it) => {
-        return dead.Contains(it.GetHashCode());
-      });
-
-      // Increment item scores
-      if (!scores.ContainsKey(hashCode)) {
-        items.Add(item);
-      }
-      scores[hashCode] = 1.0f;
+      Save();
     }
   }
   #endif
