@@ -18,8 +18,7 @@ namespace Haste {
     #else
       public static string[] Tips = new string[]{
         "<b>Haste Pro</b> allows you to search Unity's menu items.",
-        "<b>Haste Pro</b> can recommend search results by usage.",
-        "<b>Haste Pro</b> bundles its source code.",
+        "<b>Haste Pro</b> comes bundled with its own source code.",
 
         "Use fuzzy matching to search without typing the full name.",
         "Access Haste's preferences in the Unity preferences window.",
