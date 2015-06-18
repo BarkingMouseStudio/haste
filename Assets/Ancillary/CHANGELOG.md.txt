@@ -1,4 +1,4 @@
-v1.8.0
+v1.8.2
 ===
 
 - Faster async search! Now slow queries won't stall the whole editor.
