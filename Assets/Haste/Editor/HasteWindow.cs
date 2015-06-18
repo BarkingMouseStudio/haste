@@ -187,9 +187,9 @@ namespace Haste {
       Selection.objects = prevSelection;
 
       if (this.resultList.HighlightedItem != null) {
-        if (Haste.Recommendations != null) {
-          Haste.Recommendations.Update(this.resultList.HighlightedItem);
-        }
+        #if IS_HASTE_PRO
+          Haste.Recommendations.Add(this.resultList.HighlightedItem.Item);
+        #endif
 
         // Register action to occur after the window is closed and destroyed.
         // This is done to prevent errors when modifying window layouts and
@@ -243,9 +243,9 @@ namespace Haste {
     }
 
     void OnItemAction(IHasteResult item) {
-      if (Haste.Recommendations != null) {
-        Haste.Recommendations.Update(item);
-      }
+      #if IS_HASTE_PRO
+        Haste.Recommendations.Add(item.Item);
+      #endif
 
       Selection.objects = prevSelection;
       Haste.WindowAction += item.Action;
@@ -430,7 +430,7 @@ namespace Haste {
 
       if (!isSearching || isLong) { // Don't update right away if we're searching
         if (this.queryInput.Query == "") {
-          if (Haste.Recommendations != null) {
+          #if IS_HASTE_PRO
             if (this.resultList.IsEmpty) {
               var recommendations = Haste.Recommendations.Get();
               if (recommendations.Length > 0) {
@@ -442,9 +442,9 @@ namespace Haste {
             } else {
               this.windowState = HasteWindowState.Results;
             }
-          } else {
+          #else
             this.windowState = HasteWindowState.Intro;
-          }
+          #endif
         } else if (isSearching) {
           this.windowState = HasteWindowState.Loading;
         } else if (this.resultList.Size > 0) {

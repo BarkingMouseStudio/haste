@@ -9,6 +9,7 @@ namespace Haste {
 
     public string Path { get; private set; }
     public string PathLower { get; private set; }
+    public float UserScore { get; set; }
     public int Id { get; private set; }
     public string Source { get; private set; }
     public int Bitset { get; private set; }

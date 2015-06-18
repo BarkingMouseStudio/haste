@@ -13,6 +13,7 @@ namespace Haste {
 
     int Id { get; }
     string Source { get; }
+    float UserScore { get; set; }
 
     string Path { get; }
     string PathLower { get; }

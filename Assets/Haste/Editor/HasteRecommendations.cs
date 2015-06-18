@@ -10,66 +10,45 @@ namespace Haste {
     const float THRESHOLD = 0.1f;
     const float DECAY = 0.9f;
 
-    List<IHasteItem> items;
-    Dictionary<int, float> scores;
+    List<IHasteItem> recent;
 
     public HasteRecommendations() {
-      items = new List<IHasteItem>();
-      scores = new Dictionary<int, float>();
-    }
-
-    public float GetScore(IHasteItem item) {
-      float score;
-      if (scores.TryGetValue(item.GetHashCode(), out score)) {
-        return score;
-      } else {
-        return 0.0f;
-      }
+      recent = new List<IHasteItem>();
     }
 
     public IHasteResult[] Get() {
-      return items.OrderByDescending(item => {
-        return scores[item.GetHashCode()];
+      return recent.OrderByDescending(item => {
+        return item.UserScore;
       }).Select(item => {
-        return item.GetResult(scores[item.GetHashCode()], "");
+        return item.GetResult(item.UserScore, "");
       }).ToArray();
     }
 
-    public void Update(IHasteResult result) {
-      // Get original score
-      var item = result.Item;
-      var hashCode = item.GetHashCode();
-
-      float score;
-      if (scores.TryGetValue(hashCode, out score) && score == 1.0f) {
-        return; // Do nothing
+    public void Add(IHasteItem newItem) {
+      var isContained = recent.Contains(newItem);
+      if (isContained && newItem.UserScore == 1.0f) {
+        return; // Do nothing if we just selected this item
       }
 
-      var keys = scores.Keys.ToList();
-      var dead = new List<int>();
-
-      // Decay items and accumulate dead items
-      foreach (var key in keys) {
-        scores[key] *= DECAY;
-        if (scores[key] < THRESHOLD) {
-          dead.Add(key);
+      // Decay recent
+      var dead = new List<IHasteItem>();
+      foreach (var item in recent) {
+        item.UserScore *= DECAY;
+        if (item.UserScore < THRESHOLD) {
+          dead.Add(item);
         }
       }
 
-      // Remove dead items
-      foreach (var key in dead) {
-        scores.Remove(key);
+      // Remove dead recent
+      recent.RemoveAll((item) => dead.Contains(item));
+
+      if (!isContained) {
+        // Add new item
+        recent.Add(newItem);
       }
 
-      items.RemoveAll((it) => {
-        return dead.Contains(it.GetHashCode());
-      });
-
-      // Increment item scores
-      if (!scores.ContainsKey(hashCode)) {
-        items.Add(item);
-      }
-      scores[hashCode] = 1.0f;
+      // Set item score
+      newItem.UserScore = 1.0f;
     }
   }
   #endif

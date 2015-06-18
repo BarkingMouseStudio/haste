@@ -15,9 +15,9 @@ namespace Haste {
       #endif
 
       var userScore = 1.0f;
-      if (Haste.Recommendations != null) {
-        userScore += Haste.Recommendations.GetScore(item);
-      }
+      #if IS_HASTE_PRO
+        userScore += item.UserScore;
+      #endif
 
       var boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, item.BoundariesLower);
       var boundaryQueryRatio = boundaryMatchCount / (float)queryLen;
