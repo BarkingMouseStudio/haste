@@ -430,21 +430,21 @@ namespace Haste {
 
       if (!isSearching || isLong) { // Don't update right away if we're searching
         if (this.queryInput.Query == "") {
-          // #if IS_HASTE_PRO
-          //   if (this.resultList.IsEmpty) {
-          //     var recommendations = Haste.Recommendations.Get();
-          //     if (recommendations.Length > 0) {
-          //       this.resultList.SetItems(recommendations);
-          //       this.windowState = HasteWindowState.Results;
-          //     } else {
-          //       this.windowState = HasteWindowState.Intro;
-          //     }
-          //   } else {
-          //     this.windowState = HasteWindowState.Results;
-          //   }
-          // #else
-          this.windowState = HasteWindowState.Intro;
-          // #endif
+          #if IS_HASTE_PRO
+            if (this.resultList.IsEmpty) {
+              var recommendations = Haste.Recommendations.Get();
+              if (recommendations.Length > 0) {
+                this.resultList.SetItems(recommendations);
+                this.windowState = HasteWindowState.Results;
+              } else {
+                this.windowState = HasteWindowState.Intro;
+              }
+            } else {
+              this.windowState = HasteWindowState.Results;
+            }
+          #else
+            this.windowState = HasteWindowState.Intro;
+          #endif
         } else if (isSearching) {
           this.windowState = HasteWindowState.Loading;
         } else if (this.resultList.Size > 0) {
