@@ -45,7 +45,7 @@ namespace UnityTest
 
         public void OnEnable()
         {
-            title = "Unit Tests";
+			titleContent = new GUIContent("Unit Tests");
             s_Instance = this;
             m_Settings = ProjectSettingsBase.Load<UnitTestsRunnerSettings>();
             m_FilterSettings = new TestFilterSettings("UnityTest.UnitTestView");
