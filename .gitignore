@@ -2,6 +2,8 @@
 packages/
 Library/
 Temp/
+Assets/UnityTestTools/Examples/
+Assets/UnityTestTools/Examples.meta
 Assets/ShaderForge/
 Assets/ShaderForge.meta
 *.csproj
