@@ -44,6 +44,8 @@ namespace Haste {
     }
 
     public void Save() {
+      // EditorUtility.SetDirty(targetPlayer);
+
       var bf = new BinaryFormatter();
       var file = File.Create(RecommendationsPath);
       bf.Serialize(file, this);
@@ -65,20 +67,20 @@ namespace Haste {
         return; // Do nothing if we just selected this item
       }
 
-      if (!isContained) {
-        // Decay recent
-        var dead = new List<SerializableHasteItem>();
-        foreach (var item in recent) {
-          item.Item.UserScore *= DECAY;
-          if (item.Item.UserScore < THRESHOLD) {
-            dead.Add(item);
-          }
+      // Decay recent
+      var dead = new List<SerializableHasteItem>();
+      foreach (var item in recent) {
+        item.Item.UserScore *= DECAY;
+        if (item.Item.UserScore < THRESHOLD) {
+          dead.Add(item);
         }
+      }
 
-        // Remove dead recent
-        recent.RemoveAll((item) => dead.Contains(item));
+      // Remove dead recent
+      recent.RemoveAll((item) => dead.Contains(item));
 
-        // Add new item
+      // Add new item
+      if (!isContained) {
         recent.Add(newSerializableItem);
       }
 

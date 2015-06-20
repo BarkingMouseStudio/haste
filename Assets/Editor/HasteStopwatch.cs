@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace Haste {
 
+  #if DEBUG
   internal class HasteStopwatch : IDisposable {
 
     Stopwatch timer;
@@ -19,4 +20,5 @@ namespace Haste {
       HasteDebug.Info("{0}: {1} ({2}ms)", name, timer.ElapsedTicks, timer.ElapsedMilliseconds);
     }
   }
+  #endif
 }
