@@ -73,6 +73,8 @@ namespace Haste {
     }
 
     public static void Open() {
+      EditorApplication.LockReloadAssemblies();
+
       if (HasteWindow.Instance == null) {
         HasteWindow.Init();
       } else {
@@ -256,6 +258,9 @@ namespace Haste {
       if (searching != null && searching.IsRunning) {
         searching.Stop();
       }
+
+      EditorApplication.UnlockReloadAssemblies();
+
       base.Close();
     }
 
