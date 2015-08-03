@@ -49,7 +49,7 @@ namespace Haste {
       this.items = items;
 
       HighlightedIndex = 0;
-      ResetScroll();
+      scrollPosition = Vector2.zero;
 
       if (HighlightedItem != null) {
         HighlightedItem.Select();
@@ -76,10 +76,6 @@ namespace Haste {
 
     void OnEnable() {
       base.hideFlags = HideFlags.HideAndDontSave;
-    }
-
-    void ResetScroll() {
-      scrollPosition = Vector2.zero;
     }
 
     void ScrollTo(int to) {
