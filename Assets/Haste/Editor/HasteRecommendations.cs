@@ -37,6 +37,7 @@ namespace Haste {
     public IHasteResult[] Get() {
       return recent.OrderByDescending(item => item.userScore)
         .Select(item => item.GetResult(item.userScore, ""))
+        .Where(result => result.Object != null)
         .ToArray();
     }
 
