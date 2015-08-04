@@ -17,7 +17,7 @@ namespace UnityTest
         [SerializeField] private List<string> m_FoldMarkers = new List<string>();
         [SerializeField] private List<UnitTestRendererLine> m_SelectedLines = new List<UnitTestRendererLine>();
         UnitTestRendererLine m_TestLines;
-        
+
         private TestFilterSettings m_FilterSettings;
 
         #region runner steering vars
@@ -45,7 +45,7 @@ namespace UnityTest
 
         public void OnEnable()
         {
-			titleContent = new GUIContent("Unit Tests");
+			title = "Unit Tests";
             s_Instance = this;
             m_Settings = ProjectSettingsBase.Load<UnitTestsRunnerSettings>();
             m_FilterSettings = new TestFilterSettings("UnityTest.UnitTestView");
@@ -55,7 +55,7 @@ namespace UnityTest
 		[DidReloadScripts]
 		public static void OnDidReloadScripts()
 		{
-			if (s_Instance != null && s_Instance.m_Settings.runOnRecompilation) 
+			if (s_Instance != null && s_Instance.m_Settings.runOnRecompilation)
 			{
 				s_Instance.RunTests();
 				s_Instance.Repaint();
@@ -66,7 +66,7 @@ namespace UnityTest
         {
             s_Instance = null;
         }
-        
+
         public void OnGUI()
         {
             EditorGUILayout.BeginVertical();
@@ -90,7 +90,7 @@ namespace UnityTest
             }
 
             GUILayout.FlexibleSpace();
-            
+
             m_FilterSettings.OnGUI ();
 
             EditorGUILayout.EndHorizontal();
@@ -176,19 +176,19 @@ namespace UnityTest
 
 			var resultTextSize = Styles.info.CalcSize(new GUIContent(text));
 			EditorGUILayout.SelectableLabel(text, Styles.info,
-			                                GUILayout.ExpandHeight(true), 
-			                                GUILayout.ExpandWidth(true), 
-			                                GUILayout.MinWidth(resultTextSize.x), 
+			                                GUILayout.ExpandHeight(true),
+			                                GUILayout.ExpandWidth(true),
+			                                GUILayout.MinWidth(resultTextSize.x),
 			                                GUILayout.MinHeight(resultTextSize.y));
-			
+
 			EditorGUILayout.EndScrollView();
         }
-        
+
         private void ToggleRunOnRecompilation()
         {
             m_Settings.runOnRecompilation = !m_Settings.runOnRecompilation;
         }
-        
+
         public void AddItemsToMenu (GenericMenu menu)
         {
             menu.AddItem(m_GUIRunOnRecompile, m_Settings.runOnRecompilation, ToggleRunOnRecompilation);
@@ -218,7 +218,7 @@ namespace UnityTest
             TestLine.GetUnitTestResult = FindTestResult;
 
             m_ResultList = new List<UnitTestResult>(newResults);
-            
+
             m_FilterSettings.UpdateCounters(m_ResultList.Cast<ITestResult>());
 
             Repaint();

@@ -32,7 +32,7 @@ namespace UnityTest
 
         public AssertionExplorerWindow()
         {
-            titleContent = new GUIContent("Assertion Explorer");
+            title = "Assertion Explorer";
         }
 
         public void OnDidOpenScene()

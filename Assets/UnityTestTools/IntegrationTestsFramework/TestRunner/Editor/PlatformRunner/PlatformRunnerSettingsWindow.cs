@@ -27,7 +27,7 @@ namespace UnityTest.IntegrationTests
 
         public PlatformRunnerSettingsWindow()
         {
-			titleContent = new GUIContent("Platform runner");
+			title = "Platform runner";
             m_BuildTarget = PlatformRunner.defaultBuildTarget;
             position.Set(position.xMin, position.yMin, 200, position.height);
             m_SceneList = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.unity", SearchOption.AllDirectories).ToList();
