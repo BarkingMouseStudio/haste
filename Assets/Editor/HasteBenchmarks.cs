@@ -34,7 +34,7 @@ namespace Haste {
     [MenuItem("Window/Haste/Benchmarks")]
     public static void Open() {
       var window = EditorWindow.GetWindow<HasteBenchmarks>();
-      window.titleContent = new GUIContent("Haste Benchmarks");
+      window.title = "Haste Benchmarks";
     }
 
     void OnGUI() {

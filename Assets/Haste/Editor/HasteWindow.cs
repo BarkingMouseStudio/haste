@@ -106,7 +106,7 @@ namespace Haste {
     }
 
     void InitializeInstance() {
-      this.titleContent = new GUIContent("Haste");
+      this.title = "Haste";
       this.position = GetPosition();
 
       // Disable the resize handle on the window
@@ -131,7 +131,9 @@ namespace Haste {
       this.resultList.ItemClick += OnItemSelect;
       this.resultList.ItemDoubleClick += OnItemAction;
 
+      #if IS_HASTE_PRO
       RestoreRecommendations();
+      #endif
 
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
@@ -418,6 +420,7 @@ namespace Haste {
       }
     }
 
+    #if IS_HASTE_PRO
     void RestoreRecommendations() {
       var recommendations = Haste.Recommendations.Get();
       if (recommendations.Length > 0) {
@@ -426,6 +429,7 @@ namespace Haste {
         this.resultList.ClearItems();
       }
     }
+    #endif
 
     void OnQueryChanged(string query) {
       if (searching != null) {
@@ -433,7 +437,9 @@ namespace Haste {
       }
 
       if (query == "") {
+        #if IS_HASTE_PRO
         RestoreRecommendations();
+        #endif
       } else {
         searching = Haste.Scheduler.Start(BeginSearch(query));
       }
