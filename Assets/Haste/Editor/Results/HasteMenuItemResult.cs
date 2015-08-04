@@ -9,7 +9,7 @@ namespace Haste {
 
   public class HasteMenuItemResult : AbstractHasteResult {
 
-    public HasteMenuItemResult(IHasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
+    public HasteMenuItemResult(HasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
 
     public override void Draw(bool isHighlighted) {
       #if IS_HASTE_PRO
@@ -18,7 +18,7 @@ namespace Haste {
         using (new HasteVertical()) {
           var nameStyle = isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledName") :
             HasteStyles.GetStyle("DisabledName");
-          EditorGUILayout.LabelField(Item.Path, nameStyle);
+          EditorGUILayout.LabelField(Item.path, nameStyle);
 
           var descriptionStyle = isHighlighted ? HasteStyles.GetStyle("HighlightedDisabledDescription") :
             HasteStyles.GetStyle("DisabledDescription");
@@ -30,14 +30,14 @@ namespace Haste {
     public override void Action() {
       #if IS_HASTE_PRO
         HasteActions.MenuItemFallbackDelegate menuItemFallback;
-        if (HasteActions.MenuItemFallbacks.TryGetValue(Item.Path, out menuItemFallback)) {
+        if (HasteActions.MenuItemFallbacks.TryGetValue(Item.path, out menuItemFallback)) {
           try {
             menuItemFallback();
           } catch (NotImplementedException ex) {
             Debug.LogException(ex);
           }
         } else {
-          EditorApplication.ExecuteMenuItem(Item.Path);
+          EditorApplication.ExecuteMenuItem(Item.path);
         }
       #else
         UnityEditorInternal.AssetStore.Open(Haste.ASSET_STORE_PRO_URL);

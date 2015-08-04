@@ -10,11 +10,11 @@ using System.IO;
 
 namespace Haste {
 
-  public class HasteMenuItemSource : IEnumerable<IHasteItem> {
+  public class HasteMenuItemSource : IEnumerable<HasteItem> {
 
     static readonly Regex modifiers = new Regex(@"\s+[\%\#\&\_]+\w$", RegexOptions.IgnoreCase);
 
-    public static readonly string NAME = "Menu Item";
+    public const string NAME = "Menu Item";
 
     static string[] MacPlatformMenuItems = new string[]{
       "Unity/About Unity...",
@@ -56,7 +56,7 @@ namespace Haste {
       return true;
     }
 
-    public IEnumerator<IHasteItem> GetEnumerator() {
+    public IEnumerator<HasteItem> GetEnumerator() {
       // Menu items found in the currently loaded assembly
       foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies()) {
         // Exclude built-in assemblies for performance reasons
@@ -82,7 +82,7 @@ namespace Haste {
 
           string path = modifiers.Replace(menuItem.menuItem, ""); // Remove keyboard modifiers
           if (IsValid(path)) {
-            yield return new HasteMenuItem(path, menuItem.priority, NAME);
+            yield return new HasteItem(path, menuItem.priority, NAME);
           }
         }
       }
@@ -92,14 +92,14 @@ namespace Haste {
         case RuntimePlatform.OSXEditor:
           foreach (string path in MacPlatformMenuItems) {
             if (IsValid(path)) {
-              yield return new HasteMenuItem(path, 0, NAME);
+              yield return new HasteItem(path, 0, NAME);
             }
           }
           break;
         case RuntimePlatform.WindowsEditor:
           foreach (string path in WindowsPlatformMenuItems) {
             if (IsValid(path)) {
-              yield return new HasteMenuItem(path, 0, NAME);
+              yield return new HasteItem(path, 0, NAME);
             }
           }
           break;
@@ -109,13 +109,13 @@ namespace Haste {
       if (HasteVersionUtils.IsUnity5) {
         foreach (string path in new MenuItemsUnity5()) {
           if (IsValid(path)) {
-            yield return new HasteMenuItem(path, 0, NAME);
+            yield return new HasteItem(path, 0, NAME);
           }
         }
       } else {
         foreach (string path in new MenuItemsUnity4()) {
           if (IsValid(path)) {
-            yield return new HasteMenuItem(path, 0, NAME);
+            yield return new HasteItem(path, 0, NAME);
           }
         }
       }
@@ -123,7 +123,7 @@ namespace Haste {
       // Custom menu items that don't really exist in Unity
       foreach (string path in CustomMenuItems) {
         if (IsValid(path)) {
-          yield return new HasteMenuItem(path, 0, NAME);
+          yield return new HasteItem(path, 0, NAME);
         }
       }
     }

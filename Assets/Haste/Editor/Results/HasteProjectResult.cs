@@ -12,7 +12,7 @@ namespace Haste {
     public override UnityEngine.Object Object {
       get {
         if (unityObject == null) {
-          unityObject = AssetDatabase.LoadMainAssetAtPath(Item.Path);
+          unityObject = AssetDatabase.LoadMainAssetAtPath(Item.path);
         }
         return unityObject;
       }
@@ -26,10 +26,10 @@ namespace Haste {
       get { return Object.name; }
     }
 
-    public HasteProjectResult(IHasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
+    public HasteProjectResult(HasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
 
     public override void Draw(bool isHighlighted) {
-      var icon = AssetDatabase.GetCachedIcon(Item.Path);
+      var icon = AssetDatabase.GetCachedIcon(Item.path);
       if (icon != null) {
         var rect = EditorGUILayout.GetControlRect(GUILayout.Width(32), GUILayout.Height(32));
         rect.y += 5; // center the icon vertically

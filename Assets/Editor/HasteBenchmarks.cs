@@ -84,7 +84,7 @@ namespace Haste {
 
     // ~ 13 => 22
     public void BenchHasteIndexAdd() {
-      List<IHasteItem> items = new List<IHasteItem>();
+      List<HasteItem> items = new List<HasteItem>();
       int i = 0;
       for (; i < 10000; i++) {
         items.Add(new HasteItem(HastePerf.GetRandomPath(), 0, HasteHierarchySource.NAME));
@@ -217,7 +217,7 @@ namespace Haste {
       var testItem = new HasteItem("Apples/Bananas/Carrots", 0, "TEST");
       var testQuery = "abc";
 
-      var boundariesLower = HasteStringUtils.GetBoundaries(testItem.Path);
+      var boundariesLower = HasteStringUtils.GetBoundaries(testItem.path);
 
       Benchmark("LongestCommonSubsequenceLength", 100000, () => {
         HasteStringUtils.LongestCommonSubsequenceLength(testQuery, boundariesLower);

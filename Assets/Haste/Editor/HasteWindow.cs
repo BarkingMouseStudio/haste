@@ -131,6 +131,8 @@ namespace Haste {
       this.resultList.ItemClick += OnItemSelect;
       this.resultList.ItemDoubleClick += OnItemAction;
 
+      RestoreRecommendations();
+
       var tip = HasteTips.Random;
       this.intro = ScriptableObject.CreateInstance<HasteIntro>().Init(tip);
       this.empty = ScriptableObject.CreateInstance<HasteEmpty>().Init(tip);
@@ -416,18 +418,28 @@ namespace Haste {
       }
     }
 
+    void RestoreRecommendations() {
+      var recommendations = Haste.Recommendations.Get();
+      if (recommendations.Length > 0) {
+        this.resultList.SetItems(recommendations);
+      } else {
+        this.resultList.ClearItems();
+      }
+    }
+
     void OnQueryChanged(string query) {
       if (searching != null) {
         searching.Stop();
       }
 
       if (query == "") {
-        this.resultList.ClearItems();
+        RestoreRecommendations();
       } else {
         searching = Haste.Scheduler.Start(BeginSearch(query));
       }
     }
 
+    // This function should have no side effects except updating `windowState`
     void UpdateWindowState() {
       var duration = TimeSpan.FromSeconds(EditorApplication.timeSinceStartup - searchStart);
       var isSearching = searching != null && searching.IsRunning;
@@ -436,12 +448,10 @@ namespace Haste {
       if (!isSearching || isLong) { // Don't update right away if we're searching
         if (this.queryInput.Query == "") {
           #if IS_HASTE_PRO
-            var recommendations = Haste.Recommendations.Get();
-            if (recommendations.Length > 0) {
-              this.resultList.SetItems(recommendations);
-              this.windowState = HasteWindowState.Results;
-            } else {
+            if (this.resultList.IsEmpty) {
               this.windowState = HasteWindowState.Intro;
+            } else {
+              this.windowState = HasteWindowState.Results;
             }
           #else
             this.windowState = HasteWindowState.Intro;

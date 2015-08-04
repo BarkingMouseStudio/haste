@@ -10,68 +10,48 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace Haste {
 
   #if IS_HASTE_PRO
-  [Serializable]
-  public class HasteRecommendations {
+  public class HasteRecommendations : ScriptableObject {
 
     const float THRESHOLD = 0.1f;
     const float DECAY = 0.9f;
 
-    // [SerializeField]
-    List<SerializableHasteItem> recent;
-
-    public HasteRecommendations() {
-      recent = new List<SerializableHasteItem>();
-    }
+    [SerializeField]
+    List<HasteItem> recent = new List<HasteItem>();
 
     public static string RecommendationsPath {
       get {
-        return HasteResources.InternalResourcesPath + "Recommendations";
+        return HasteResources.InternalResourcesPath + "Recommendations.asset";
       }
     }
 
     public static HasteRecommendations Load() {
       if (File.Exists(RecommendationsPath)) {
-        var bf = new BinaryFormatter();
-        var file = File.Open(RecommendationsPath, FileMode.Open);
-        var rec = (HasteRecommendations)bf.Deserialize(file);
-        file.Close();
-        return rec;
+        return AssetDatabase.LoadAssetAtPath<HasteRecommendations>(RecommendationsPath);
       } else {
-        var rec = new HasteRecommendations();
-        rec.Save();
-        return rec;
+        var recommendations = ScriptableObject.CreateInstance<HasteRecommendations>();
+        AssetDatabase.CreateAsset(recommendations, RecommendationsPath);
+        return recommendations;
       }
     }
 
-    public void Save() {
-      // EditorUtility.SetDirty(targetPlayer);
-
-      var bf = new BinaryFormatter();
-      var file = File.Create(RecommendationsPath);
-      bf.Serialize(file, this);
-      file.Close();
-    }
-
     public IHasteResult[] Get() {
-      return recent.OrderByDescending(item => {
-        return item.Item.UserScore;
-      }).Select(item => {
-        return item.Item.GetResult(item.Item.UserScore, "");
-      }).ToArray();
+      return recent.OrderByDescending(item => item.userScore)
+        .Select(item => item.GetResult(item.userScore, ""))
+        .ToArray();
     }
 
-    public void Add(IHasteItem newItem) {
-      var newSerializableItem = new SerializableHasteItem(newItem);
-      var isContained = recent.Contains(newSerializableItem);
-      if (isContained && newItem.UserScore == 1.0f) {
+    public void Add(HasteItem newItem) {
+      var index = recent.IndexOf(newItem);
+      if (index != -1 && newItem.userScore == 1.0f) {
         return; // Do nothing if we just selected this item
       }
 
       // Decay recent
-      var dead = new List<SerializableHasteItem>();
+      var dead = new List<HasteItem>();
       foreach (var item in recent) {
-        item.Item.UserScore *= DECAY;
-        if (item.Item.UserScore < THRESHOLD) {
+        item.userScore *= DECAY;
+
+        if (item.userScore < THRESHOLD) {
           dead.Add(item);
         }
       }
@@ -79,15 +59,16 @@ namespace Haste {
       // Remove dead recent
       recent.RemoveAll((item) => dead.Contains(item));
 
-      // Add new item
-      if (!isContained) {
-        recent.Add(newSerializableItem);
+      if (index != -1) {
+        recent[index] = newItem; // Replace original instance
+      } else {
+        recent.Add(newItem); // Add new item
       }
 
       // Set item score
-      newItem.UserScore = 1.0f;
+      newItem.userScore = 1.0f;
 
-      Save();
+      EditorUtility.SetDirty(this);
     }
   }
   #endif

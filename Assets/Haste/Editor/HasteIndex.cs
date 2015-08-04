@@ -10,8 +10,8 @@ namespace Haste {
 
   public class HasteIndex {
 
-    readonly IDictionary<char, HashSet<IHasteItem>> index =
-      new Dictionary<char, HashSet<IHasteItem>>();
+    readonly IDictionary<char, HashSet<HasteItem>> index =
+      new Dictionary<char, HashSet<HasteItem>>();
 
     // The number of unique items in the index
     public int Count { get; protected set; }
@@ -19,16 +19,16 @@ namespace Haste {
     // The total size of the index including each indexed reference
     public int Size { get; protected set; }
 
-    public bool TryGetValue(char key, out HashSet<IHasteItem> bucket) {
+    public bool TryGetValue(char key, out HashSet<HasteItem> bucket) {
       return index.TryGetValue(key, out bucket);
     }
 
-    public void Add(IHasteItem item) {
+    public void Add(HasteItem item) {
       Count++;
 
-      foreach (char c in item.BoundariesLower) {
+      foreach (char c in item.boundariesLower) {
         if (!index.ContainsKey(c)) {
-          index.Add(c, new HashSet<IHasteItem>());
+          index.Add(c, new HashSet<HasteItem>());
         }
 
         index[c].Add(item);
@@ -36,10 +36,10 @@ namespace Haste {
       }
     }
 
-    public void Remove(IHasteItem item) {
+    public void Remove(HasteItem item) {
       Count--;
 
-      foreach (char c in item.BoundariesLower) {
+      foreach (char c in item.boundariesLower) {
         if (index.ContainsKey(c)) {
           index[c].Remove(item);
           Size--;

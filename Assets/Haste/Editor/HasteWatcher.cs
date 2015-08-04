@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace Haste {
 
-  public delegate void CreatedHandler(IHasteItem item);
-  public delegate void DeletedHandled(IHasteItem item);
+  public delegate void CreatedHandler(HasteItem item);
+  public delegate void DeletedHandled(HasteItem item);
 
   public interface IHasteWatcher {
     event CreatedHandler Created;
@@ -29,8 +29,8 @@ namespace Haste {
     public event CreatedHandler Created;
     public event DeletedHandled Deleted;
 
-    HashSet<IHasteItem> currentCollection = new HashSet<IHasteItem>();
-    HashSet<IHasteItem> nextCollection = new HashSet<IHasteItem>();
+    HashSet<HasteItem> currentCollection = new HashSet<HasteItem>();
+    HashSet<HasteItem> nextCollection = new HashSet<HasteItem>();
 
     readonly HasteSourceFactory factory;
     HasteSchedulerNode node;
@@ -61,7 +61,7 @@ namespace Haste {
     }
 
     public void Purge() {
-      foreach (IHasteItem item in currentCollection) {
+      foreach (HasteItem item in currentCollection) {
         OnDeleted(item);
       }
 
@@ -98,13 +98,13 @@ namespace Haste {
       node = Haste.Scheduler.Start(this);
     }
 
-    void OnCreated(IHasteItem item) {
+    void OnCreated(HasteItem item) {
       if (Created != null) {
         Created(item);
       }
     }
 
-    void OnDeleted(IHasteItem item) {
+    void OnDeleted(HasteItem item) {
       if (Deleted != null) {
         Deleted(item);
       }
@@ -113,7 +113,7 @@ namespace Haste {
     public IEnumerator GetEnumerator() {
       double startTime = EditorApplication.timeSinceStartup;
 
-      foreach (IHasteItem item in factory()) {
+      foreach (HasteItem item in factory()) {
         if (!currentCollection.Contains(item)) {
           OnCreated(item);
         }
@@ -129,7 +129,7 @@ namespace Haste {
       startTime = EditorApplication.timeSinceStartup;
 
       // Check for deleted paths
-      foreach (IHasteItem item in currentCollection) {
+      foreach (HasteItem item in currentCollection) {
         // If an item from our original collection is not found
         // in our new collection, it has been removed.
         if (!nextCollection.Contains(item)) {

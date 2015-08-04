@@ -3,7 +3,7 @@ using System;
 namespace Haste {
 
   public interface IHasteResult : IComparable<IHasteResult> {
-    IHasteItem Item { get; }
+    HasteItem Item { get; }
     float Score { get; }
 
     bool IsVisible { get; set; }

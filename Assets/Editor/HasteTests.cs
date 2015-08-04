@@ -163,8 +163,8 @@ namespace Haste {
     [Test]
     public void TestGetBoundaryIndices() {
       HasteItem item = new HasteItem("Unity Test Tools/Platform Runner/Run on platform.cs", 0, "");
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
-      string bolded = HasteStringUtils.BoldLabel(item.Path, boundaryIndices, "[", "]");
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.path);
+      string bolded = HasteStringUtils.BoldLabel(item.path, boundaryIndices, "[", "]");
       string expected = "[U]nity [T]est [T]ools/[P]latform [R]unner/[R]un [o]n [p]latform[.][c]s";
       Assert.That(bolded, Is.EqualTo(expected));
     }
@@ -182,10 +182,10 @@ namespace Haste {
       string queryLower = query.ToLowerInvariant();
 
       HasteItem item = new HasteItem(path, 0, "");
-      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.Path);
-      int[] indices = HasteStringUtils.GetWeightedSubsequence(item.PathLower, queryLower, boundaryIndices);
+      int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(item.path);
+      int[] indices = HasteStringUtils.GetWeightedSubsequence(item.pathLower, queryLower, boundaryIndices);
 
-      string bolded = HasteStringUtils.BoldLabel(item.Path, indices, "[", "]");
+      string bolded = HasteStringUtils.BoldLabel(item.path, indices, "[", "]");
       Assert.That(bolded, Is.EqualTo(expected));
     }
 

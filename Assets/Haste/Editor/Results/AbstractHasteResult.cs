@@ -6,7 +6,7 @@ namespace Haste {
 
   public abstract class AbstractHasteResult : IHasteResult {
 
-    public IHasteItem Item { get; private set; }
+    public HasteItem Item { get; private set; }
 
     public float Score { get; private set; }
 
@@ -38,8 +38,8 @@ namespace Haste {
     public int[] Indices {
       get {
         if (indices == null) {
-          int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.Path);
-          indices = HasteStringUtils.GetWeightedSubsequence(Item.PathLower, queryLower, boundaryIndices);
+          int[] boundaryIndices = HasteStringUtils.GetBoundaryIndices(Item.path);
+          indices = HasteStringUtils.GetWeightedSubsequence(Item.pathLower, queryLower, boundaryIndices);
         }
         return indices;
       }
@@ -47,7 +47,7 @@ namespace Haste {
 
     private readonly string queryLower;
 
-    protected AbstractHasteResult(IHasteItem item, float score, string queryLower) {
+    protected AbstractHasteResult(HasteItem item, float score, string queryLower) {
       this.queryLower = queryLower;
 
       Score = score;
@@ -64,12 +64,12 @@ namespace Haste {
       }
 
       // If scores are equal, order by path length
-      if (this.Item.Path.Length != b.Item.Path.Length) {
-        return this.Item.Path.Length < b.Item.Path.Length ? -1 : 1;
+      if (this.Item.path.Length != b.Item.path.Length) {
+        return this.Item.path.Length < b.Item.path.Length ? -1 : 1;
       }
 
       // If lengths are equal, order lexically
-      return EditorUtility.NaturalCompare(this.Item.PathLower, b.Item.PathLower);
+      return EditorUtility.NaturalCompare(this.Item.pathLower, b.Item.pathLower);
     }
 
     public virtual bool Validate() {
@@ -82,7 +82,7 @@ namespace Haste {
         var nameStyle = isHighlighted ?
           HasteStyles.GetStyle("HighlightedName") :
           HasteStyles.GetStyle("Name");
-        EditorGUILayout.LabelField(HasteStringUtils.GetFileName(Item.Path), nameStyle);
+        EditorGUILayout.LabelField(HasteStringUtils.GetFileName(Item.path), nameStyle);
 
         // Description
         var descriptionStyle = isHighlighted ?
@@ -91,7 +91,7 @@ namespace Haste {
         var boldStart = isHighlighted ?
           HasteStyles.HighlightedBoldStart :
           HasteStyles.BoldStart;
-        var description = HasteStringUtils.BoldLabel(Item.Path, Indices, boldStart, HasteStyles.BoldEnd);
+        var description = HasteStringUtils.BoldLabel(Item.path, Indices, boldStart, HasteStyles.BoldEnd);
         EditorGUILayout.LabelField(description, descriptionStyle);
       }
     }

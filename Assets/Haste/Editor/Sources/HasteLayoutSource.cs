@@ -12,9 +12,9 @@ using System.Diagnostics;
 
 namespace Haste {
 
-  public class HasteLayoutSource : IEnumerable<IHasteItem> {
+  public class HasteLayoutSource : IEnumerable<HasteItem> {
 
-    public static readonly string NAME = "Layout";
+    public const string NAME = "Layout";
 
     static Type windowLayout;
     static Type WindowLayout {
@@ -37,12 +37,12 @@ namespace Haste {
       }
     }
 
-    public IEnumerator<IHasteItem> GetEnumerator() {
+    public IEnumerator<HasteItem> GetEnumerator() {
       string layoutName;
       foreach (string layoutPath in Directory.GetFiles(LayoutPreferencesPath)) {
         if (!layoutPath.Contains("LastLayout")) {
           layoutName = Path.GetFileNameWithoutExtension(layoutPath);
-          yield return new HasteMenuItem(String.Format("Window/Layouts/{0}", layoutName), 0, NAME);
+          yield return new HasteItem(String.Format("Window/Layouts/{0}", layoutName), 0, NAME);
         }
       }
     }

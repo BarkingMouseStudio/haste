@@ -9,6 +9,6 @@ namespace Haste {
 
   public class HasteResult : AbstractHasteResult {
 
-    public HasteResult(IHasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
+    public HasteResult(HasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
   }
 }

@@ -24,13 +24,13 @@ namespace Haste {
       }
     }
 
-    private UnityEngine.Object object_;
+    private UnityEngine.Object obj;
     public override UnityEngine.Object Object {
       get {
-        if (object_ == null) {
-          object_ = EditorUtility.InstanceIDToObject(Item.Id);
+        if (obj == null) {
+          HasteHierarchySource.Scene.TryGetValue(this.Item.GetHashCode(), out obj); // EditorUtility.InstanceIDToObject(Item.id);
         }
-        return object_;
+        return obj;
       }
     }
 
@@ -47,7 +47,7 @@ namespace Haste {
       }
     }
 
-    public HasteHierarchyResult(IHasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
+    public HasteHierarchyResult(HasteItem item, float score, string queryLower) : base(item, score, queryLower) {}
 
     GUIStyle GetLabelStyle(GameObject go, bool isHighlighted) {
       if (go == null) {
@@ -100,24 +100,24 @@ namespace Haste {
         GUIStyle nameStyle = GetLabelStyle(go, isHighlighted || IsSelected);
         string name;
         if (childCount > 0) {
-          name = String.Format("{0} ({1})", HasteStringUtils.GetFileName(Item.Path), childCount);
+          name = String.Format("{0} ({1})", HasteStringUtils.GetFileName(Item.path), childCount);
         } else if (go == null) {
-          name = String.Format("{0} <destroyed>", HasteStringUtils.GetFileName(Item.Path), childCount);
+          name = String.Format("{0} <destroyed>", HasteStringUtils.GetFileName(Item.path), childCount);
         } else {
-          name = HasteStringUtils.GetFileName(Item.Path);
+          name = HasteStringUtils.GetFileName(Item.path);
         }
         EditorGUILayout.LabelField(name, nameStyle);
 
         // Description
         string boldStart = isHighlighted ? HasteStyles.HighlightedBoldStart : HasteStyles.BoldStart;
         GUIStyle descriptionStyle = isHighlighted ? HasteStyles.GetStyle("HighlightedDescription") : HasteStyles.GetStyle("Description");
-        EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.Path, Indices, boldStart, HasteStyles.BoldEnd), descriptionStyle);
+        EditorGUILayout.LabelField(HasteStringUtils.BoldLabel(Item.path, Indices, boldStart, HasteStyles.BoldEnd), descriptionStyle);
       }
     }
 
     public override void Action() {
       EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-      Selection.instanceIDs = new int[]{Item.Id};
+      Selection.instanceIDs = new int[]{Object.GetInstanceID()};
       EditorGUIUtility.PingObject(Selection.activeInstanceID);
     }
   }

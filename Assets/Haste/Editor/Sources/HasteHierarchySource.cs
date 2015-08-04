@@ -7,9 +7,13 @@ using System.Linq;
 
 namespace Haste {
 
-  public class HasteHierarchySource : IEnumerable<IHasteItem> {
+  public class HasteHierarchySource : IEnumerable<HasteItem> {
 
-    public static readonly string NAME = "Hierarchy";
+    public const string NAME = "Hierarchy";
+
+    // TODO: Put this somewhere better
+    public static IDictionary<int, UnityEngine.Object> Scene =
+      new Dictionary<int, UnityEngine.Object>();
 
     IDictionary<int, string> paths = new Dictionary<int, string>();
 
@@ -32,12 +36,14 @@ namespace Haste {
       return path;
     }
 
-    public IEnumerator<IHasteItem> GetEnumerator() {
+    public IEnumerator<HasteItem> GetEnumerator() {
       var allFlags = HideFlags.NotEditable |
         HideFlags.DontSave |
         HideFlags.HideAndDontSave |
         HideFlags.HideInInspector |
         HideFlags.HideInHierarchy;
+
+      Scene.Clear();
 
       foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>()) {
         if (go == null) {
@@ -55,9 +61,12 @@ namespace Haste {
           continue;
         }
 
-        string path = GetTransformPath(go.transform);
-        int id = go.GetInstanceID();
-        yield return new HasteHierarchyItem(path, id, NAME);
+        var path = GetTransformPath(go.transform);
+        var id = go.transform.GetSiblingIndex(); // go.GetInstanceID();
+        var item = new HasteItem(path, id, NAME);
+        var hash = item.GetHashCode();
+        Scene[hash] = go;
+        yield return item;
       }
     }
 

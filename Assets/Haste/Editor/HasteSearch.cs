@@ -11,7 +11,7 @@ namespace Haste {
 
     const int MIN_SORT_LEN = 1000;
 
-    readonly IHasteItem[] emptyMatches = new IHasteItem[0];
+    readonly HasteItem[] emptyMatches = new HasteItem[0];
 
     HasteIndex index;
 
@@ -20,14 +20,14 @@ namespace Haste {
     }
 
     // Perform fast subsequence filtering
-    IEnumerator Filter(string queryLower, int queryLen, IPromise<IHasteItem[]> promise) {
+    IEnumerator Filter(string queryLower, int queryLen, IPromise<HasteItem[]> promise) {
       if (queryLen == 0) {
         promise.Resolve(emptyMatches);
         yield break;
       }
 
       // Lookup bucket by first char
-      HashSet<IHasteItem> bucket;
+      HashSet<HasteItem> bucket;
       if (!index.TryGetValue(queryLower[0], out bucket)) {
         promise.Resolve(emptyMatches);
         yield break;
@@ -36,26 +36,26 @@ namespace Haste {
       int queryBits = HasteStringUtils.LetterBitsetFromString(queryLower);
 
       // We need to copy the hashset in case the indexer adds an item while we iterate
-      var bucketArr = new IHasteItem[bucket.Count];
+      var bucketArr = new HasteItem[bucket.Count];
       bucket.CopyTo(bucketArr);
 
       double startTime = EditorApplication.timeSinceStartup;
 
-      var matches = new List<IHasteItem>();
-      IHasteItem m;
+      var matches = new List<HasteItem>();
+      HasteItem m;
       for (var i = 0; i < bucketArr.Length; i++) {
         m = bucketArr[i];
 
-        if (m.PathLower.Length < queryLen) {
+        if (m.pathLower.Length < queryLen) {
           continue;
         }
 
-        var contains = HasteStringUtils.ContainsChars(m.Bitset, queryBits);
+        var contains = HasteStringUtils.ContainsChars(m.bitset, queryBits);
         if (!contains) {
           continue;
         }
 
-        var subsequence = HasteStringUtils.ContainsSubsequence(m.PathLower, queryLower, m.PathLower.Length, queryLen);
+        var subsequence = HasteStringUtils.ContainsSubsequence(m.pathLower, queryLower, m.pathLower.Length, queryLen);
         if (!subsequence) {
           continue;
         }
@@ -71,11 +71,11 @@ namespace Haste {
       promise.Resolve(matches.ToArray());
     }
 
-    IEnumerator Map(IHasteItem[] matches, string queryLower, int queryLen, IPromise<IHasteResult[]> promise) {
+    IEnumerator Map(HasteItem[] matches, string queryLower, int queryLen, IPromise<IHasteResult[]> promise) {
       double startTime = EditorApplication.timeSinceStartup;
 
       IHasteResult[] results = new IHasteResult[matches.Length];
-      IHasteItem m;
+      HasteItem m;
       for (var i = 0; i < matches.Length; i++) {
         m = matches[i];
         results[i] = m.GetResult(HasteScoring.Score(m, queryLower, queryLen), queryLower);
@@ -137,7 +137,7 @@ namespace Haste {
       string queryLower = query.ToLowerInvariant();
 
       // Grab a filtered subset from the index
-      var filterResult = new Promise<IHasteItem[]>();
+      var filterResult = new Promise<HasteItem[]>();
       // using (new HasteStopwatch("Filter")) {
       yield return Haste.Scheduler.Start(Filter(queryLower, queryLen, filterResult)); // Wait on filter
       // }
