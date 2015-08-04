@@ -26,7 +26,7 @@ namespace Haste {
 
     public static HasteRecommendations Load() {
       if (File.Exists(RecommendationsPath)) {
-        return AssetDatabase.LoadAssetAtPath<HasteRecommendations>(RecommendationsPath);
+        return (HasteRecommendations)AssetDatabase.LoadAssetAtPath(RecommendationsPath, typeof(HasteRecommendations));
       } else {
         var recommendations = ScriptableObject.CreateInstance<HasteRecommendations>();
         AssetDatabase.CreateAsset(recommendations, RecommendationsPath);
