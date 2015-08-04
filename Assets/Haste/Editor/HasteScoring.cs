@@ -16,7 +16,7 @@ namespace Haste {
 
       var userScore = 1.0f;
       #if IS_HASTE_PRO
-        userScore += item.userScore;
+        userScore += item.userScore / 10.0f;
       #endif
 
       var boundaryMatchCount = HasteStringUtils.LongestCommonSubsequenceLength(queryLower, item.boundariesLower);
