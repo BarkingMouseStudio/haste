@@ -1,3 +1,11 @@
+v1.8.5
+===
+
+- PRO Haste Recommendations! Haste now intelligently remembers your recent selections and displays them when you open Haste.
+  - This is a big change as it involves serializing parts of Haste's search index and changes how objects are represented in that index. Eventually, it will serialize the whole index so that the index can be persisted across compilation and reopening Unity.
+- Haste will now pause script compilation while it's open to prevent it from being destroyed.
+- Various tweaks and bug fixes.
+
 v1.8.2
 ===
 
