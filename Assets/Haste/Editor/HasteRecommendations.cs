@@ -37,7 +37,14 @@ namespace Haste {
     public IHasteResult[] Get() {
       return recent.OrderByDescending(item => item.userScore)
         .Select(item => item.GetResult(item.userScore, ""))
-        .Where(result => result.Object != null)
+        .Where(result => {
+          if (result.Item.source == HasteHierarchySource.NAME ||
+              result.Item.source == HasteProjectSource.NAME) {
+            return result.Object != null;
+          } else {
+            return true;
+          }
+        })
         .ToArray();
     }
 
