@@ -194,7 +194,7 @@ namespace Haste {
 
       if (this.resultList.HighlightedItem != null) {
         #if IS_HASTE_PRO
-          Haste.Recommendations.Add(this.resultList.HighlightedItem.Item);
+          HasteRecommendations.Instance.Add(this.resultList.HighlightedItem.Item);
         #endif
 
         // Register action to occur after the window is closed and destroyed.
@@ -250,7 +250,7 @@ namespace Haste {
 
     void OnItemAction(IHasteResult item) {
       #if IS_HASTE_PRO
-        Haste.Recommendations.Add(item.Item);
+        HasteRecommendations.Instance.Add(item.Item);
       #endif
 
       Selection.objects = prevSelection;
@@ -422,7 +422,7 @@ namespace Haste {
 
     #if IS_HASTE_PRO
     void RestoreRecommendations() {
-      var recommendations = Haste.Recommendations.Get();
+      var recommendations = HasteRecommendations.Instance.Get();
       if (recommendations.Length > 0) {
         this.resultList.SetItems(recommendations);
       } else {

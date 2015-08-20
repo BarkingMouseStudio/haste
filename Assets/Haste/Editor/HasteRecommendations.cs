@@ -12,6 +12,16 @@ namespace Haste {
   #if IS_HASTE_PRO
   public class HasteRecommendations : ScriptableObject {
 
+    private static HasteRecommendations instance = null;
+    public static HasteRecommendations Instance {
+      get {
+        if (instance == null) {
+          instance = HasteRecommendations.Load();
+        }
+        return instance;
+      }
+    }
+
     const float THRESHOLD = 0.1f;
     const float DECAY = 0.9f;
 
@@ -25,13 +35,17 @@ namespace Haste {
     }
 
     public static HasteRecommendations Load() {
+      HasteRecommendations recommendations;
       if (File.Exists(RecommendationsPath)) {
-        return (HasteRecommendations)AssetDatabase.LoadAssetAtPath(RecommendationsPath, typeof(HasteRecommendations));
-      } else {
-        var recommendations = ScriptableObject.CreateInstance<HasteRecommendations>();
-        AssetDatabase.CreateAsset(recommendations, RecommendationsPath);
-        return recommendations;
+        recommendations = AssetDatabase.LoadAssetAtPath(RecommendationsPath, typeof(HasteRecommendations)) as HasteRecommendations;
+        if (recommendations != null) {
+          return recommendations;
+        }
       }
+
+      recommendations = ScriptableObject.CreateInstance<HasteRecommendations>();
+      AssetDatabase.CreateAsset(recommendations, RecommendationsPath);
+      return recommendations;
     }
 
     public IHasteResult[] Get() {

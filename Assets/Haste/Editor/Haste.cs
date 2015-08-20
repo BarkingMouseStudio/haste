@@ -15,7 +15,7 @@ namespace Haste {
   [InitializeOnLoad]
   public static class Haste {
 
-    public static readonly string VERSION = "1.8.5";
+    public static readonly string VERSION = "1.8.6";
 
     private static Version version;
     public static Version Version {
@@ -38,10 +38,6 @@ namespace Haste {
     public static HasteIndex Index;
     public static HasteSearch Search;
     public static HasteWatcherManager Watchers;
-
-    #if IS_HASTE_PRO
-      public static HasteRecommendations Recommendations;
-    #endif
 
     public static HasteUpdateChecker UpdateChecker;
 
@@ -88,10 +84,6 @@ namespace Haste {
       Index = new HasteIndex();
       Search = new HasteSearch(Index);
       Watchers = new HasteWatcherManager();
-
-      #if IS_HASTE_PRO
-        Recommendations = HasteRecommendations.Load();
-      #endif
 
       Watchers.AddSource(HasteProjectSource.NAME,
         EditorPrefs.GetBool(HasteSettings.GetPrefKey(HasteSetting.Source, HasteProjectSource.NAME), true),

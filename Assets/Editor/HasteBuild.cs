@@ -113,6 +113,10 @@ namespace Haste {
       // Copy internal resources folder
       var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
       FileUtil.ReplaceDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
+
+      // Delete recommendations asset
+      FileUtil.DeleteFileOrDirectory(Path.Combine(internalResourcesPath, "Recommendations.asset"));
+      FileUtil.DeleteFileOrDirectory(Path.Combine(internalResourcesPath, "Recommendations.asset.meta"));
     }
 
     public static void ExportHastePro(string rootPath, string[] source, string sourcePackagePath) {
@@ -132,6 +136,10 @@ namespace Haste {
       // Copy internal resources folder
       var internalResourcesPath = Path.Combine(editorPath, "InternalResources");
       FileUtil.ReplaceDirectory(INTERNAL_RESOURCES_PATH, internalResourcesPath);
+
+      // Delete recommendations asset
+      FileUtil.DeleteFileOrDirectory(Path.Combine(internalResourcesPath, "Recommendations.asset"));
+      FileUtil.DeleteFileOrDirectory(Path.Combine(internalResourcesPath, "Recommendations.asset.meta"));
 
       // Copy Haste Pro source
       var destSourcePackagePath = Path.Combine(topPath, "HasteProSource.unitypackage");
